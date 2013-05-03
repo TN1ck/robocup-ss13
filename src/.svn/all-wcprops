@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/28508/lehre/edu/ss13/pr_mpgi3_rc/trunk/src
+END
+parser.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/28504/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/parser.py
+END
+agent.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/28491/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/agent.py
+END
+parser2.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/28400/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/parser2.py
+END
+parser3.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/28501/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/parser3.py
+END
+sock.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/28397/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/sock.py
+END
+example_s_expr.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/28399/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/example_s_expr.txt
+END
+cmd.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/28491/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/cmd.py
+END
+world.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/28508/lehre/edu/ss13/pr_mpgi3_rc/trunk/src/world.py
+END

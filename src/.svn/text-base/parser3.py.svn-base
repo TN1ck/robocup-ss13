@@ -23,9 +23,9 @@ term_regex = r'''(?mx)
     \s*(?:
         (?P<brackl>\()|
         (?P<brackr>\))|
-        (?P<num>-?\d+\.\d+|-?\d+)\b|
+        (?P<num>\d+\.\d+|\d+)\b|
         (?P<sq>"[^"]*")|
-        (?P<s>[^ ()]+)\b
+        (?P<s>[^()]+)\b
        )'''
 
 def parse_sexp(sexp):
@@ -38,9 +38,7 @@ def parse_sexp(sexp):
         # .groupdict() returns a dictionary of all the named subgroups of the match, keyed by the subgroup name.
         # Example: re.match("(?P<id>\w*)","2222").groupdict() would return {'id':'2222'}
         # the rest of the logic is used for desturing, so that term becomes 'id' and value becomes '2222'
-	#print "########"
         term, value = [(t,v) for t,v in termtypes.groupdict().items() if v][0]
-	#print term+","+value
         if dbg: print("%-7s %-14s %-44r %-r" % (term, value, out, stack))
         # The term is the name of the rule that matched, just check which rule matched and do the appropriate actions
         # only brackl and brackr are interesting, here we are doing some stack-logic to get the nesting into our parsed datastructure
@@ -48,24 +46,21 @@ def parse_sexp(sexp):
             stack.append(out)
             out = []
         elif term == 'brackr':
-            #assert stack, "Trouble with nesting of brackets"
+            assert stack, "Trouble with nesting of brackets"
             tmpout, out = out, stack.pop(-1)
             out.append(tmpout)
         elif term == 'num':
-	    #print "num: "+value
             v = float(value)
             if v.is_integer(): v = int(v)
             out.append(v)
         elif term == 'sq':
-	    #rint "sq: "+value
             out.append(value[1:-1])
         elif term == 's':
-	    #print "s: "+value
             out.append(value)
         else:
             raise NotImplementedError("Error: %r" % (term, value))
-    #assert not stack, "Trouble with nesting of brackets"
-    return out
+    assert not stack, "Trouble with nesting of brackets"
+    return out[0]
 
 def print_sexp(exp):
     out = ''
