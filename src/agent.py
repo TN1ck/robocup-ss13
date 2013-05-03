@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sock
-import parser3
+import parser
 import world
 
 class Agent:
