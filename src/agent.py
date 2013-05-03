@@ -13,11 +13,17 @@ class Agent:
 	def start(self):
 		#start listening
 		self.socket.start()
+		x = 0
+		y = 0
 		while True:
-			world.w.process_vision_perceptors(parser3.parse_sexp(self.socket.recieve()))
+			msg = self.socket.recieve()
+			print msg
+			parsed = parser.parse_sexp(msg)
+			x -= 0.01
+			y += 0.01
+			self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
+            		world.w.process_vision_perceptors(parsed)
+			print world.w.flags[0].get_position().x
 
 if __name__ == "__main__":
 	Agent()
-
-
-
