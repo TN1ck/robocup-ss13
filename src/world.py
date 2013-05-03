@@ -1,7 +1,7 @@
 """Organizes world data structures and its calculation.
 Calculation may be transferred into a separate module in the future."""
 
-#import logging
+import logging
 
 class Vector:
     """A 2-dimensional vector defined by its cartesian x and y coordinates.
@@ -168,43 +168,57 @@ class World:
 
         return self.entity_from_identifier[identifier].get_position()
 
-
+    def get_parser_part(self, descriptor, parser_output):
+        """Get a parser output part specified by its descriptor (e.g. 'See')"""
+        
+        # parser_output is like [['See', ['G2R', ['pol', 16.48, -8.05, 0.83]], ...], ...]
+        for part in parser_output:
+            # part is like ['See', ['G2R', ['pol', 16.48, -8.05, 0.83]], ...]
+            if part[0] == descriptor:
+                temp = part[1:]
+                logging.debug('temp: ' + str(temp))
+                # temp is see without 'See'
+                # like [['G2R', ['pol', 16.48, -8.05, 0.83]], ...]
+                return temp
+        # if not found:
+        return None
+    
     def process_vision_perceptors(self, parser_output):
         """Processes the parser's output and updates the world info."""
-
+        
+        logging.debug('process_vision_perceptors BEGIN')
+        logging.debug('parser_output: ' + str(parser_output))
+        
         # vision only:
         #see = parser_output['See']
+        see = self.get_parser_part('See', parser_output)
         # split mobile and static entities:
         static_entity_keys = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
         static_entities = []
-        #mobile_entities = []
-
-        for x in parser_output:
-            if x[0] == 'See':
-                for y in x:
-                    if y[0] in static_entity_keys:
-                        key = y.pop(0)
-                        static_entities.append([key,y])
-            if x[0] == 'time':
-                print x[1][1] #['time', ['now', 39399.53]]
-                #do something
-            if x[0] == 'GS':
-                print x[2][1]
-                #do something
-
-
-    	print static_entities
-        	#for key, value in see.items():
-            	#	if key in static_entity_keys:
-                #		static_entities += [key, value]
-            	#	else:
-                #		mobile_entities += [key, value]
+        mobile_entities = []
+        logging.debug('see: ' + str(see))
+        
+        # give up if no see info available:
+        if not (see is None):
+            # see info is in teh houze. yay.
+            for block in see:
+                # block is like ['G2R', ['pol', 16.48, -8.05, 0.83]]
+                key = block[0]
+                value = block[1]
+                if key in static_entity_keys:
+                    static_entities.append([key, value])
+                else:
+                    mobile_entities.append([key, value])
+        
+            logging.debug('static_entities: ' + str(static_entities))
 
         # find out our position first:
         # we have static entity positions + vision
         # http://edu.dai-labor.de/wiki/index.php/MPGI3-RC-13S_Datenstrukturen#Eigene_Position_bestimmen
         # feel free to continue yourself :)
+        
+        logging.debug('process_vision_perceptors END')
 
 
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 w = World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
