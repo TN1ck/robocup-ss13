@@ -3,6 +3,7 @@
 import sock
 import parser
 import world
+import logging
 
 class Agent:
 	def __init__(self):
@@ -16,14 +17,14 @@ class Agent:
 		x = 0
 		y = 0
 		while True:
-			msg = self.socket.recieve()
-			print msg
+			msg = self.socket.receive()
+			logging.debug(msg)
 			parsed = parser.parse_sexp(msg)
 			x -= 0.01
 			y += 0.01
 			self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
-            		world.w.process_vision_perceptors(parsed)
-			print world.w.flags[0].get_position().x
+			world.w.process_vision_perceptors(parsed)
+			# logging.debug(world.w.flags[0].get_position().x)
 
 if __name__ == "__main__":
 	Agent()

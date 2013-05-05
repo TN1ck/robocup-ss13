@@ -99,7 +99,7 @@ class Ball(MobileEntity):
     """The ball.
     It has a mass and a radius (plus MobileEntity's attributes)."""
 
-    def __init__(self, radius, mass):   # radius: meter. mass: gramm
+    def __init__(self, radius, mass):   # radius: meter. mass: gram
         self.radius = radius
         self.mass = mass
         MobileEntity.__init__(self, 'B')
@@ -170,7 +170,7 @@ class World:
 
     def get_parser_part(self, descriptor, parser_output):
         """Get a parser output part specified by its descriptor (e.g. 'See')"""
-        
+
         # parser_output is like [['See', ['G2R', ['pol', 16.48, -8.05, 0.83]], ...], ...]
         for part in parser_output:
             # part is like ['See', ['G2R', ['pol', 16.48, -8.05, 0.83]], ...]
@@ -182,13 +182,13 @@ class World:
                 return temp
         # if not found:
         return None
-    
+
     def process_vision_perceptors(self, parser_output):
         """Processes the parser's output and updates the world info."""
-        
+
         logging.debug('process_vision_perceptors BEGIN')
         logging.debug('parser_output: ' + str(parser_output))
-        
+
         # vision only:
         #see = parser_output['See']
         see = self.get_parser_part('See', parser_output)
@@ -197,9 +197,9 @@ class World:
         static_entities = []
         mobile_entities = []
         logging.debug('see: ' + str(see))
-        
+
         # give up if no see info available:
-        if not (see is None):
+        if see:
             # see info is in teh houze. yay.
             for block in see:
                 # block is like ['G2R', ['pol', 16.48, -8.05, 0.83]]
@@ -209,14 +209,14 @@ class World:
                     static_entities.append([key, value])
                 else:
                     mobile_entities.append([key, value])
-        
+
             logging.debug('static_entities: ' + str(static_entities))
 
         # find out our position first:
         # we have static entity positions + vision
         # http://edu.dai-labor.de/wiki/index.php/MPGI3-RC-13S_Datenstrukturen#Eigene_Position_bestimmen
         # feel free to continue yourself :)
-        
+
         logging.debug('process_vision_perceptors END')
 
 
