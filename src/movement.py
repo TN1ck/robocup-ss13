@@ -17,16 +17,16 @@ class Movement:
     def run(self, *destination):
         self.stopped = False
         player = self.world.get_player
-        # Did we reach our destination?
+        # Destination parameters are present in parameters
+        if destination:
+            player.rot = acos(abs(player.pos.x - self.destination[0]) / abs(player.pos.y - self.destination[1]))
+            self.destination = destination
+                # Did we reach our destination?
         if ((self.destination and
             abs(self.destination[0] - player.pos.x) < self.divergence) and
            (abs(self.destination[1] - player.pos.y) < self.divergence)):
             self.stopped = True
             return
-        # Destination parameters are present
-        if destination:
-            player.rot = acos(abs(player.pos.x - self.destination[0]) / abs(player.pos.y - self.destination[1]))
-            self.destination = destination
         dy = sin(player.rot) * self.velocity
         dx = cos(player.rot) * self.velocity
         self.send("beam", player.pos.x + dx, player.pos.y + dy, player.rot)
