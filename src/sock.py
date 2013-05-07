@@ -29,8 +29,8 @@ class Sock:
         """Handles message length and stores potential beginning of next package, if 'accidentally' received."""
         data = self.sock.recv(4096)
         
-        data = _buffer + data # restore already received package chunk
-        _buffer = ''
+        data = self._buffer + data # restore already received package chunk
+        self._buffer = ''
         
         # first 4 bytes are message length
         msg_length = (ord(data[0]) << 24) + (ord(data[1]) << 16) + (ord(data[2]) << 8) + ord(data[3])
@@ -40,7 +40,7 @@ class Sock:
         
         # store potential beginning of a next package for further use
         if len(data) > msg_length:
-            _buffer = data[msg_length:]
+            self._buffer = data[msg_length:]
             data = data[:msg_length + 1]
         
         return data
