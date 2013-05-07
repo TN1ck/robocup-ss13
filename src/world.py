@@ -150,11 +150,11 @@ class World:
         self.players = [Player('P', 1)] * players_per_team + [Player('P', 2)] * players_per_team
         # 'P' + id would be a better identifier... but where to get the official player ids?
 
-        # add to identifier dictionary:
-        create_entity_dict()
-
         # set up ball:
         self.ball = Ball(0.04, 26)
+
+        # add to identifier dictionary:
+        self.create_entity_dict()
 
 
     def create_entity_dict(self):
