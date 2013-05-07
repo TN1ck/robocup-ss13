@@ -147,9 +147,11 @@ class World:
         ]
 
         # set up playerz:
-        # add to identifier dictionary:
         self.players = [Player('P', 1)] * players_per_team + [Player('P', 2)] * players_per_team
         # 'P' + id would be a better identifier... but where to get the official player ids?
+
+        # add to identifier dictionary:
+        create_entity_dict()
 
         # set up ball:
         self.ball = Ball(0.04, 26)
@@ -177,7 +179,6 @@ class World:
             # part is like ['See', ['G2R', ['pol', 16.48, -8.05, 0.83]], ...]
             if part[0] == descriptor:
                 temp = part[1:]
-                logging.debug('temp: ' + str(temp))
                 # temp is see without 'See'
                 # like [['G2R', ['pol', 16.48, -8.05, 0.83]], ...]
                 return temp
