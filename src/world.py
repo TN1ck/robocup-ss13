@@ -2,6 +2,7 @@
 Calculation may be transferred into a separate module in the future."""
 
 import logging
+import copy
 
 class Vector:
     """A 2-dimensional vector defined by its cartesian x and y coordinates.
@@ -29,10 +30,10 @@ class WorldEntity:
         self._identifier = identifier
 
     def get_position(self):
-        return self._position
+        return copy.deepcopy(self._position)
 
     def get_identifier(self):
-        return self._identifier
+        return copy.deepcopy(self._identifier)
 
 
 # STATIC ENTITIES #
@@ -161,7 +162,7 @@ class World:
         # collect all entities:
         entities = self.lines + self.flags + self.goal_poles
         for entity in entities:
-              self.entity_from_identifier += [entity.get_identifier(), entity]
+            self.entity_from_identifier += [entity.get_identifier(), entity]
 
     def get_entity_position(self, identifier):
         """Get an entity's position by its identifier."""
