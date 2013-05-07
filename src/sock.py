@@ -7,6 +7,8 @@ import struct
 class Sock:
     HOST = 'localhost'
     PORT = 3100
+    
+    _buffer = ''
 
     def __init__(self, server_ip, server_port, team_name, player_nr):
         self.server_ip = server_ip
@@ -24,12 +26,23 @@ class Sock:
         self.sock.send(struct.pack("!I", len(msg)) + msg)
 
     def receive(self):
-        """Needs revision. Maybe class-wide buffer to store potential head of next package..."""
+        """Handles message length and stores potential beginning of next package, if 'accidentally' received."""
         data = self.sock.recv(4096)
+        
+        data = _buffer + data # restore already received package chunk
+        _buffer = ''
+        
+        # first 4 bytes are message length
         msg_length = (ord(data[0]) << 24) + (ord(data[1]) << 16) + (ord(data[2]) << 8) + ord(data[3])
         data = data[4:]
         while len(data) < msg_length:
             data += self.sock.recv(4096)
+        
+        # store potential beginning of a next package for further use
+        if len(data) > msg_length:
+            _buffer = data[msg_length:]
+            data = data[:msg_length + 1]
+        
         return data
 
 
