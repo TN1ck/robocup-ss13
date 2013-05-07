@@ -24,8 +24,13 @@ class Sock:
         self.sock.send(struct.pack("!I", len(msg)) + msg)
 
     def receive(self):
+        """Needs revision. Maybe class-wide buffer to store potential head of next package..."""
         data = self.sock.recv(4096)
-        return data[4:]
+        msg_length = (ord(data[0]) << 24) + (ord(data[1]) << 16) + (ord(data[2]) << 8) + ord(data[3])
+        data = data[4:]
+        while len(data) < msg_length:
+            data += self.sock.recv(4096)
+        return data
 
         # length_no = self.sock.recv(4)
         # length = struct.unpack("!I", length_no)
