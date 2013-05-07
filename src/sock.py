@@ -32,13 +32,6 @@ class Sock:
             data += self.sock.recv(4096)
         return data
 
-        # length_no = self.sock.recv(4)
-        # length = struct.unpack("!I", length_no)
-        # print "\x1b[31mlength: " + str(length[0]) + "\x1b[0m"
-
-        # Tried to fix a strange error
-        # return self.sock.recv(length[0] + 100)
-
 
 
     def start(self):
