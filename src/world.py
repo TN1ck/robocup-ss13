@@ -96,6 +96,11 @@ class Player(MobileEntity):
         self.seeVector = Vector(0.0, 0.0)
         MobileEntity.__init__(self, identifier)
 
+# TODO
+class ownPlayer(Player):
+    """This class represents our own robot and thus is a singleton class"""
+    pass
+
 class Ball(MobileEntity):
     """The ball.
     It has a mass and a radius (plus MobileEntity's attributes)."""
@@ -156,6 +161,9 @@ class World:
         # add to identifier dictionary:
         self.create_entity_dict()
 
+    # TODO
+    def get_own_player(self):
+        pass
 
     def create_entity_dict(self):
         """Creates the entity_from_identifier dictionary.
@@ -220,7 +228,6 @@ class World:
         # feel free to continue yourself :)
 
         logging.debug('process_vision_perceptors END')
-
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 w = World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters

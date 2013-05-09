@@ -11,12 +11,15 @@ class Movement:
         self.stopped = True
         self.destination = None
 
+    def get_world(self):
+        return world
+
     def send(self, *params):
         self.socket.send(" ".join(map(str, ["("] + params + [")"])))
 
     def run(self, *destination):
         self.stopped = False
-        player = self.world.get_player
+        player = self.world.get_own_player()
         # Destination parameters are present in parameters
         if destination:
             player.rot = acos(abs(player.pos.x - self.destination[0]) / abs(player.pos.y - self.destination[1]))
