@@ -28,7 +28,7 @@ class Agent:
 			parsed_stuff = parser.parse_sexp(msg)
 			world.w.process_vision_perceptors(parsed_stuff)
 
-			t.update()
+			t.run_tactics()
 
 			# self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
 			# world.w.process_vision_perceptors(parsed)

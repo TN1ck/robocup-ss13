@@ -8,8 +8,14 @@ class TacticsMain:
     self.world = world
     self.mov = movement
 
-  def update(self):
+  def run_tactics(self):
+    pass
 
-    pos = Vector(5,5)
+    # The tactics module calculates our tactics
+    # and calls other modules like movement, and these modules
+    # then send commands via network to the server.
 
-    self.mov.run(pos)
+    # pos = Vector(5,5)
+
+    # # The run method doesn't work yet...
+    # self.mov.run(pos)
