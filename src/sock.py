@@ -2,6 +2,7 @@
 
 import socket
 import struct
+import logging
 
 
 class Sock:
@@ -51,6 +52,8 @@ class Sock:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.server_ip, self.server_port))
         self.send('(scene rsg/agent/nao/nao.rsg)')
-        self.receive()
+        
+        logging.debug("init response 1: " + self.receive())
+        
         self.send('(init (unum ' + str(self.player_nr) + ')(teamname ' + str(self.team_name) + '))')
-        self.receive()
+        logging.debug("init response 2: " + self.receive())

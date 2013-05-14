@@ -1,4 +1,5 @@
 import math
+import world
 import logging
 
 class Perception:
@@ -18,7 +19,7 @@ class Perception:
         # if not found:
         return None
 
-    def process_vision_perceptors(self, parser_output, world, player_nr):
+    def process_vision_perceptors(self, parser_output, w, player_nr):
         """Processes the parser's output and updates the world info."""
 
         logging.debug('process_vision_perceptors BEGIN')
@@ -49,13 +50,13 @@ class Perception:
 
         # find out our position first:
         
-        localisation_result = self.self_localisation(static_entities, world)
+        localisation_result = self.self_localisation(static_entities, w)
         if localisation_result:
-            world.entity_from_identifier['P' + player_nr].position = localisation_result
+            w.entity_from_identifier['P' + str(player_nr)].position = localisation_result
 
         logging.debug('process_vision_perceptors END')
 
-    def self_localisation(self, static_entities, world):
+    def self_localisation(self, static_entities, w):
         """Calculates the own agent's position given a list of static entities. (NO LINES YET!)
         """
         PERCEPTOR_HEIGHT = 0.54
@@ -71,29 +72,38 @@ class Perception:
         lines = []
         #how do we handle lines? they only have absolute start and endpoints 
         #we can only use them if we are able to identify which line it actually is
+        static_entities_wo_lines = [] # without lines
         for l in static_entities:
             if l[0] == 'L':
                 lines.append(l)
                 static_entities.remove(l)
+            else:
+                static_entities_wo_lines.append(l)
                 
         position_list = []
         #see_vector_list = []
-        for list1 in static_entities:           
+        for list1 in static_entities_wo_lines:
+            # polar coords as list:
+            pol1 = map(float, list1[1][0].split()[1:]) # looks like [distance, a1, a2]
             #distance from 3D Sphere to 2d cartesian
-            d_s_o1 =  (list1[1][1]**2 - (world.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+            logging.debug(str(list1[0]))
+            logging.debug(str(list1[1]))
+            d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
             #define the center
-            v1 = Vector(world.get_entity_position(list1[0]).x, world.get_entity_position(list1[0]).y)
-            a1 = list1[1][2]
-            for list2 in static_entities:
+            v1 = world.Vector(w.get_entity_position(list1[0]).x, w.get_entity_position(list1[0]).y)
+            a1 = pol1[1]
+            for list2 in static_entities_wo_lines:
                 if list1[0] != list2[0]:
+                    # polar coords as list:
+                    pol2 = map(float, list2[1][0].split()[1:]) # looks like [distance, a1, a2]
                     #distance from 3D Sphere to 2d cartesian
-                    d_s_o2 = (list2[1][1]**2 - (world.entity_from_identifier[list2[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+                    d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[list2[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
                     #define the center
-                    v2 = Vector(world.get_entity_position(list2[0]).x, world.get_entity_position(list2[0]).y)                                     
-                    a2 = list2[1][2]
+                    v2 = world.Vector(w.get_entity_position(list2[0]).x, w.get_entity_position(list2[0]).y)
+                    a2 = pol2[1]
 
                     if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut waere; NICHT GUT Genug!
-                        position_list.append([world.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2), d_s_o1, d_s_o2])
+                        position_list.append([self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2), d_s_o1, d_s_o2])
                     
                     #see_vector_list += [] 
                     
@@ -119,7 +129,7 @@ class Perception:
             logging.debug(str(e[0]))
         #logging.debug(str( position_list))
         if len(position_list) != 0:
-            pos = Vector(0,0)       
+            pos = world.Vector(0,0)       
             for e in position_list:
                 pos = pos + e[0]
 
@@ -240,7 +250,7 @@ class Perception:
         x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
         y = v1v2.x * math.sin(beta) + v1v2.y * math.cos(beta)
         #print 'v1 to nao ', Vector(x,y), v1
-        position = v1 + Vector(x,y)
+        position = v1 + world.Vector(x,y)
 
         ''' bekommen wir unsere Winkel in degree or radian? -> in grad
         #calculate see vector
