@@ -10,6 +10,7 @@ class Movement:
         self.divergence = 10
         self.stopped = True
         self.destination = None
+        self.angular_precision = 0.5;
 
     def get_world(self):
         return world
@@ -38,6 +39,22 @@ class Movement:
 
     def stop(self):
         self.stopped = True
+
+    def turn_head(self, horizontal, vertical, speed):
+        self.turn_head_horizontal(horizontal, speed)
+        self.turn_head_vertical(vertical, speed)
+
+    def turn_head_horizontal(self, angle, speed):
+        # if self.stopped:
+        #     if (angle - hj) > self.angular_precision:
+        #         self.send("he1", speed)               # how do we get the he1 value?
+        #     if (hj - angle) > self.angular_precision:
+        #         self.send("he1", 0 - speed)
+        #     turn_head_horizontal(self, angle, speed)
+
+
+    def turn_head_vertical(self, angle, speed):
+        # analogous to turn_head_horizontal() with hj2 and he2
 
     def delete_destination(self):
         self.destination = None
