@@ -22,17 +22,16 @@ class Perception:
     def process_vision_perceptors(self, parser_output, w, player_nr):
         """Processes the parser's output and updates the world info."""
 
-        logging.debug('process_vision_perceptors BEGIN')
-        logging.debug('parser_output: ' + str(parser_output))
+        #logging.debug('process_vision_perceptors BEGIN')
+        #logging.debug('parser_output: ' + str(parser_output))
 
         # vision only:
-        #see = parser_output['See']
         see = self.get_parser_part('See', parser_output)
         # split mobile and static entities:
         static_entity_keys = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
         static_entities = []
         mobile_entities = []
-        logging.debug('see: ' + str(see))
+        #logging.debug('see: ' + str(see))
 
         # give up if no see info available:
         if see:
@@ -46,19 +45,19 @@ class Perception:
                 else:
                     mobile_entities.append([key, value])
 
-            logging.debug('static_entities: ' + str(static_entities))
+            #logging.debug('static_entities: ' + str(static_entities))
 
         # find out our position first:
-        
         localisation_result = self.self_localisation(static_entities, w)
         if localisation_result:
+            logging.debug("localisation_result: " + str(localisation_result))
             w.entity_from_identifier['P' + str(player_nr)].position = localisation_result
 
-        logging.debug('process_vision_perceptors END')
+        #logging.debug('process_vision_perceptors END')
 
     def self_localisation(self, static_entities, w):
-        """Calculates the own agent's position given a list of static entities. (NO LINES YET!)
-        """
+        """Calculates the own agent's position given a list of static entities. (NO LINES YET!)"""
+        
         PERCEPTOR_HEIGHT = 0.54
         #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
         #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
@@ -80,14 +79,15 @@ class Perception:
             else:
                 static_entities_wo_lines.append(l)
                 
+        logging.debug("static entity count: " + str(len(static_entities_wo_lines)))
+        
         position_list = []
         #see_vector_list = []
         for list1 in static_entities_wo_lines:
             # polar coords as list:
             pol1 = map(float, list1[1][0].split()[1:]) # looks like [distance, a1, a2]
+            
             #distance from 3D Sphere to 2d cartesian
-            logging.debug(str(list1[0]))
-            logging.debug(str(list1[1]))
             d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
             #define the center
             v1 = world.Vector(w.get_entity_position(list1[0]).x, w.get_entity_position(list1[0]).y)
@@ -126,7 +126,8 @@ class Perception:
         '''
         # weighting (still to be done)
         for e in position_list:
-            logging.debug(str(e[0]))
+            #logging.debug(str(e[0]))
+            pass
         #logging.debug(str( position_list))
         if len(position_list) != 0:
             pos = world.Vector(0,0)       
@@ -244,7 +245,7 @@ class Perception:
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
 
-        if a1 > a2: #positiv angle means left
+        if a1 < a2: #positive angle means left
             #rotate along the clock (left object)
             beta = -1* beta
         x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
