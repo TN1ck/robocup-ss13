@@ -146,6 +146,7 @@ class World:
 
         width_half = width / 2.0
         height_half = height / 2.0
+        penalty = Vector(1.8, 3.9) # penalty area around goals used for line setup
 
         # set up linez:
         self.lines = [
@@ -153,8 +154,21 @@ class World:
             Line('L2', -width_half, -height_half, width_half, -height_half),    # bottom
             Line('LL', -width_half, height_half, -width_half, -height_half),    # left
             Line('LR', width_half, height_half, width_half, -height_half),      # right
-            Line('LM', 0.0, height_half, 0.0, -height_half)                     # middle
-            # missing: middle circle + lines @ goals
+            Line('LM', 0.0, height_half, 0.0, -height_half),                    # middle
+            # penalty line upper left:
+            Line('LG1L', -width_half, penalty.y / 2, -width_half + penalty.x, penalty.y / 2),
+            # penalty line lower left:
+            Line('LG2L', -width_half, -penalty.y / 2, -width_half + penalty.x, -penalty.y / 2),
+            # penalty line frontal left (going north->south):
+            Line('LGL', -width_half + penalty.x, penalty.y / 2, -width_half + penalty.x, -penalty.y / 2),
+            # penalty line upper right:
+            Line('LG1R', width_half, penalty.y / 2, width_half - penalty.x, penalty.y / 2),
+            # penalty line lower right:
+            Line('LG2R', width_half, -penalty.y / 2, width_half - penalty.x, -penalty.y / 2),
+            # penalty line frontal right (going north->south):
+            Line('LGR', width_half - penalty.x, penalty.y / 2, width_half - penalty.x, -penalty.y / 2)
+
+            # TODO: find out how the ten circle lines are positioned
         ]
 
         # set up flagz:

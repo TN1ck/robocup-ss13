@@ -5,6 +5,9 @@ import logging
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
     
+    location_diff = 0
+    location_diff_counter = 0
+    
     def get_parser_part(self, descriptor, parser_output):
         """Get a parser output part specified by its descriptor (e.g. 'See')"""
 
@@ -31,7 +34,7 @@ class Perception:
         static_entity_keys = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
         static_entities = []
         mobile_entities = []
-        #logging.debug('see: ' + str(see))
+        logging.debug('see: ' + str(see))
 
         # give up if no see info available:
         if see:
@@ -48,17 +51,24 @@ class Perception:
             #logging.debug('static_entities: ' + str(static_entities))
 
         # find out our position first:
-        localisation_result = self.self_localization(static_entities, w)
-        if localisation_result:
-            logging.debug("localization_result: " + str(localisation_result))
-            w.entity_from_identifier['P' + str(player_nr)].position = localisation_result
+        localization_result = self.self_localization(static_entities, w)
+        if localization_result:
+            #logging.debug("localization_result: " + str(localization_result))
+            self.location_diff_counter += 1
+            self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
+            #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
+            w.entity_from_identifier['P' + str(player_nr)].position = localization_result
 
         #logging.debug('process_vision_perceptors END')
 
     def self_localization(self, static_entities, w):
         """Calculates the own agent's position given a list of static entities. (NO LINES YET!)"""
         
-        PERCEPTOR_HEIGHT = 0.54
+        # I placed the bot 1m in front of the middle line and let him watch.
+        # The see-struct said the distance to the line is 1.13 m (10 times) or 1.14 m (5 times) so:
+        # solve(1.13333333333333 = sqrt(1^2 + x^2), x) -> x = 0.5333333333333 ... yay!!
+        PERCEPTOR_HEIGHT = 0.53333333333333333333
+        #PERCEPTOR_HEIGHT = 0.54
         #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
         #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
         
@@ -69,8 +79,8 @@ class Perception:
         ]'''
         #seperate Lines
         lines = []
-        #how do we handle lines? they only have absolute start and endpoints 
-        #we can only use them if we are able to identify which line it actually is
+        # how do we handle lines? they only have absolute start and endpoints 
+        # we can only use them if we are able to identify which line it actually is
         static_entities_wo_lines = [] # without lines
         for l in static_entities:
             if l[0] == 'L':
@@ -153,6 +163,11 @@ class Perception:
         '''
 
         
+    #def get_nearest_vectors(self, vector, vectors[], how_much):
+    #    """Returns the 'how_much' nearest vectors in 'vectors[]' measured to 'vector'."""
+    #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
+    #    return temp[:how_much + 1]
+    
     ''' This method gets 2 vectors and 2 radius
     and returns a list of Vectors representing the intersection points of the circles'''
     def intersections_circle(self, v1, r1, v2, r2):
