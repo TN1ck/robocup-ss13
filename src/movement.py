@@ -52,12 +52,11 @@ class Movement:
         #     if (hj - angle) > self.angular_precision:
         #         self.send("he1", 0 - speed)
         #         turn_head_horizontal(self, angle, speed)
-        #     self.send("he1", 0)
+        self.send("he1", 0)
             
-
-
     def turn_head_vertical(self, angle, speed):
         # analogous to turn_head_horizontal() with hj2 and he2
+        self.send("he2", 0)
 
     def delete_destination(self):
         self.destination = None
