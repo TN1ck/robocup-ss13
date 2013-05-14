@@ -149,30 +149,30 @@ class World:
 
         # set up linez:
         self.lines = [
-            Line('L1', -width_half, -height_half, width_half, -height_half),  # top
-            Line('L2', -width_half, height_half, width_half, height_half),    # bottom
-            Line('LL', -width_half, -height_half, -width_half, height_half),  # left
-            Line('LR', width_half, -height_half, width_half, height_half),    # right
-            Line('LM', 0.0, -height_half, 0.0, height_half)                   # middle
+            Line('L1', -width_half, height_half, width_half, height_half),      # top
+            Line('L2', -width_half, -height_half, width_half, -height_half),    # bottom
+            Line('LL', -width_half, height_half, -width_half, -height_half),    # left
+            Line('LR', width_half, height_half, width_half, -height_half),      # right
+            Line('LM', 0.0, height_half, 0.0, -height_half)                     # middle
             # missing: middle circle + lines @ goals
         ]
 
         # set up flagz:
         self.flags = [
-            Flag('F1L', -width_half, -height_half),    # top-left
-            Flag('F1R', width_half, -height_half),     # top-right
-            Flag('F2L', -width_half, height_half),     # bottom-left
-            Flag('F2R', width_half, height_half)       # bottom-right
+            Flag('F1L', -width_half, height_half),  # top-left
+            Flag('F1R', width_half, height_half),   # top-right
+            Flag('F2L', -width_half, -height_half), # bottom-left
+            Flag('F2R', width_half, -height_half)   # bottom-right
         ]
 
         # set up goalz:
         goal_width = 2.1
         self.goal_poles = [
-            GoalPole('G1L', -width_half, -goal_width / 2, 0.8, 0.02),   # top/northern left
-            GoalPole('G2L', -width_half, goal_width / 2, 0.8, 0.02),    # bottom/south left
+            GoalPole('G1L', -width_half, goal_width / 2, 0.8, 0.02),    # top/northern left
+            GoalPole('G2L', -width_half, -goal_width / 2, 0.8, 0.02),   # bottom/south left
 
-            GoalPole('G1R', width_half, -goal_width / 2, 0.8, 0.02),   # top/northern right
-            GoalPole('G2R', width_half, goal_width / 2, 0.8, 0.02),    # bottom/south right
+            GoalPole('G1R', width_half, goal_width / 2, 0.8, 0.02),     # top/northern right
+            GoalPole('G2R', width_half, -goal_width / 2, 0.8, 0.02),    # bottom/south right
         ]
 
         # set up playerz:
@@ -188,12 +188,11 @@ class World:
         # set up ball:
         self.ball = Ball(0.04, 26)
 
-        # add to identifier dictionary:
+        # add everything to identifier dictionary:
         self.create_entity_dict()
 
     def create_entity_dict(self):
-        """Creates the entity_from_identifier dictionary.
-        It only contains all the static entities atm, because of unclear player identifiers."""
+        """Creates the entity_from_identifier dictionary."""
 
         # collect all entities:
         entities = self.lines + self.flags + self.goal_poles + self.players + [self.ball]

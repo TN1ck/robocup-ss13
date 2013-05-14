@@ -48,14 +48,14 @@ class Perception:
             #logging.debug('static_entities: ' + str(static_entities))
 
         # find out our position first:
-        localisation_result = self.self_localisation(static_entities, w)
+        localisation_result = self.self_localization(static_entities, w)
         if localisation_result:
-            logging.debug("localisation_result: " + str(localisation_result))
+            logging.debug("localization_result: " + str(localisation_result))
             w.entity_from_identifier['P' + str(player_nr)].position = localisation_result
 
         #logging.debug('process_vision_perceptors END')
 
-    def self_localisation(self, static_entities, w):
+    def self_localization(self, static_entities, w):
         """Calculates the own agent's position given a list of static entities. (NO LINES YET!)"""
         
         PERCEPTOR_HEIGHT = 0.54
@@ -79,7 +79,7 @@ class Perception:
             else:
                 static_entities_wo_lines.append(l)
                 
-        logging.debug("static entity count: " + str(len(static_entities_wo_lines)))
+        #logging.debug("static entity count: " + str(len(static_entities_wo_lines)))
         
         position_list = []
         #see_vector_list = []
@@ -245,7 +245,7 @@ class Perception:
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
 
-        if a1 < a2: #positive angle means left
+        if a1 > a2: #positive angle means left
             #rotate along the clock (left object)
             beta = -1* beta
         x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
