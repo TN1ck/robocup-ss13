@@ -13,10 +13,12 @@ class Movement:
         self.angular_precision = 0.5;
 
     def get_world(self):
-        return world
+        return self.world
 
     def send(self, *params):
         self.socket.send(" ".join(map(str, ["("] + params + [")"])))
+        # How about
+        #   self.socket.send("( " + params + " )")
 
     def run(self, *destination):
         self.stopped = False
