@@ -17,8 +17,6 @@ class Movement:
 
     def send(self, *params):
         self.socket.send(" ".join(map(str, ["("] + params + [")"])))
-        # How about
-        #   self.socket.send("( " + params + " )")
 
     def run(self, *destination):
         self.stopped = False
