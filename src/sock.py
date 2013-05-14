@@ -7,6 +7,8 @@ import struct
 class Sock:
     HOST = 'localhost'
     PORT = 3100
+    
+    _buffer = ''
 
     def __init__(self, server_ip, server_port, team_name, player_nr):
         self.server_ip = server_ip
@@ -24,15 +26,24 @@ class Sock:
         self.sock.send(struct.pack("!I", len(msg)) + msg)
 
     def receive(self):
+        """Handles message length and stores potential beginning of next package, if 'accidentally' received."""
         data = self.sock.recv(4096)
-        return data[4:]
-
-        # length_no = self.sock.recv(4)
-        # length = struct.unpack("!I", length_no)
-        # print "\x1b[31mlength: " + str(length[0]) + "\x1b[0m"
-
-        # Tried to fix a strange error
-        # return self.sock.recv(length[0] + 100)
+        
+        data = self._buffer + data # restore already received package chunk
+        self._buffer = ''
+        
+        # first 4 bytes are message length
+        msg_length = (ord(data[0]) << 24) + (ord(data[1]) << 16) + (ord(data[2]) << 8) + ord(data[3])
+        data = data[4:]
+        while len(data) < msg_length:
+            data += self.sock.recv(4096)
+        
+        # store potential beginning of a next package for further use
+        if len(data) > msg_length:
+            self._buffer = data[msg_length:]
+            data = data[:msg_length + 1]
+        
+        return data
 
 
 

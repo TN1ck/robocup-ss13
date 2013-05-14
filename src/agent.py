@@ -4,6 +4,8 @@ import sock
 import parser
 import world
 import logging
+import tactics_main
+import movement
 
 class Agent:
 	def __init__(self):
@@ -14,16 +16,22 @@ class Agent:
 	def start(self):
 		#start listening
 		self.socket.start()
-		x = 0
-		y = 0
+
+		m = movement.Movement(world.w, self.socket)
+		t = tactics_main.TacticsMain(world.w, m)
+
+		self.socket.send("(beam 0 0 0)")
+
 		while True:
 			msg = self.socket.receive()
 			logging.debug(msg)
-			parsed = parser.parse_sexp(msg)
-			x -= 0.01
-			y += 0.01
-			self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
-			world.w.process_vision_perceptors(parsed)
+			parsed_stuff = parser.parse_sexp(msg)
+			world.w.process_vision_perceptors(parsed_stuff)
+
+			t.run_tactics()
+
+			# self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
+			# world.w.process_vision_perceptors(parsed)
 			# logging.debug(world.w.flags[0].get_position().x)
 
 if __name__ == "__main__":
