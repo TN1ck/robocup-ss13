@@ -28,7 +28,7 @@ class Agent:
         m = movement.Movement(self.world, self.socket)
         t = tactics_main.TacticsMain(self.world, m)
 
-        self.socket.send("(beam -1 10 0)")
+        self.socket.send("(beam -14 9 0)")
 
         while True:
             msg = self.socket.receive()

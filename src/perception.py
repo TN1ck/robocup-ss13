@@ -21,6 +21,18 @@ class Perception:
                 return temp
         # if not found:
         return None
+        
+    def unpack_items(self, listed_list_items):
+        """Converts a list [[0], [1], [2]] to [0, 1, 2]. Needed because parser is strange. ;)"""
+        result = []
+        for item in listed_list_items:
+            if len(item) == 1:
+                result.append(item[0])
+            else:
+                # TODO
+                logging.warning(str(item))
+                logging.warning("unpack_items: packed item was not the only one in its list!")
+        return result
 
     def process_vision_perceptors(self, parser_output, w, player_nr):
         """Processes the parser's output and updates the world info."""
@@ -31,22 +43,22 @@ class Perception:
         # vision only:
         see = self.get_parser_part('See', parser_output)
         # split mobile and static entities:
-        static_entity_keys = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
+        static_entity_identifiers = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
         static_entities = []
         mobile_entities = []
-        logging.debug('see: ' + str(see))
+        #logging.debug('see: ' + str(see))
 
         # give up if no see info available:
         if see:
             # see info is in teh houze. yay.
             for block in see:
-                # block is like ['G2R', ['pol', 16.48, -8.05, 0.83]]
-                key = block[0]
-                value = block[1]
-                if key in static_entity_keys:
-                    static_entities.append([key, value])
+                # block is like ['L', ['pol 14.98 -36.73 -2.16'], ['pol 16.03 -39.46 -1.81']]
+                identifier = block[0]
+                attrs = self.unpack_items(block[1:])
+                if identifier in static_entity_identifiers:
+                    static_entities.append([identifier, attrs])
                 else:
-                    mobile_entities.append([key, value])
+                    mobile_entities.append([identifier, attrs])
 
             #logging.debug('static_entities: ' + str(static_entities))
 
@@ -56,7 +68,7 @@ class Perception:
             #logging.debug("localization_result: " + str(localization_result))
             self.location_diff_counter += 1
             self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
-            #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
+            logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
             w.entity_from_identifier['P' + str(player_nr)].position = localization_result
 
         #logging.debug('process_vision_perceptors END')
@@ -67,7 +79,7 @@ class Perception:
         # I placed the bot 1m in front of the middle line and let him watch.
         # The see-struct said the distance to the line is 1.13 m (10 times) or 1.14 m (5 times) so:
         # solve(1.13333333333333 = sqrt(1^2 + x^2), x) -> x = 0.5333333333333 ... yay!!
-        PERCEPTOR_HEIGHT = 0.53333333333333333333
+        PERCEPTOR_HEIGHT = 0.5 + 1/30
         #PERCEPTOR_HEIGHT = 0.54
         #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
         #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
@@ -77,35 +89,37 @@ class Perception:
         [L ,['pol',d,phi,theta]]
         ...
         ]'''
-        #seperate Lines
-        lines = []
+
         # how do we handle lines? they only have absolute start and endpoints 
         # we can only use them if we are able to identify which line it actually is
-        static_entities_wo_lines = [] # without lines
-        for l in static_entities:
-            if l[0] == 'L':
-                lines.append(l)
-                static_entities.remove(l)
+        # first, get rid of them:
+        lines = []
+        static_entities2 = []
+        for se in static_entities:
+            if se[0] == 'L':
+                lines.append(se)
             else:
-                static_entities_wo_lines.append(l)
+                static_entities2.append(se)
                 
-        #logging.debug("static entity count: " + str(len(static_entities_wo_lines)))
+        static_entities = static_entities2 # TODO pls revise. looks kinda stupid.
+        
+        #logging.debug("static entity count: " + str(len(static_entities)))
         
         position_list = []
         #see_vector_list = []
-        for list1 in static_entities_wo_lines:
+        for list1 in static_entities:
             # polar coords as list:
-            pol1 = map(float, list1[1][0].split()[1:]) # looks like [distance, a1, a2]
+            pol1 = self.get_pol_from_parser_entity(list1)
             
             #distance from 3D Sphere to 2d cartesian
             d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
             #define the center
             v1 = world.Vector(w.get_entity_position(list1[0]).x, w.get_entity_position(list1[0]).y)
             a1 = pol1[1]
-            for list2 in static_entities_wo_lines:
+            for list2 in static_entities:
                 if list1[0] != list2[0]:
                     # polar coords as list:
-                    pol2 = map(float, list2[1][0].split()[1:]) # looks like [distance, a1, a2]
+                    pol2 = self.get_pol_from_parser_entity(list2)
                     #distance from 3D Sphere to 2d cartesian
                     d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[list2[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
                     #define the center
@@ -117,7 +131,18 @@ class Perception:
                     
                     #see_vector_list += [] 
                     
-  
+        # now we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
+        # STEP 2 - process lines
+        for l in lines:
+            pol1 = self.get_pol_from_parser_entity(l)
+            pol2 = self.get_pol_from_parser_entity(l, 1)
+            if abs(pol1[1]) > 59 or abs(pol1[2]) > 59 or abs(pol2[1]) > 59 or abs(pol2[2]) > 59:
+                # line is (probably) truncated
+                pass
+            else:
+                # seen line is (very very likely) the whole line
+                pass
+        
         '''
         #error estimilation
         sigma = (0.0965**0.5 ) *2
@@ -162,7 +187,14 @@ class Perception:
         + die eigene position noch mal ueber den Winkel berechnen und dann mit dem anderen Wert vergleichen
         '''
 
-        
+    def get_pol_from_parser_entity(self, entity, which_pol = 0):
+        """Returns the polar coordinates in a parser block (entity block)
+        as a list like: [distance, angle_hor, angle_vert]
+        which_pol is 0 or 1 (default 0) and specifies which pol block
+        to use. (Lines can have two.)"""
+        return map(float, entity[1][which_pol].split()[1:])
+
+    
     #def get_nearest_vectors(self, vector, vectors[], how_much):
     #    """Returns the 'how_much' nearest vectors in 'vectors[]' measured to 'vector'."""
     #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
