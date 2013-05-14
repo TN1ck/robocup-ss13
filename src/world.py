@@ -1,14 +1,19 @@
+# -*- coding: cp1252 -*-
 """Organizes world data structures and its calculation.
 Calculation may be transferred into a separate module in the future."""
 
 import logging
 import copy
+import math
 
 class Vector:
     """A 2-dimensional vector defined by its cartesian x and y coordinates.
-    Used for positions and velocities.
-    A third dimension might be added in the future.
-    Or a separate Vector3 class or something."""
+Used for positions and velocities.
+A third dimension might be added in the future.
+Or a separate Vector3 class or something.
+
+Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do this in Python?)
+"""
 
     def __init__(self, x, y):
         self.x = x
@@ -19,6 +24,28 @@ class Vector:
         self.y += dy
         return self
 
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y )
+    
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y )
+    
+    def __mul__(self, other):
+        return Vector(self.x * other, self.y *other )
+    
+    def __div__(self, other):
+        return Vector(self.x / other, self.y / other )
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __str__(self):
+        return '(' + str(self.x) + ',' + str(self.y) + ')'
+
+    #magnitude (zu deutsch Betrag)
+    def mag(self):
+        return (self.x**2 + self.y**2)**0.5
+
 
 class WorldEntity:
     """Basic world entity.
@@ -28,6 +55,7 @@ class WorldEntity:
     def __init__(self, identifier, x, y):
         self._position = Vector(x, y)
         self._identifier = identifier
+        self._perception_heights = 0 # soll jan dann richten ;P (used to compute the distance)
 
     def get_position(self):
         return copy.deepcopy(self._position)
@@ -49,23 +77,25 @@ class Line(StaticEntity):
     """A line on the game field defined by two vectors."""
 
     def __init__(self, identifier, x1, y1, x2, y2):
-        self.position2 = Vector(x2, y2)
         StaticEntity.__init__(self, identifier, x1, y1)
-
+        self.position2 = Vector(x2, y2)
+        
 class Flag(StaticEntity):
     """A corner flag defined by its position (vector)."""
 
     def __init__(self, identifier, x, y):
         StaticEntity.__init__(self, identifier, x, y)
+        self._perception_height = 0
 
 class GoalPole(StaticEntity):
     """One of the four goal poles on the game field.
     Defined by its position (vector), height and radius."""
 
     def __init__(self, identifier, x, y, height, radius):
+        StaticEntity.__init__(self, identifier, x, y)
         self.height = height
         self.radius = radius
-        StaticEntity.__init__(self, identifier, x, y)
+        self._perception_height = height
 
 
 # MOBILE ENTITIES #
@@ -77,10 +107,11 @@ class MobileEntity(WorldEntity):
     def __init__(self, identifier):
         """Constructor doesn't take position, because a mobile entity's
         position is not known at time of initialisation."""
+        WorldEntity.__init__(self, identifier, 0.0, 0.0)
         self.velocity = Vector(0.0, 0.0)
         self.timestamp = 0
         self.confidency = 0.0
-        WorldEntity.__init__(self, identifier, 0.0, 0.0)
+
 
     def set_position(self, x, y):
         self._position.x = x
@@ -92,9 +123,10 @@ class Player(MobileEntity):
     Will be storing tactical information in the future (currentJob)."""
 
     def __init__(self, identifier, team):
+        MobileEntity.__init__(self, identifier)
         self.team = team
         self.seeVector = Vector(0.0, 0.0)
-        MobileEntity.__init__(self, identifier)
+
 
 # TODO
 class ownPlayer(Player):
@@ -106,15 +138,14 @@ class Ball(MobileEntity):
     It has a mass and a radius (plus MobileEntity's attributes)."""
 
     def __init__(self, radius, mass):   # radius: meter. mass: gram
+        MobileEntity.__init__(self, 'B')
         self.radius = radius
         self.mass = mass
-        MobileEntity.__init__(self, 'B')
-
 
 class World:
     """The world is a composition of all world entities."""
 
-    entity_from_identifier = [] # will store [indentifier, entity] pairs
+    entity_from_identifier = {} # will store [indentifier, entity] pairs
 
     def __init__(self, players_per_team, width, height):
         """Sets up the world as described here:
@@ -172,7 +203,7 @@ class World:
         # collect all entities:
         entities = self.lines + self.flags + self.goal_poles
         for entity in entities:
-            self.entity_from_identifier += [entity.get_identifier(), entity]
+            self.entity_from_identifier[entity.get_identifier()] = entity
 
     def get_entity_position(self, identifier):
         """Get an entity's position by its identifier."""
@@ -229,5 +260,212 @@ class World:
 
         logging.debug('process_vision_perceptors END')
 
+    def self_localisation(self, static_entities):
+        PERCEPTOR_HEIGHT = 0.54
+        #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
+        #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
+        
+        '''	so sieht static_entities aus
+        [		
+	[L ,['pol',d,phi,theta]]
+	...
+	]'''
+	#seperate Lines
+        lines = []
+	#how do we handle lines? they only have absolute start and endpoints 
+	#we can only use them if we are able to identify which line it actually is
+        for l in static_entities:
+            if l[0] == 'L':
+                lines.append(l)
+                static_entities.remove(l)
+                
+        position_list = []
+        #see_vector_list = []
+        for list1 in static_entities:		
+            #distance from 3D Sphere to 2d cartesian
+            d_s_o1 =  (list1[1][1]**2 - (self.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+            #define the center
+            v1 = Vector(self.get_entity_position(list1[0]).x, self.get_entity_position(list1[0]).y)
+            a1 = list1[1][2]
+            for list2 in static_entities:
+                if list1[0] != list2[0]:
+                    #distance from 3D Sphere to 2d cartesian
+                    d_s_o2 = (list2[1][1]**2 - (self.entity_from_identifier[list2[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+                    #define the center
+                    v2 = Vector(self.get_entity_position(list2[0]).x, self.get_entity_position(list2[0]).y)					
+                    a2 = list2[1][2]
+
+                    if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut wäre; NICHT GUT Genug!
+                        position_list.append([self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2), d_s_o1, d_s_o2])
+                    
+                    #see_vector_list += [] 
+                    
+  
+        '''
+        #error estimilation
+        sigma = (0.0965**0.5 ) *2
+        average_pos = position_list[0][0]   #what if the first one is already unexceptable far off? better use the pos from the closest object pair
+        average_distance = average_pos.mag()
+        reduced_sigma = sigma
+
+	for e in position_list:
+            for f in position_list:
+                # check weather they could intersect (too far away or one is within the other)
+                # take the 2 points to define the new average_pos (radius = (p1-p2).mag()/2.0 is the new reduced_sigma)
+                l = intersections_circle(e[0], sigma *(e[1]+e[2]/2.0)/100, max_error, reduced_sigma)
+                
+                if len(l) == 1:
+                    if l[0].mag() < average_distance 
+        '''
+        # weighting (still to be done)
+        for e in position_list:
+            logging.debug(str(e[0]))
+        #logging.debug(str( position_list))
+        if len(position_list) != 0:
+            pos = Vector(0,0)       
+            for e in position_list:
+                pos = pos + e[0]
+
+            return pos / len(position_list)
+
+		
+        '''to do:
+        + winkel in degree oder radian? -> grad
+        + sinnvollen wert für die Winkeldifferenz, ab wann triangulation nicht mehr sicher ist, oder irgendwie beide Werte verarbeiten
+        (wenn ich sowieso extrem falsche werte raushaue kann man ja beide berechnen lassen)
+        + confidency?
+        + gewichten
+        + Linien benutzen
+        + see_vector berechnen
+        '''
+        '''Ideen:
+        + muss das ganze nicht in die agenten klasse, weil man zugriff auf das Selbstmodell und die eigene id braucht?
+        + zu stark abweichende werte aussortieren? abweichung von mehr als 2 sigma
+        + die eigene position noch mal über den Winkel berechnen und dann mit dem anderen Wert vergleichen
+        '''
+
+        
+    ''' This method gets 2 vectors and 2 radius
+    and returns a list of Vectors representing the intersection points of the circles'''
+    def intersections_circle(self, v1, r1, v2, r2):
+        ''' our circles
+        (x-x1)^2+(y-y1)^2 = r1^2
+        (x-x2)^2+(y-y2)^2 = r2^2
+        '''
+        #calculate chordale
+        x = -2.0 * (v1.x - v2.x)
+        y = -2.0 * (v1.y - v2.y)
+        c = 1.0*r1**2 - r2**2 - v1.x**2 + v2.x**2 - v1.y**2 + v2.y**2
+        d = (v2-v1).mag()
+        #print x,y,c,d
+
+        #no or just one interesection shouldn't happen in our simulation, because that would require 180 degree view or higher, but just for completeness
+        if r1 + r2  < d:    
+            return []   #circles to far away from each other
+        elif r1+r2 == d:
+            return [v1 + (v2-v1)/2.0]
+   
+        if y != 0:
+	    #solve y
+            m = -1*x / y 
+            c = c / y 
+            # -> chordale: y = m*x + c
+            #print 'chordale: ' , m, 'x + ', c		
+	    #calculate intersection with the circles
+	    #P-Q-Formel
+            #(x - v1.x)**2 + (m*x + c - v1.y)**2 - r1**2 = x**2 - 2 v1.x * x + v1.x**2   + (m*x+c)**2 - 2*((m*x+c)*v1.y) + (v1.y)**2 - r1**2
+            # = 1 *x**2 + m**2 *x**2        + 2*m*x*c  - 2*((m*x+c)*v1.y) - 2*v1.x * x      + v1.x**2  + (v1.y)**2 - r1**2 + c**2
+            # =  (m**2+1) *x**2      + 2*m*c *x - 2*m*v1.y *x - 2 v1.x * x      + v1.x**2  + (v1.y)**2 - r1**2 + c**2 -2*c*v1.y
+            f = m**2+1
+            p = (2*m*c - 2*m*v1.y - 2*v1.x) / f
+            q = (v1.x**2  + (v1.y)**2 - r1**2 + c**2 -2*c*v1.y )/ f
+            d = p**2/4.0-q
+            if d < 0:
+                return []
+            #print p,q
+            x_1 = -(p)/2.0 + (d)**0.5
+            y_1 = x_1*m + c 
+                                            
+            x_2 = -(p)/2.0 - (d)**0.5
+            y_2 = x_2*m + c 
+        else:
+            #print 'y = 0'
+            if x == 0:
+                return []
+                #print 'circles identical, this should never happen' #objects on the same position, we cant use them
+
+            c = c / x
+            #we got m*x = c to use in our circle
+            #P-Q-Formel
+            #(c - v1.x)**2 + (y - v1.y)**2 - r1**2 = y**2 - 2*v1.y *y + (c - v1.x)**2 + v1.y**2 - r1**2
+            p = - 2*v1.y
+            q = (c - v1.x)**2 + v1.y**2 - r1**2
+            d = (p)**2/4.0-q
+            if d < 0:
+                return []
+            y_1 = -(p)/2.0 + (d)**0.5
+            x_1 = c
+                                            
+            y_2 = -(p)/2.0 - (d)**0.5
+            x_2 = c 
+
+        p1 = Vector(x_1,y_1)
+        p2 = Vector(x_2,y_2)
+        if p1 == p2:
+            return [p1]
+        else:
+            return [p1, p2]
+
+        
+    ''' self localisation by trigonometry
+        returns a list of 2 vectors: the first representing your position and the second vector the see vector,
+        based on the position of the 2 given objects and the distance to them.
+        the user has the duty to judge on his own wheater it is a good idea to use a1 ~~ a2 or even a1 = a2
+        also triangles with sidelength 0 are something you should watch out for yourself 
+
+        This Method will by the way crash when you input v1  = v2, but since static objets dont have the same position ...'''
+    def trigonometry(self, v1, d1, a1, v2, d2, a2):
+        a = (v2-v1).mag()
+        
+        b = d2
+        c = d1
+
+        #print a,b,c
+        beta = math.acos((a**2 - b**2 + c**2) /(2.0*a*c))
+        #print 'beta: ', beta * 180 / math.pi
+        v1v2 = v2-v1 #vector from v1 to v2
+        v1v2 = v1v2 / v1v2.mag()
+        v1v2 = v1v2 * d1
+
+        if a1 > a2: #positiv angle means left
+            #rotate along the clock (left object)
+            beta = -1* beta
+        x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
+        y = v1v2.x * math.sin(beta) + v1v2.y * math.cos(beta)
+        #print 'v1 to nao ', Vector(x,y), v1
+        position = v1 + Vector(x,y)
+
+        ''' bekommen wir unsere Winkel in degree or radian? -> in grad
+        #calculate see vector
+        posv1 = v1 - pos #vector from our position to v1
+
+        #now rotate with alpha in same direction as when calculating the position
+        x = posv1.x * math.cos(a1) - posv1.y * math.sin(a1)
+        y = posv1.x * math.sin(a1) + posv1.y * math.cos(a1)
+
+        see_vector = Vector(x,y)
+        see_vector = see_vector / see_vector.mag()
+
+        return [ position, see_vector ]
+        '''
+        return position
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 w = World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
+
+g = ((15**2+1.05**2) + (0.8 - 0.54)**2)**0.5
+f = (15**2+10**2)**0.5
+logging.debug('vermutete eigene Position: ' + str(w.self_localisation([['G1R' ,['pol',g,-0.6,0.6]],['G2R' ,['pol',g,0.6,0.6]],['F1R' ,['pol',f,-1,0.6]],['F2R' ,['pol',f,1,0.6]]])))
+logging.debug('vermutete eigene Position: ' + str(w.self_localisation([['G1L' ,['pol',g,0.6,0.6]],['G2L' ,['pol',g,-0.6,0.6]],['F1L' ,['pol',f,1,0.6]],['F2L' ,['pol',f,-1,0.6]]])))
+
+
