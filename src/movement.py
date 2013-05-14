@@ -46,8 +46,8 @@ class Movement:
 
     def turn_head_horizontal(self, angle, speed):
         # if self.stopped:
-        #     if (angle - hj) > self.angular_precision:
-        #         self.send("he1", speed)               # how do we get the he1 value?
+        #     if (angle - hj) > self.angular_precision: # how do we get the hj1 value?
+        #         self.send("he1", speed)
         #     if (hj - angle) > self.angular_precision:
         #         self.send("he1", 0 - speed)
         #     turn_head_horizontal(self, angle, speed)
