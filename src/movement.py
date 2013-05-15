@@ -1,16 +1,18 @@
 from math import sin, cos, acos
-
+import time
 
 class Movement:
 
-    def __init__(self, world, socket):
+    def __init__(self, world, socket, player_nr):
         self.world = world
         self.socket = socket
-        self.velocity = 10
-        self.divergence = 10
+        self.player_nr = player_nr
+        self.velocity = 0.01
+        self.divergence = 1
         self.stopped = True
         self.destination = None
         self.angular_precision = 0.5;
+        self.rotation = 0
 
     def get_world(self):
         return self.world
@@ -20,22 +22,26 @@ class Movement:
 
     def run(self, *destination):
         self.stopped = False
-        player = self.world.get_own_player()
+        #player = self.world.get_own_player()
+        position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        print "position: " + str(position.x) + " " + str(position.y)
         # Destination parameters are present in parameters
         if destination:
-            player.rot = acos(abs(player.pos.x - self.destination[0]) / abs(player.pos.y - self.destination[1]))
             self.destination = destination
+            self.rotation = acos(abs(position.x - self.destination[0]) / abs(position.y - self.destination[1]))
                 # Did we reach our destination?
         if ((self.destination and
-            abs(self.destination[0] - player.pos.x) < self.divergence) and
-           (abs(self.destination[1] - player.pos.y) < self.divergence)):
+            abs(self.destination[0] - position.x) < self.divergence) and
+           (abs(self.destination[1] - position.y) < self.divergence)):
             self.stopped = True
             return
-        dy = sin(player.rot) * self.velocity
-        dx = cos(player.rot) * self.velocity
-        self.send("beam", player.pos.x + dx, player.pos.y + dy, player.rot)
-        self.world.player.pos.x = player.pos.x + dx
-        self.world.player.pos.y = player.pos.y + dy
+        dy = sin(self.rotation) * self.velocity
+        dx = cos(self.rotation) * self.velocity
+
+	self.socket.send("(beam "+ str(position.x + dx) + " " + str(position.y) + " " + str(self.rotation) + ")")
+        #self.send("beam", position.x + dx, position.y + dy, self.rotation)
+        #self.world.player.pos.x = player.pos.x + dx
+        #self.world.player.pos.y = player.pos.y + dy
 
     def stop(self):
         self.stopped = True
@@ -63,4 +69,4 @@ class Movement:
 
     def update(self):
         if not self.stopped:
-            self.run(self)
+            self.run()

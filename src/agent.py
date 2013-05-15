@@ -25,17 +25,23 @@ class Agent:
         #start listening
         self.socket.start()
 
-        m = movement.Movement(self.world, self.socket)
+        m = movement.Movement(self.world, self.socket, self.player_nr)
         t = tactics_main.TacticsMain(self.world, m)
 
         self.socket.send("(beam -14 9 0)")
+
+        #Beispiel laufen funktioniert nicht richtig!
+        #msg = self.socket.receive()
+        #parsed_stuff = parser.parse_sexp(msg)
+        #self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
+        #m.run(-1, 1)
 
         while True:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
             self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
-
+            m.update()
             t.run_tactics()
 
             # self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
