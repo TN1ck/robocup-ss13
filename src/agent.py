@@ -31,11 +31,13 @@ class Agent:
 
         self.socket.send("(beam -14 9 0)")
 
-        #Beispiel laufen funktioniert nicht richtig!
-        #msg = self.socket.receive()
-        #parsed_stuff = parser.parse_sexp(msg)
-        #self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
-        #m.run(-1, 1)
+        #Beispiel fuer laufen
+        #Zielkoordinaten duerfen nicht 0 sein, sonst crash
+        #Durch das drehen des sichtfeldes crashed ab und zu die 
+        #trigonometry funktion der perception klasse
+        #siehe kommentare in der movement klasse fuer workaround 
+        #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
+        m.run(-1, 1)
 
         while True:
             msg = self.socket.receive()

@@ -1,4 +1,4 @@
-from math import sin, cos, acos
+from math import sin, cos, acos, atan, degrees, pi, pow, sqrt
 import time
 
 class Movement:
@@ -7,7 +7,7 @@ class Movement:
         self.world = world
         self.socket = socket
         self.player_nr = player_nr
-        self.velocity = 0.01
+        self.velocity = 0.1
         self.divergence = 1
         self.stopped = True
         self.destination = None
@@ -22,14 +22,11 @@ class Movement:
 
     def run(self, *destination):
         self.stopped = False
-        #player = self.world.get_own_player()
         position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
-        print "position: " + str(position.x) + " " + str(position.y)
         # Destination parameters are present in parameters
         if destination:
             self.destination = destination
-            self.rotation = acos(abs(position.x - self.destination[0]) / abs(position.y - self.destination[1]))
-                # Did we reach our destination?
+            self.rotation = acos((self.destination[0] - position.x) / sqrt(pow((self.destination[0] - position.x), 2) + pow((self.destination[1] - position.y), 2))) + pi
         if ((self.destination and
             abs(self.destination[0] - position.x) < self.divergence) and
            (abs(self.destination[1] - position.y) < self.divergence)):
@@ -37,8 +34,8 @@ class Movement:
             return
         dy = sin(self.rotation) * self.velocity
         dx = cos(self.rotation) * self.velocity
-
-	self.socket.send("(beam "+ str(position.x + dx) + " " + str(position.y) + " " + str(self.rotation) + ")")
+        #trigonometry crash workaround: change 'self.rotation' to '0' in the following function
+	self.socket.send("(beam "+ str(position.x + dx) + " " + str(position.y + dy) + " " + str(degrees(self.rotation)) + ")")
         #self.send("beam", position.x + dx, position.y + dy, self.rotation)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
