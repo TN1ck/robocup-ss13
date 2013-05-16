@@ -4,13 +4,13 @@ import logging
 
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
-    
+
     location_diff = 0
     location_diff_counter = 0
-    
+
     def __init__(self):
         pass
-    
+
     def get_parser_part(self, descriptor, parser_output):
         """Get a parser output part specified by its descriptor (e.g. 'See')"""
 
@@ -24,8 +24,8 @@ class Perception:
                 return temp
         # if not found:
         return None
-        
-        
+
+
     def process_vision_perceptors(self, parser_output, w, player_nr):
         """Processes the parser's output and updates the world info."""
 
@@ -66,7 +66,7 @@ class Perception:
 
     def self_localization(self, static_entities, w):
         """Calculates the own agent's position given a list of static entities. (NO LINES YET!)"""
-        
+
         # I placed the bot 1m in front of the middle line and let him watch.
         # The see-struct said the distance to the line is 1.13 m (10 times) or 1.14 m (5 times) so:
         # solve(1.13333333333333 = sqrt(1^2 + x^2), x) -> x = 0.5333333333333 ... yay!!
@@ -74,14 +74,14 @@ class Perception:
         #PERCEPTOR_HEIGHT = 0.54
         #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
         #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
-        
+
         '''     so sieht static_entities aus
-        [               
+        [
         [L ,['pol',d,phi,theta]]
         ...
         ]'''
 
-        # how do we handle lines? they only have absolute start and endpoints 
+        # how do we handle lines? they only have absolute start and endpoints
         # we can only use them if we are able to identify which line it actually is
         # first, get rid of them:
         lines = []
@@ -91,17 +91,17 @@ class Perception:
                 lines.append(se)
             else:
                 static_entities2.append(se)
-                
+
         static_entities = static_entities2 # TODO pls revise. looks kinda stupid.
-        
+
         #logging.debug("static entity count: " + str(len(static_entities)))
-        
+
         position_list = []
         #see_vector_list = []
         for list1 in static_entities:
             # polar coords as list:
             pol1 = self.get_pol_from_parser_entity(list1)
-            
+
             #distance from 3D Sphere to 2d cartesian
             d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
             #define the center
@@ -119,11 +119,11 @@ class Perception:
 
                     if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut waere; NICHT GUT Genug!
                         position_list.append([self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2), d_s_o1, d_s_o2])
-                    
-                    #see_vector_list += [] 
-                    
+
+                    #see_vector_list += []
+
         # now we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
-        # STEP 2 - process lines
+        # STEP 2 - process linez
         for l in lines:
             pol1 = self.get_pol_from_parser_entity(l)
             pol2 = self.get_pol_from_parser_entity(l, 1)
@@ -133,7 +133,7 @@ class Perception:
             else:
                 # seen line is (very very likely) the whole line
                 pass
-        
+
         '''
         #error estimilation
         sigma = (0.0965**0.5 ) *2
@@ -146,9 +146,9 @@ class Perception:
                 # check weather they could intersect (too far away or one is within the other)
                 # take the 2 points to define the new average_pos (radius = (p1-p2).mag()/2.0 is the new reduced_sigma)
                 l = intersections_circle(e[0], sigma *(e[1]+e[2]/2.0)/100, max_error, reduced_sigma)
-                
+
                 if len(l) == 1:
-                    if l[0].mag() < average_distance 
+                    if l[0].mag() < average_distance
         '''
         # weighting (still to be done)
         for e in position_list:
@@ -156,13 +156,14 @@ class Perception:
             pass
         #logging.debug(str( position_list))
         if len(position_list) != 0:
-            pos = world.Vector(0,0)       
+            pos = world.Vector(0,0)
             for e in position_list:
                 pos = pos + e[0]
 
             return pos / len(position_list)
 
-                
+
+
         '''to do:
         + winkel in degree oder radian? -> grad
         + sinnvollen wert fuer die Winkeldifferenz, ab wann triangulation nicht mehr sicher ist, oder irgendwie beide Werte verarbeiten
@@ -185,12 +186,12 @@ class Perception:
         to use. (Lines can have two.)"""
         return map(float, entity[which_pol + 1][0].split()[1:])
 
-    
+
     #def get_nearest_vectors(self, vector, vectors[], how_much):
     #    """Returns the 'how_much' nearest vectors in 'vectors[]' measured to 'vector'."""
     #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
     #    return temp[:how_much + 1]
-    
+
     ''' This method gets 2 vectors and 2 radius
     and returns a list of Vectors representing the intersection points of the circles'''
     def intersections_circle(self, v1, r1, v2, r2):
@@ -206,17 +207,17 @@ class Perception:
         #print x,y,c,d
 
         #no or just one interesection shouldn't happen in our simulation, because that would require 180 degree view or higher, but just for completeness
-        if r1 + r2  < d:    
+        if r1 + r2  < d:
             return []   #circles to far away from each other
         elif r1+r2 == d:
             return [v1 + (v2-v1)/2.0]
-   
+
         if y != 0:
             #solve y
-            m = -1*x / y 
-            c = c / y 
+            m = -1*x / y
+            c = c / y
             # -> chordale: y = m*x + c
-            #print 'chordale: ' , m, 'x + ', c          
+            #print 'chordale: ' , m, 'x + ', c
             #calculate intersection with the circles
             #P-Q-Formel
             #(x - v1.x)**2 + (m*x + c - v1.y)**2 - r1**2 = x**2 - 2 v1.x * x + v1.x**2   + (m*x+c)**2 - 2*((m*x+c)*v1.y) + (v1.y)**2 - r1**2
@@ -230,10 +231,10 @@ class Perception:
                 return []
             #print p,q
             x_1 = -(p)/2.0 + (d)**0.5
-            y_1 = x_1*m + c 
-                                            
+            y_1 = x_1*m + c
+
             x_2 = -(p)/2.0 - (d)**0.5
-            y_2 = x_2*m + c 
+            y_2 = x_2*m + c
         else:
             #print 'y = 0'
             if x == 0:
@@ -251,9 +252,9 @@ class Perception:
                 return []
             y_1 = -(p)/2.0 + (d)**0.5
             x_1 = c
-                                            
+
             y_2 = -(p)/2.0 - (d)**0.5
-            x_2 = c 
+            x_2 = c
 
         p1 = world.Vector(x_1,y_1)
         p2 = world.Vector(x_2,y_2)
@@ -262,17 +263,17 @@ class Perception:
         else:
             return [p1, p2]
 
-        
+
     ''' self localisation by trigonometry
         returns a list of 2 vectors: the first representing your position and the second vector the see vector,
         based on the position of the 2 given objects and the distance to them.
         the user has the duty to judge on his own wheater it is a good idea to use a1 ~~ a2 or even a1 = a2
-        also triangles with sidelength 0 are something you should watch out for yourself 
+        also triangles with sidelength 0 are something you should watch out for yourself
 
         This Method will by the way crash when you input v1  = v2, but since static objets dont have the same position ...'''
     def trigonometry(self, v1, d1, a1, v2, d2, a2):
         a = (v2-v1).mag()
-        
+
         b = d2
         c = d1
 

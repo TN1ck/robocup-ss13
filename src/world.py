@@ -25,13 +25,13 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
 
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y )
-    
+
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y )
-    
+
     def __mul__(self, other):
         return Vector(self.x * other, self.y *other )
-    
+
     def __div__(self, other):
         return Vector(self.x / other, self.y / other )
 
@@ -78,7 +78,7 @@ class Line(StaticEntity):
     def __init__(self, identifier, x1, y1, x2, y2):
         StaticEntity.__init__(self, identifier, x1, y1)
         self.position2 = Vector(x2, y2)
-        
+
 class Flag(StaticEntity):
     """A corner flag defined by its position (vector)."""
 
