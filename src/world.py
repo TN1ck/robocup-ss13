@@ -215,7 +215,6 @@ class World:
 
     def get_entity_position(self, identifier):
         """Get an entity's position by its identifier."""
-
         return self.entity_from_identifier[identifier].get_position()
 
 

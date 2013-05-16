@@ -8,6 +8,9 @@ class Perception:
     location_diff = 0
     location_diff_counter = 0
     
+    def __init__(self):
+        pass
+    
     def get_parser_part(self, descriptor, parser_output):
         """Get a parser output part specified by its descriptor (e.g. 'See')"""
 
@@ -22,18 +25,7 @@ class Perception:
         # if not found:
         return None
         
-    def unpack_items(self, listed_list_items):
-        """Converts a list [[0], [1], [2]] to [0, 1, 2]. Needed because parser is strange. ;)"""
-        result = []
-        for item in listed_list_items:
-            if len(item) == 1:
-                result.append(item[0])
-            else:
-                # TODO
-                logging.warning(str(item))
-                logging.warning("unpack_items: packed item was not the only one in its list!")
-        return result
-
+        
     def process_vision_perceptors(self, parser_output, w, player_nr):
         """Processes the parser's output and updates the world info."""
 
@@ -54,11 +46,10 @@ class Perception:
             for block in see:
                 # block is like ['L', ['pol 14.98 -36.73 -2.16'], ['pol 16.03 -39.46 -1.81']]
                 identifier = block[0]
-                attrs = self.unpack_items(block[1:])
                 if identifier in static_entity_identifiers:
-                    static_entities.append([identifier, attrs])
+                    static_entities.append(block)
                 else:
-                    mobile_entities.append([identifier, attrs])
+                    mobile_entities.append(block)
 
             #logging.debug('static_entities: ' + str(static_entities))
 
@@ -69,7 +60,7 @@ class Perception:
             self.location_diff_counter += 1
             self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
             logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-            w.entity_from_identifier['P' + str(player_nr)].position = localization_result
+            w.entity_from_identifier['P' + str(player_nr)]._position = localization_result
 
         #logging.debug('process_vision_perceptors END')
 
@@ -192,7 +183,7 @@ class Perception:
         as a list like: [distance, angle_hor, angle_vert]
         which_pol is 0 or 1 (default 0) and specifies which pol block
         to use. (Lines can have two.)"""
-        return map(float, entity[1][which_pol].split()[1:])
+        return map(float, entity[which_pol + 1][0].split()[1:])
 
     
     #def get_nearest_vectors(self, vector, vectors[], how_much):
@@ -264,8 +255,8 @@ class Perception:
             y_2 = -(p)/2.0 - (d)**0.5
             x_2 = c 
 
-        p1 = Vector(x_1,y_1)
-        p2 = Vector(x_2,y_2)
+        p1 = world.Vector(x_1,y_1)
+        p2 = world.Vector(x_2,y_2)
         if p1 == p2:
             return [p1]
         else:
@@ -298,7 +289,7 @@ class Perception:
         x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
         y = v1v2.x * math.sin(beta) + v1v2.y * math.cos(beta)
         #print 'v1 to nao ', Vector(x,y), v1
-        position = v1 + world.Vector(x,y)
+        position = v1 + world.Vector(x, y)
 
         ''' bekommen wir unsere Winkel in degree or radian? -> in grad
         #calculate see vector

@@ -41,6 +41,9 @@ class Agent:
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
             self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
+            
+            logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
+            
             m.update()
             t.run_tactics()
 
