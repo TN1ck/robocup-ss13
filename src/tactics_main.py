@@ -66,14 +66,14 @@ class TacticsMain:
     self.mov = movement
 
   def run_tactics(self):
-    # TODO
-    # me =
 
     ____ = self.world.lines
     _P__ = self.world.flags
     _TT_ = self.world.goal_poles
     _R__ = self.world.players
     _o__ = self.world.ball
+
+    me = _R__[0]
 
 
 
