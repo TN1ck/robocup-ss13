@@ -8,6 +8,7 @@ import perception
 import logging
 import tactics_main
 import movement
+import nao
 
 
 class Agent:
@@ -15,6 +16,8 @@ class Agent:
         self.player_nr = 0 #TODO needs to be revised for multiple players
 
         self.world = world.World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
+        
+        self.nao = nao.Nao(self.world, self.player_nr)
 
         self.perception = perception.Perception()
 
@@ -45,7 +48,8 @@ class Agent:
             parsed_stuff = parser.parse_sexp(msg)
             self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
 
-            logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
+            #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
+            logging.debug('agent location: ' + str(self.nao.get_position()))
 
             m.update()
             t.run_tactics()
