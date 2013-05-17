@@ -1,4 +1,4 @@
-from math import sin, cos, acos, atan, degrees, pi, pow, sqrt
+from math import sin, cos, acos, atan, degrees, pi, pow, sqrt, tan
 import time
 
 class Movement:
@@ -18,7 +18,7 @@ class Movement:
         return self.world
 
     def send(self, *params):
-        self.socket.send(" ".join(map(str, ["("] + params + [")"])))
+        self.socket.send(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
         self.stopped = False
@@ -26,7 +26,10 @@ class Movement:
         # Destination parameters are present in parameters
         if destination:
             self.destination = destination
-            self.rotation = acos((self.destination[0] - position.x) / sqrt(pow((self.destination[0] - position.x), 2) + pow((self.destination[1] - position.y), 2))) + pi
+            x = destination[0]
+            y = destination[1]
+            c = sqrt(x**2 + y**2)
+            self.rotation =  acos(x/c) if y >= 0 else -acos(x/c)
         if ((self.destination and
             abs(self.destination[0] - position.x) < self.divergence) and
            (abs(self.destination[1] - position.y) < self.divergence)):
@@ -35,8 +38,7 @@ class Movement:
         dy = sin(self.rotation) * self.velocity
         dx = cos(self.rotation) * self.velocity
         #trigonometry crash workaround: change 'self.rotation' to '0' in the following function
-	self.socket.send("(beam "+ str(position.x + dx) + " " + str(position.y + dy) + " " + str(degrees(self.rotation)) + ")")
-        #self.send("beam", position.x + dx, position.y + dy, self.rotation)
+        self.send("beam", position.x + dx, position.y + dy, degrees(self.rotation))
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
 
@@ -56,7 +58,7 @@ class Movement:
         #         self.send("he1", 0 - speed)
         #         turn_head_horizontal(self, angle, speed)
         self.send("he1", 0)
-            
+
     def turn_head_vertical(self, angle, speed):
         # analogous to turn_head_horizontal() with hj2 and he2
         self.send("he2", 0)
