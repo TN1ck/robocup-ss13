@@ -38,8 +38,8 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
-    def __str__(self):
-        return '(' + str(self.x) + ',' + str(self.y) + ')'
+    def __repr__(self):
+        return 'Vector(' + str(self.x) + ', ' + str(self.y) + ')'
 
     #magnitude (zu deutsch Betrag)
     def mag(self):

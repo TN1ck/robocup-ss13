@@ -53,37 +53,24 @@ class Perception:
 
             #logging.debug('static_entities: ' + str(static_entities))
 
-        # find out our position first:
-        localization_result = self.self_localization(static_entities, w)
-        if localization_result:
-            #logging.debug("localization_result: " + str(localization_result))
-            self.location_diff_counter += 1
-            self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
-            logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-            w.entity_from_identifier['P' + str(player_nr)]._position = localization_result
+            # find out our position first:
+            localization_result = self.self_localization(static_entities, w)
+            if localization_result:
+                #logging.debug("localization_result: " + str(localization_result))
+                self.location_diff_counter += 1
+                self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
+                logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
+                w.entity_from_identifier['P' + str(player_nr)]._position = localization_result
 
         #logging.debug('process_vision_perceptors END')
 
     def self_localization(self, static_entities, w):
-        """Calculates the own agent's position given a list of static entities. (NO LINES YET!)"""
+        """Calculates the own agent's position given the perception of some static entities (static_entities)
+        and the world (w). (NO LINES YET!)"""
 
-        # I placed the bot 1m in front of the middle line and let him watch.
-        # The see-struct said the distance to the line is 1.13 m (10 times) or 1.14 m (5 times) so:
-        # solve(1.13333333333333 = sqrt(1^2 + x^2), x) -> x = 0.5333333333333 ... yay!!
-        PERCEPTOR_HEIGHT = 0.5 + 1/30
-        #PERCEPTOR_HEIGHT = 0.54
-        #PERCEPTOR_HEIGHT = 4.358999999999999  - 0.39/2.0 #(0.39+1.41+0.2+1.3+0.964+0.095) - 0.39/2.0 #nao height - half head's size ,ich glaub das ist veraltet
-        #stimmt das wirklich???? ist von hier: http://simspark.sourceforge.net/wiki/index.php/Models
-
-        '''     so sieht static_entities aus
-        [
-        [L ,['pol',d,phi,theta]]
-        ...
-        ]'''
-
-        # how do we handle lines? they only have absolute start and endpoints
-        # we can only use them if we are able to identify which line it actually is
-        # first, get rid of them:
+        PERCEPTOR_HEIGHT = 0.5 + 1/30 # calculated w/ simspark - should be really veeeery accurate
+        
+        # first, get rid of lines:
         lines = []
         static_entities2 = []
         for se in static_entities:
@@ -91,17 +78,22 @@ class Perception:
                 lines.append(se)
             else:
                 static_entities2.append(se)
-
+        
         static_entities = static_entities2 # TODO pls revise. looks kinda stupid.
-
+        
+        # give up, if there're less than 2 static entities:
+        if len(static_entities) < 2:
+            logging.debug("localization failed. static entities: " + str(len(static_entities)))
+            return
+        
         #logging.debug("static entity count: " + str(len(static_entities)))
-
+        
         position_list = []
-        #see_vector_list = []
+        see_vector_list = []
         for list1 in static_entities:
             # polar coords as list:
             pol1 = self.get_pol_from_parser_entity(list1)
-
+            
             #distance from 3D Sphere to 2d cartesian
             d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
             #define the center
@@ -116,12 +108,46 @@ class Perception:
                     #define the center
                     v2 = world.Vector(w.get_entity_position(list2[0]).x, w.get_entity_position(list2[0]).y)
                     a2 = pol2[1]
-
+                    
                     if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut waere; NICHT GUT Genug!
-                        position_list.append([self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2), d_s_o1, d_s_o2])
-
-                    #see_vector_list += []
-
+                        trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2) # , d_s_o1, d_s_o2 # why the fuck was this here?
+                        position_list += [trig_res[0]]
+                        see_vector_list += [trig_res[1]]
+        '''
+        #error estimilation
+        sigma = (0.0965**0.5 ) *2
+        average_pos = position_list[0][0]   #what if the first one is already unexceptable far off? better use the pos from the closest object pair
+        average_distance = average_pos.mag()
+        reduced_sigma = sigma
+        
+        for e in position_list:
+            for f in position_list:
+                # check weather they could intersect (too far away or one is within the other)
+                # take the 2 points to define the new average_pos (radius = (p1-p2).mag()/2.0 is the new reduced_sigma)
+                l = intersections_circle(e[0], sigma *(e[1]+e[2]/2.0)/100, max_error, reduced_sigma)
+                
+                if len(l) == 1:
+                    if l[0].mag() < average_distance
+        # weighting (still to be done)
+        for e in position_list:
+            #logging.debug(str(e[0]))
+            pass
+        '''
+        
+        # calculate arithmetic mean of all positions and see vectors:
+        pos = None
+        see = None
+        if len(position_list) > 0:
+            pos = world.Vector(0, 0)
+            for p in position_list:
+                pos = pos + p
+            pos = pos / len(position_list)
+            see = world.Vector(0, 0)
+            for s in see_vector_list:
+                see = see + s
+            see = see / len(see_vector_list)
+        #logging.debug('see_vector: ' + str(see))
+        
         # now we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
         # STEP 2 - process linez
         for l in lines:
@@ -133,51 +159,9 @@ class Perception:
             else:
                 # seen line is (very very likely) the whole line
                 pass
+        
+        return pos
 
-        '''
-        #error estimilation
-        sigma = (0.0965**0.5 ) *2
-        average_pos = position_list[0][0]   #what if the first one is already unexceptable far off? better use the pos from the closest object pair
-        average_distance = average_pos.mag()
-        reduced_sigma = sigma
-
-        for e in position_list:
-            for f in position_list:
-                # check weather they could intersect (too far away or one is within the other)
-                # take the 2 points to define the new average_pos (radius = (p1-p2).mag()/2.0 is the new reduced_sigma)
-                l = intersections_circle(e[0], sigma *(e[1]+e[2]/2.0)/100, max_error, reduced_sigma)
-
-                if len(l) == 1:
-                    if l[0].mag() < average_distance
-        '''
-        # weighting (still to be done)
-        for e in position_list:
-            #logging.debug(str(e[0]))
-            pass
-        #logging.debug(str( position_list))
-        if len(position_list) != 0:
-            pos = world.Vector(0,0)
-            for e in position_list:
-                pos = pos + e[0]
-
-            return pos / len(position_list)
-
-
-
-        '''to do:
-        + winkel in degree oder radian? -> grad
-        + sinnvollen wert fuer die Winkeldifferenz, ab wann triangulation nicht mehr sicher ist, oder irgendwie beide Werte verarbeiten
-        (wenn ich sowieso extrem falsche werte raushaue kann man ja beide berechnen lassen)
-        + confidency?
-        + gewichten
-        + Linien benutzen
-        + see_vector berechnen
-        '''
-        '''Ideen:
-        + muss das ganze nicht in die agenten klasse, weil man zugriff auf das Selbstmodell und die eigene id braucht?
-        + zu stark abweichende werte aussortieren? abweichung von mehr als 2 sigma
-        + die eigene position noch mal ueber den Winkel berechnen und dann mit dem anderen Wert vergleichen
-        '''
 
     def get_pol_from_parser_entity(self, entity, which_pol = 0):
         """Returns the polar coordinates in a parser block (entity block)
@@ -192,86 +176,15 @@ class Perception:
     #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
     #    return temp[:how_much + 1]
 
-    ''' This method gets 2 vectors and 2 radius
-    and returns a list of Vectors representing the intersection points of the circles'''
-    def intersections_circle(self, v1, r1, v2, r2):
-        ''' our circles
-        (x-x1)^2+(y-y1)^2 = r1^2
-        (x-x2)^2+(y-y2)^2 = r2^2
-        '''
-        #calculate chordale
-        x = -2.0 * (v1.x - v2.x)
-        y = -2.0 * (v1.y - v2.y)
-        c = 1.0*r1**2 - r2**2 - v1.x**2 + v2.x**2 - v1.y**2 + v2.y**2
-        d = (v2-v1).mag()
-        #print x,y,c,d
 
-        #no or just one interesection shouldn't happen in our simulation, because that would require 180 degree view or higher, but just for completeness
-        if r1 + r2  < d:
-            return []   #circles to far away from each other
-        elif r1+r2 == d:
-            return [v1 + (v2-v1)/2.0]
-
-        if y != 0:
-            #solve y
-            m = -1*x / y
-            c = c / y
-            # -> chordale: y = m*x + c
-            #print 'chordale: ' , m, 'x + ', c
-            #calculate intersection with the circles
-            #P-Q-Formel
-            #(x - v1.x)**2 + (m*x + c - v1.y)**2 - r1**2 = x**2 - 2 v1.x * x + v1.x**2   + (m*x+c)**2 - 2*((m*x+c)*v1.y) + (v1.y)**2 - r1**2
-            # = 1 *x**2 + m**2 *x**2        + 2*m*x*c  - 2*((m*x+c)*v1.y) - 2*v1.x * x      + v1.x**2  + (v1.y)**2 - r1**2 + c**2
-            # =  (m**2+1) *x**2      + 2*m*c *x - 2*m*v1.y *x - 2 v1.x * x      + v1.x**2  + (v1.y)**2 - r1**2 + c**2 -2*c*v1.y
-            f = m**2+1
-            p = (2*m*c - 2*m*v1.y - 2*v1.x) / f
-            q = (v1.x**2  + (v1.y)**2 - r1**2 + c**2 -2*c*v1.y )/ f
-            d = p**2/4.0-q
-            if d < 0:
-                return []
-            #print p,q
-            x_1 = -(p)/2.0 + (d)**0.5
-            y_1 = x_1*m + c
-
-            x_2 = -(p)/2.0 - (d)**0.5
-            y_2 = x_2*m + c
-        else:
-            #print 'y = 0'
-            if x == 0:
-                return []
-                #print 'circles identical, this should never happen' #objects on the same position, we cant use them
-
-            c = c / x
-            #we got m*x = c to use in our circle
-            #P-Q-Formel
-            #(c - v1.x)**2 + (y - v1.y)**2 - r1**2 = y**2 - 2*v1.y *y + (c - v1.x)**2 + v1.y**2 - r1**2
-            p = - 2*v1.y
-            q = (c - v1.x)**2 + v1.y**2 - r1**2
-            d = (p)**2/4.0-q
-            if d < 0:
-                return []
-            y_1 = -(p)/2.0 + (d)**0.5
-            x_1 = c
-
-            y_2 = -(p)/2.0 - (d)**0.5
-            x_2 = c
-
-        p1 = world.Vector(x_1,y_1)
-        p2 = world.Vector(x_2,y_2)
-        if p1 == p2:
-            return [p1]
-        else:
-            return [p1, p2]
-
-
-    ''' self localisation by trigonometry
-        returns a list of 2 vectors: the first representing your position and the second vector the see vector,
-        based on the position of the 2 given objects and the distance to them.
-        the user has the duty to judge on his own wheater it is a good idea to use a1 ~~ a2 or even a1 = a2
-        also triangles with sidelength 0 are something you should watch out for yourself
-
-        This Method will by the way crash when you input v1  = v2, but since static objets dont have the same position ...'''
     def trigonometry(self, v1, d1, a1, v2, d2, a2):
+        """Self localisation by trigonometry.
+        Returns a list of 2 vectors: the first representing your position and the second vector the see vector,
+        based on the position of the 2 given objects and the distance to them.
+        The user has the duty to judge on his own wheater it is a good idea to use a1 ~~ a2 or even a1 = a2.
+        Also triangles with sidelength 0 are something you should watch out for yourself.
+        This Method will by the way crash when you input v1  = v2, but since static objets dont have the same position..."""
+        
         a = (v2-v1).mag()
 
         b = d2
@@ -291,23 +204,18 @@ class Perception:
         y = v1v2.x * math.sin(beta) + v1v2.y * math.cos(beta)
         #print 'v1 to nao ', Vector(x,y), v1
         position = v1 + world.Vector(x, y)
-
-        ''' bekommen wir unsere Winkel in degree or radian? -> in grad
+        
         #calculate see vector
-        posv1 = v1 - pos #vector from our position to v1
+        posv1 = v1 - position #vector from our position to v1
 
         #now rotate with alpha in same direction as when calculating the position
         x = posv1.x * math.cos(a1) - posv1.y * math.sin(a1)
         y = posv1.x * math.sin(a1) + posv1.y * math.cos(a1)
 
-        see_vector = Vector(x,y)
+        see_vector = world.Vector(x,y)
         see_vector = see_vector / see_vector.mag()
 
-        return [ position, see_vector ]
-        '''
-        return position
+        return position, see_vector
+        
+        #return position
 
-#g = ((15**2+1.05**2) + (0.8 - 0.54)**2)**0.5
-#f = (15**2+10**2)**0.5
-#logging.debug('vermutete eigene Position: ' + str(w.self_localisation([['G1R' ,['pol',g,-0.6,0.6]],['G2R' ,['pol',g,0.6,0.6]],['F1R' ,['pol',f,-1,0.6]],['F2R' ,['pol',f,1,0.6]]])))
-#logging.debug('vermutete eigene Position: ' + str(w.self_localisation([['G1L' ,['pol',g,0.6,0.6]],['G2L' ,['pol',g,-0.6,0.6]],['F1L' ,['pol',f,1,0.6]],['F2L' ,['pol',f,-1,0.6]]])))
