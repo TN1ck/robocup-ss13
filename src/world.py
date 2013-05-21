@@ -4,6 +4,7 @@ Calculation may be transferred into a separate module in the future."""
 
 import logging
 import copy
+import math
 
 class Vector:
     """A 2-dimensional vector defined by its cartesian x and y coordinates.
@@ -41,6 +42,14 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
     def __repr__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ')'
 
+    #angle in radian
+    def rotate(self, a):
+        x = self.x * math.cos(a) - self.y * math.sin(a)
+        self.y = self.x * math.sin(a) + self.y * math.cos(a)
+        self.x = x
+
+        return self
+    
     #magnitude (zu deutsch Betrag)
     def mag(self):
         return (self.x**2 + self.y**2)**0.5
@@ -123,8 +132,8 @@ class Player(MobileEntity):
 
     def __init__(self, identifier, team):
         MobileEntity.__init__(self, identifier)
-        self.team = team
-        self.seeVector = Vector(0.0, 0.0)
+        self._team = team
+        self._seeVector = Vector(0.0, 0.0)
 
 class Ball(MobileEntity):
     """The ball.
@@ -216,5 +225,3 @@ class World:
     def get_entity_position(self, identifier):
         """Get an entity's position by its identifier."""
         return self.entity_from_identifier[identifier].get_position()
-
-
