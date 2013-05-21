@@ -40,7 +40,7 @@ class Agent:
         #trigonometry funktion der perception klasse
         #siehe kommentare in der movement klasse fuer workaround 
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-        m.run(-1, 1)
+        m.run(1, -1)
 
         while True:
             msg = self.socket.receive()
