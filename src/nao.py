@@ -52,4 +52,6 @@ class Nao:
         
     def get_position(self):
         return self.world.get_entity_position('P' + str(self.player_nr))
-        
+
+    def get_see_vector(self):
+        return self.world.entity_from_identifier['P' + str(self.player_nr)].get_see_vector()

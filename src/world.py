@@ -124,7 +124,10 @@ class Player(MobileEntity):
     def __init__(self, identifier, team):
         MobileEntity.__init__(self, identifier)
         self.team = team
-        self.seeVector = Vector(0.0, 0.0)
+        self._see_vector = Vector(0.0, 0.0)
+        
+    def get_see_vector(self):
+        return copy.deepcopy(self._see_vector)
 
 class Ball(MobileEntity):
     """The ball.

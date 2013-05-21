@@ -58,9 +58,11 @@ class Perception:
             if localization_result:
                 #logging.debug("localization_result: " + str(localization_result))
                 self.location_diff_counter += 1
-                self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
-                logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                w.entity_from_identifier['P' + str(player_nr)]._position = localization_result
+                self.location_diff += (localization_result[0] - world.Vector(-14, 9)).mag()
+                #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
+                player = w.entity_from_identifier['P' + str(player_nr)]
+                player._position = localization_result[0]
+                player._see_vector = localization_result[1]
 
         #logging.debug('process_vision_perceptors END')
 
@@ -160,7 +162,7 @@ class Perception:
                 # seen line is (very very likely) the whole line
                 pass
         
-        return pos
+        return pos, see
 
 
     def get_pol_from_parser_entity(self, entity, which_pol = 0):
