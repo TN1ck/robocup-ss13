@@ -12,8 +12,8 @@ import nao
 
 
 class Agent:
-    def __init__(self):
-        self.player_nr = 0 #TODO needs to be revised for multiple players
+    def __init__(self,p_nr):
+        self.player_nr = p_nr #TODO needs to be revised for multiple players
 
         self.world = world.World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
         
@@ -30,7 +30,7 @@ class Agent:
         self.socket.start()
 
         m = movement.Movement(self.world, self.socket, self.player_nr)
-        t = tactics_main.TacticsMain(self.world, m)
+        t = tactics_main.TacticsMain(self.world, m, self.player_nr)
 
         self.socket.send("(beam -14 9 0)")
 
@@ -40,7 +40,7 @@ class Agent:
         #trigonometry funktion der perception klasse
         #siehe kommentare in der movement klasse fuer workaround 
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-        m.run(1, -1)
+        m.run(-1, 1)
 
         while True:
             msg = self.socket.receive()
@@ -60,4 +60,4 @@ class Agent:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-    Agent()
+    Agent(0)
