@@ -57,12 +57,11 @@ class Perception:
             localization_result = self.self_localization(static_entities, w)
             if localization_result:
                 #logging.debug("localization_result: " + str(localization_result))
-                self.location_diff_counter += 1
-                self.location_diff += (localization_result[0] - world.Vector(-14, 9)).mag()
+                #self.location_diff_counter += 1
+                #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P' + str(player_nr)]
-                player._position = localization_result[0]
-                player._see_vector = localization_result[1]
+                w.entity_from_identifier['P' + str(player_nr)]._position = localization_result[0]
+                w.entity_from_identifier['P' + str(player_nr)]._seeVector = localization_result[1]
 
         #logging.debug('process_vision_perceptors END')
 
@@ -112,9 +111,10 @@ class Perception:
                     a2 = pol2[1]
                     
                     if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut waere; NICHT GUT Genug!
-                        trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2) # , d_s_o1, d_s_o2 # why the fuck was this here?
-                        position_list += [trig_res[0]]
-                        see_vector_list += [trig_res[1]]
+                        trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2) 
+                        if trig_res != None:
+                            position_list += [trig_res[0]]
+                            see_vector_list += [trig_res[1]]
         '''
         #error estimilation
         sigma = (0.0965**0.5 ) *2
@@ -183,49 +183,84 @@ class Perception:
         """Self localisation by trigonometry.
         Returns a list of 2 vectors: the first representing your position and the second vector the see vector,
         based on the position of the 2 given objects and the distance to them.
-        The user has the duty to judge on his own wheater it is a good idea to use a1 ~~ a2 or even a1 = a2.
-        Also triangles with sidelength 0 are something you should watch out for yourself.
-        This Method will by the way crash when you input v1  = v2, but since static objets dont have the same position..."""
+
+        returns None if the parameters don't form a triangle"""
         
         a = (v2-v1).mag()
 
         b = d2
         c = d1
 
-        #print a,b,c
+        if b + c <= a:   #no triangle? 
+            return None
+
         acos_arg = (a**2 - b**2 + c**2) / (2.0 * a * c)
         #logging.debug(acos_arg)
-        #TODO revise this! (Felix):
-        if acos_arg < -1:
-            beta = math.pi
-        elif acos_arg > 1:
-            beta = 0
-        else:
-            beta = math.acos(acos_arg)
-        #print 'beta: ', beta * 180 / math.pi
+
+        beta = math.acos(acos_arg)
+
         v1v2 = v2-v1 #vector from v1 to v2
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
 
-        if a1 > a2: #positive angle means left
-            #rotate along the clock (left object)
+
+        if a1 > a2: 
+            #rotate along the clock (because it is the left object)
+            #by the way a positive angle means left of the nao see vector
             beta = -1* beta
-        x = v1v2.x * math.cos(beta) - v1v2.y * math.sin(beta)
-        y = v1v2.x * math.sin(beta) + v1v2.y * math.cos(beta)
-        #print 'v1 to nao ', Vector(x,y), v1
-        position = v1 + world.Vector(x, y)
+
+        #print 'beta: ', beta * 180 / math.pi
+
+        #print v1v2.rotate(-beta)
+        position = v1 + v1v2.rotate(beta)
         
         #calculate see vector
+        #with v1
         posv1 = v1 - position #vector from our position to v1
+        posv1 = posv1 / posv1.mag()
 
-        #now rotate with alpha in same direction as when calculating the position
-        x = posv1.x * math.cos(a1) - posv1.y * math.sin(a1)
-        y = posv1.x * math.sin(a1) + posv1.y * math.cos(a1)
+        #now rotate back with alpha
+        alpha = a1*math.pi /180
+        alpha *= -1 #reverse the angle
+        see_vector = posv1.rotate(alpha)
+        #print world.Vector(x,y)
+        
+        #with v2
+        posv2 = v2 - position #vector from our position to v1
+        posv2 = posv2 / posv2.mag()
 
-        see_vector = world.Vector(x,y)
+        #now rotate back with alpha
+        alpha = a2*math.pi /180
+        alpha *= -1 #reverse the angle
+
+        #print world.Vector(x,y)
+        see_vector += posv2.rotate(alpha)
+
         see_vector = see_vector / see_vector.mag()
 
         return position, see_vector
         
-        #return position
 
+'''#little testbase
+#if you aren't me, dont use it
+#(because there is this issue that v1 and v2 has to be chosen in a way,
+#so that the triangle is located in the upper right half of the coordinatsystem)
+(the trigonometry can handle that, but not the testbase yet XD)
+p = Perception()
+v1 = world.Vector(1, 1)   #use v1, v2 to define a triangle
+v2 = world.Vector(1,-1)
+d1 = (v1.x**2 + v1.y**2)**0.5
+d2 = (v2.x**2 + v2.y**2)**0.5
+a1 = math.atan((1.*v1.y)/v1.x)*180/math.pi
+a2 = math.atan((1.*v2.y)/v2.x)*180/math.pi
+o = world.Vector(1,2)   #offset to move the triangle
+turn = 99              #turn in degree along the clock
+t = -1*turn *math.pi/180
+see = world.Vector(1,0) 
+see = world.Vector(see.x * math.cos(t) - see.y * math.sin(t),
+        see.x * math.sin(t) + see.y * math.cos(t))
+
+print v1, d1, a1, v2, d2, a2, o
+print 'Ergebnis: ' + str(p.trigonometry(v1+o, d1, a1+turn, v2+o, d2, a2+turn))
+print 'expected was: ', o, see
+'''
