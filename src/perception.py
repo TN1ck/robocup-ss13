@@ -60,9 +60,9 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                w.entity_from_identifier['P' + str(player_nr)]._position = localization_result[0]
-                w.entity_from_identifier['P' + str(player_nr)]._seeVector = localization_result[1]
-
+                player = w.entity_from_identifier['P' + str(player_nr)]
+                player._position = localization_result[0]
+                player._see_vector = localization_result[1] 
         #logging.debug('process_vision_perceptors END')
 
     def self_localization(self, static_entities, w):
