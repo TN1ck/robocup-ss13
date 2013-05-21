@@ -23,9 +23,9 @@ term_regex = r'''(?mx)
     \s*(?:
         (?P<brackl>\()|
         (?P<brackr>\))|
-        (?P<num>\d+\.\d+|\d+)\b|
+        (?P<num>\-?\d+\.\d+|\-?\d+)\b|
         (?P<sq>"[^"]*")|
-        (?P<s>[^()]+)\b
+        (?P<s>\S+)\b
        )'''
 
 def parse_sexp(sexp):
@@ -47,6 +47,7 @@ def parse_sexp(sexp):
             stack.append(out)
             out = []
         elif term == 'brackr':
+            print 'Brackets are wrong'
             assert stack, "Trouble with nesting of brackets"
             tmpout, out = out, stack.pop(-1)
             out.append(tmpout)
@@ -80,7 +81,19 @@ def print_sexp(exp):
 if __name__ == '__main__':
     # sexp = '''(time (now 3.58))(GS (unum 1) (team left) (t 0.00) (pm BeforeKickOff))(GYR (n torso) (rt -0.00 -0.00 -0.00))(ACC (n torso) (a -0.00 -0.00 29.42))(HJ (n hj1) (ax 0.00))(HJ (n hj2) (ax -0.00))(HJ (n raj1) (ax -0.00))(HJ (n raj2) (ax -0.00))(HJ (n raj3) (ax -0.00))(HJ (n raj4) (ax 0.00))(HJ (n laj1) (ax 0.00))(HJ (n laj2) (ax 0.00))(HJ (n laj3) (ax 0.00))(HJ (n laj4) (ax -0.00))(HJ (n rlj1) (ax 0.00))(HJ (n rlj2) (ax -0.00))(HJ (n rlj3) (ax -0.00))(HJ (n rlj4) (ax 0.00))(HJ (n rlj5) (ax -0.00))(HJ (n rlj6) (ax -0.00))(HJ (n llj1) (ax -0.00))(HJ (n llj2) (ax 0.00))(HJ (n llj3) (ax -0.00))(HJ (n llj4) (ax 0.00))(HJ (n llj5) (ax 0.00))(HJ (n llj6) (ax -0.00))'''
     # sexp = "(((foo)))"
-    sexp = "(foo) (bar)"
+    sexp = '''(
+               (time (now 89.32))
+               (GS (t 0.00) (pm BeforeKickOff))
+               (GYR (n torso) (rt 0.00 -0.00 -0.00 ))
+               (ACC (n torso) (a 0.00 0.00 0.00))
+               (HJ (n hj1) (ax -0.00))
+               (HJ (n hj2) (ax 0.00 ))
+               (See (F1L (pol 18.68 53.70 -5.11))
+                    (F1R (pol 18.64 -53.84 -4.92))
+                    (B (pol 1.89 -0.36 -58.41))
+                    (L (pol 17.40 -59.87 -5.40)
+                        (pol 18.67 -53.82 -5.11)) (L (pol 17.41 59.98 -5.37) (pol 18.64 53.96 -4.71)) (L (pol 18.73 -53.90 -5.26) (pol 18.68 53.52 -5.11)) (L (pol 2.80 -59.74 -36.25) (pol 3.17 -36.46 -31.34)) (L (pol 3.17 -37.04 -31.37) (pol 3.40 -12.10 -28.99)) (L (pol 3.39 -11.88 -29.17) (pol 3.39 12.06 -28.92)) (L (pol 3.40 11.88 -29.19) (pol 3.17 36.60 -31.29)) (L (pol 3.17 36.58 -31.30) (pol 2.79 59.84 -36.29)))(HJ (n raj1) (ax 0.00))(HJ (n raj2) (ax 0.00))(HJ (n raj3) (ax 0.00))(HJ (n raj4) (ax -0.00))(HJ (n laj1) (ax 0.00))(HJ (n laj2) (ax -0.00))(HJ (n laj3) (ax -0.00))(HJ (n laj4) (ax 0.00))(HJ (n rlj1) (ax 0.00))(HJ (n rlj2) (ax 0.00))(HJ (n rlj3) (ax -0.00))(HJ (n rlj4) (ax -0.00))(HJ (n rlj5) (ax -0.00))(HJ (n rlj6) (ax 0.00))(HJ (n llj1) (ax 0.00))(HJ (n llj2) (ax 0.00))(HJ (n llj3) (ax -0.00))(HJ (n llj4) (ax 0.00 ))(HJ (n llj5) (ax -0.00 ))(HJ (n llj6) (ax 0.00)))'''
+
 
     print('Input S-expression: %r' % (sexp, ))
     parsed = parse_sexp(sexp)
