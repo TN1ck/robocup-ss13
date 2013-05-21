@@ -194,11 +194,18 @@ class Perception:
         if b + c <= a:   #no triangle? 
             return None
 
+        
         acos_arg = (a**2 - b**2 + c**2) / (2.0 * a * c)
-        #logging.debug(acos_arg)
-
-        beta = math.acos(acos_arg)
-
+        logging.debug(acos_arg)
+        logging.debug(str(a) + ', ' + str(c) + ', ' + str(b))
+        #TODO revise this! (Felix):
+        if acos_arg < -1:
+            beta = math.pi
+        elif acos_arg > 1:
+            beta = 0
+        else:
+            beta = math.acos(acos_arg) 
+        
         v1v2 = v2-v1 #vector from v1 to v2
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
