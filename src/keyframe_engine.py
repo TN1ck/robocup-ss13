@@ -26,6 +26,20 @@ class Keyframe_Engine:
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
         self.send()
+        
+    def stand(self):
+        keyframe = kf.stand.keyframe
+        self.get_new_joint_postion(keyframe[self.keyframe_line])
+        if self.keyframe_line >= len(keyframe): # alt: 1
+            self.keyframe_line = 0
+        self.send()
+        
+    def stand_up_from_front(self):
+        keyframe = kf.stand_up_from_front.keyframe
+        self.get_new_joint_postion(keyframe[self.keyframe_line])
+        if self.keyframe_line >= len(keyframe): # alt: 6
+            self.keyframe_line = 0
+        self.send()
     
     def get_new_joint_postion(self, keyframe):   
         for joint_number in self.last_joint_speed:
@@ -36,6 +50,6 @@ class Keyframe_Engine:
             self.keyframe_line = self.keyframe_line + 1
             
     def send(self):
-        print 'h'
+        print 'Placeholder Print'
             
         
