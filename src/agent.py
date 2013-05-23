@@ -9,6 +9,7 @@ import logging
 import tactics_main
 import movement
 import nao
+import keyframe_engine
 
 
 class Agent:
@@ -23,6 +24,7 @@ class Agent:
 
         #setup a socket-connection to the server
         self.socket = sock.Sock("localhost", 3100, "DAI-Labor", self.player_nr)
+        self.kfe = keyframe_engine.Keyframe_Engine(self.nao, self.socket)
         self.start()
 
     def start(self):
@@ -30,6 +32,7 @@ class Agent:
         self.socket.start()
 
         m = movement.Movement(self.world, self.socket, self.player_nr)
+        kfe = keyframe_engine.Keyframe_Engine(self.nao, self.socket)
         t = tactics_main.TacticsMain(self.world, m, self.player_nr)
 
         self.socket.send("(beam 0 0 0)")
@@ -46,6 +49,7 @@ class Agent:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
+            self.nao.update_joint_positions(parsed_stuff)
             self.perception.process_vision_perceptors(parsed_stuff, self.world)
 
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
