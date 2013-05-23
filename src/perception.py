@@ -1,6 +1,7 @@
 import math
 import world
 import logging
+import numpy
 
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
@@ -75,9 +76,8 @@ class Perception:
         """Calculates the position of the given percepted mobile entities and
         writes this info into the given world."""
         for me in mobile_entities: # me = mobile entity
-            logging.debug(me)
             if me[0] == 'P': # it's a player!
-                id = int(me[2][0][3:])
+                id = int(me[2][1])
                 if id != self.player_nr: # don't process own arms etc.
                     pass
             elif me[0] == 'B': # it's a ball!
@@ -89,7 +89,6 @@ class Perception:
         """Calculates the own agent's position given the perception of some static entities (static_entities)
         and the world (w). (NO LINES YET!)
         Returns (position, see_vector)."""
-
         
         # first, get rid of lines:
         lines = []
@@ -107,71 +106,74 @@ class Perception:
             logging.debug("localization failed. static entities: " + str(len(static_entities)))
             return
         
-        #logging.debug("static entity count: " + str(len(static_entities)))
+        ## calculate NAO's position ##
         
         position_list = []
-        see_vector_list = []
-        for list1 in static_entities:
-            # polar coords as list:
-            pol1 = self.get_pol_from_parser_entity(list1)
-            
-            #distance from 3D Sphere to 2d cartesian
-            d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
-            #logging.debug('huhuuuu ' + str((w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)))
-            #define the center
-            v1 = world.Vector(w.get_entity_position(list1[0]).x, w.get_entity_position(list1[0]).y)
+        for se1 in static_entities:
+            # static entity's polar coords as list:
+            pol1 = self.get_pol_from_parser_entity(se1)
+            # calculate cartesian 2d distance from 3d distance:
+            d_s_o1 = (pol1[0]**2 - (w.entity_from_identifier[se1[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
+            # define the center:
+            v1 = world.Vector(w.get_entity_position(se1[0]).x, w.get_entity_position(se1[0]).y) #TODO get rid of constructor?
             a1 = pol1[1]
-            for list2 in static_entities:
-                if list1[0] != list2[0]:
+            for se2 in static_entities:
+                if se1[0] != se2[0]:
                     # polar coords as list:
-                    pol2 = self.get_pol_from_parser_entity(list2)
-                    #distance from 3D Sphere to 2d cartesian
-                    d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[list2[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
-                    #define the center
-                    v2 = world.Vector(w.get_entity_position(list2[0]).x, w.get_entity_position(list2[0]).y)
+                    pol2 = self.get_pol_from_parser_entity(se2)
+                    # 2d distance:
+                    d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[se2[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
+                    # define the center:
+                    v2 = world.Vector(w.get_entity_position(se2[0]).x, w.get_entity_position(se2[0]).y)
                     a2 = pol2[1]
                     
                     if d_s_o1 > 0.1 and d_s_o2 > 0.1 and abs(a1 - a2) > 2.0:
                         trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
-                            position_list += [trig_res[0]]
-                            see_vector_list += [trig_res[1]]
-        '''
-        #error estimilation
-        sigma = (0.0965**0.5 ) *2
-        average_pos = position_list[0][0]   #what if the first one is already unexceptable far off? better use the pos from the closest object pair
-        average_distance = average_pos.mag()
-        reduced_sigma = sigma
+                            position_list += [ trig_res ]
         
-        for e in position_list:
-            for f in position_list:
-                # check weather they could intersect (too far away or one is within the other)
-                # take the 2 points to define the new average_pos (radius = (p1-p2).mag()/2.0 is the new reduced_sigma)
-                l = intersections_circle(e[0], sigma *(e[1]+e[2]/2.0)/100, max_error, reduced_sigma)
-                
-                if len(l) == 1:
-                    if l[0].mag() < average_distance
-        # weighting (still to be done)
-        for e in position_list:
-            #logging.debug(str(e[0]))
-            pass
-        '''
-        
-        # calculate arithmetic mean of all positions and see vectors:
+        # calculate arithmetic mean of all positions:
         pos = None
-        see = None
         if len(position_list) > 0:
             pos = world.Vector(0, 0)
             for p in position_list:
                 pos = pos + p
             pos = pos / len(position_list)
-            see = world.Vector(0, 0)
+            
+        # pos is our position now, yay!
+        
+        ## calculate NAO's see vector ##
+        
+        see_vector_list = []
+        for se in static_entities:
+            se_pos = w.get_entity_position(se[0])
+            se_height = w.entity_from_identifier[se[0]]._perception_height
+            se_pol = self.get_pol_from_parser_entity(se)
+            # construct a vector from our camera to the static entity:
+            see = numpy.array([se_pos.x - pos.x, se_pos.y - pos.y, se_height - self.PERCEPTOR_HEIGHT])
+            # now some rotationz...
+            z_axis = numpy.array([0, 0, 1]) # horizontally
+            y_axis = numpy.array([0, 1, 0]) # vertically
+            # 2d part of the vector -> angle is:
+            rot2d = numpy.arctan2(see[0], see[1])
+            # reset 2d rotation:
+            see = numpy.dot(self.rotation_matrix(z_axis, -rot2d), see)
+            # apply vertical rotation:
+            see = numpy.dot(self.rotation_matrix(y_axis, se_pol[1] / 180.0 * math.pi), see)
+            # apply horizontal rotation and re-apply 2d rotation:
+            see = numpy.dot(self.rotation_matrix(y_axis, se_pol[0] / 180.0 * math.pi + rot2d), see)
+            # add to list:
+            see_vector_list += [see]
+        
+        see = None
+        if len(see_vector_list) > 0:
+            see = numpy.array([0, 0, 0])
             for s in see_vector_list:
                 see = see + s
-            see = see / len(see_vector_list)
+            see = see / numpy.linalg.norm(see)
         #logging.debug('see_vector: ' + str(see))
         
-        # now we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
+        # we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
         # STEP 2 - process linez
         for l in lines:
             pol1 = self.get_pol_from_parser_entity(l)
@@ -191,14 +193,22 @@ class Perception:
         as a list like: [distance, angle_hor, angle_vert]
         which_pol is 0 or 1 (default 0) and specifies which pol block
         to use. (Lines can have two.)"""
-        return map(float, entity[which_pol + 1][0].split()[1:])
+        #return map(float, entity[which_pol + 1][0].split()[1:])
+        return map(float, entity[which_pol + 1][1:])
 
 
     #def get_nearest_vectors(self, vector, vectors[], how_much):
     #    """Returns the 'how_much' nearest vectors in 'vectors[]' measured to 'vector'."""
     #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
     #    return temp[:how_much + 1]
-
+    
+    def rotation_matrix(self, axis, theta):
+        axis = axis / numpy.sqrt(numpy.dot(axis, axis))
+        a = numpy.cos(theta / 2)
+        b, c, d = -axis * numpy.sin(theta / 2)
+        return numpy.array([[a * a + b * b - c * c - d * d, 2 * (b * c - a * d), 2 * (b * d + a * c)],
+                            [2 * (b * c + a * d), a * a + c * c - b * b - d * d, 2 * (c * d - a * b)],
+                            [2 * (b * d - a * c), 2 * (c * d + a * b), a * a + d * d - b * b - c * c]])
 
     def trigonometry(self, v1, d1, a1, v2, d2, a2):
         """Self localization by trigonometry.
@@ -217,8 +227,8 @@ class Perception:
 
         
         acos_arg = (a**2 - b**2 + c**2) / (2.0 * a * c)
-        logging.debug(acos_arg)
-        logging.debug(str(a) + ', ' + str(c) + ', ' + str(b))
+        #logging.debug(acos_arg)
+        #logging.debug(str(a) + ', ' + str(c) + ', ' + str(b))
         #TODO revise this! (Felix):
         # distance error is e.g.: 28.99 - 29.09
         if acos_arg < -1:
@@ -243,6 +253,7 @@ class Perception:
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
         
+        '''
         #calculate see vector
         #with v1
         posv1 = v1 - position #vector from our position to v1
@@ -266,8 +277,9 @@ class Perception:
         see_vector += posv2.rotate(alpha)
 
         see_vector = see_vector / see_vector.mag()
-
-        return position, see_vector
+        '''
+        
+        return position #, see_vector
         
 
 '''#little testbase
