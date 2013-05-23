@@ -55,3 +55,10 @@ class Nao:
 
     def get_see_vector(self):
         return self.world.entity_from_identifier['P' + str(self.player_nr)].get_see_vector()
+    
+    def update_joint_positions(self, parsed):
+        joint_number = 0
+        for i in parsed:
+            if i[0] == 'HJ':
+                self.hinge_joints[joint_number].value = float(i[2].split(' ', 1 )[1])
+                joint_number = joint_number +1    
