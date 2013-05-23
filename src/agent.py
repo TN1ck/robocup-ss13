@@ -51,7 +51,7 @@ class Agent:
             parsed_stuff = parser.parse_sexp(msg)
             self.nao.update_joint_positions(parsed_stuff)
             self.perception.process_vision_perceptors(parsed_stuff, self.world)
-
+            kfe.stand_up_from_back()
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             logging.debug('agent location: ' + str(self.nao.get_position()))
             logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
