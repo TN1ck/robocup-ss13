@@ -9,6 +9,7 @@ import logging
 import tactics_main
 import movement
 import nao
+from sys import argv
 
 
 class Agent:
@@ -16,7 +17,7 @@ class Agent:
         self.player_nr = p_nr #TODO needs to be revised for multiple players
 
         self.world = world.World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
-        
+
         self.nao = nao.Nao(self.world, self.player_nr)
 
         self.perception = perception.Perception(self.player_nr)
@@ -36,9 +37,9 @@ class Agent:
 
         #Beispiel fuer laufen
         #Zielkoordinaten duerfen nicht 0 sein, sonst crash
-        #Durch das drehen des sichtfeldes crashed ab und zu die 
+        #Durch das drehen des sichtfeldes crashed ab und zu die
         #trigonometry funktion der perception klasse
-        #siehe kommentare in der movement klasse fuer workaround 
+        #siehe kommentare in der movement klasse fuer workaround
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
         m.run(1, -1)
 
@@ -61,4 +62,13 @@ class Agent:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-    Agent(0)
+
+    try:
+        agent_id = argv[1]
+    except:
+        print("You need to call \"./agent.py <player_id>\".")
+        exit(1)
+
+    Agent(agent_id)
+
+
