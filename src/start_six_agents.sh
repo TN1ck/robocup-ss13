@@ -1,7 +1,7 @@
 #!/bin/bash
 
-for i in `seq 0 0`; do
-  # Executes agents asynchronous
+for i in `seq 0 5`; do
+  # Executes agents asynchronously
   ./agent.py $i &
   # Print process id of every agent in order that you can kill them
   echo $!
