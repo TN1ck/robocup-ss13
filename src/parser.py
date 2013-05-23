@@ -30,6 +30,7 @@ term_regex = r'''(?mx)
 
 def parse_sexp(sexp):
     sexp = "("+sexp+")"
+    sexp = sexp.replace('(','( ').replace(')',' )')
     stack = []
     out = []
     if dbg: print("%-6s %-14s %-44s %-s" % tuple("term value out stack".split()))
@@ -47,7 +48,6 @@ def parse_sexp(sexp):
             stack.append(out)
             out = []
         elif term == 'brackr':
-            print 'Brackets are wrong'
             assert stack, "Trouble with nesting of brackets"
             tmpout, out = out, stack.pop(-1)
             out.append(tmpout)
