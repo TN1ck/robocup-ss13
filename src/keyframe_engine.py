@@ -1,4 +1,4 @@
-import Keyframes as kf
+from Keyframes import stand_up_from_back
 
 
 class Keyframe_Engine:
@@ -21,21 +21,27 @@ class Keyframe_Engine:
     
     
     def stand_up_from_back(self):
-        keyframe = kf.stand_up_from_back.keyframe
+        keyframe = stand_up_from_back.keyframe
         self.get_new_joint_postion(keyframe[self.keyframe_line])
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
-        self.send()
+        i = 0
+        while i < len(self.nao.hinge_joints):
+            self.send(self.nao.hinge_joints[i].effector, self.last_joint_speed[i])
+            i = i + 1
     
-    def get_new_joint_postion(self, keyframe):   
-        for joint_number in self.last_joint_speed:
+    def get_new_joint_postion(self, keyframe):
+        joint_number = 0
+        while joint_number < len(self.last_joint_speed):
             self.last_joint_speed[joint_number] = (keyframe[joint_number+1]-(self.nao.hinge_joints[joint_number].value + self.last_joint_speed[joint_number] * self._default_time)) / (keyframe[0] - self.progressed_time) * self._default_time
+            joint_number = joint_number + 1
         self.progressed_time = self.progressed_time + 20
         if (keyframe[0] - self.progressed_time) < self._default_time:                
             self.progressed_time = 0
             self.keyframe_line = self.keyframe_line + 1
             
-    def send(self):
-        print 'h'
-            
+    def send(self, *params):
+        self.socket.send(" ".join(map(str, ["("] + list(params) + [")"])))
+   
+   
         

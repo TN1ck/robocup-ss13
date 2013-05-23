@@ -60,5 +60,5 @@ class Nao:
         joint_number = 0
         for i in parsed:
             if i[0] == 'HJ':
-                self.hinge_joints[joint_number].value = float(i[2].split(' ', 1 )[1])
+                self.hinge_joints[joint_number].value = i[2][1]
                 joint_number = joint_number +1    
