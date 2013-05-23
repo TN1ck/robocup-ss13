@@ -22,50 +22,32 @@ class Keyframe_Engine:
     
     def stand_up_from_back(self):
         keyframe = stand_up_from_back.keyframe
-        self.get_new_joint_postion(keyframe[self.keyframe_line])
+        name = stand_up_from_back.name
+        self.get_new_joint_postion(keyframe[self.keyframe_line], name)
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
-<<<<<<< HEAD
         i = 0
         while i < len(self.nao.hinge_joints):
             self.send(self.nao.hinge_joints[i].effector, self.last_joint_speed[i])
             i = i + 1
-=======
-        self.send()
-        
-    def stand(self):
-        keyframe = kf.stand.keyframe
-        self.get_new_joint_postion(keyframe[self.keyframe_line])
-        if self.keyframe_line >= len(keyframe): # alt: 1
-            self.keyframe_line = 0
-        self.send()
-        
-    def stand_up_from_front(self):
-        keyframe = kf.stand_up_from_front.keyframe
-        self.get_new_joint_postion(keyframe[self.keyframe_line])
-        if self.keyframe_line >= len(keyframe): # alt: 6
-            self.keyframe_line = 0
-        self.send()
->>>>>>> 5d8302beaee3faf29972d5c7f44d27f070cf5d52
     
-    def get_new_joint_postion(self, keyframe):
+    def get_new_joint_postion(self, keyframe, name):
         joint_number = 0
         while joint_number < len(self.last_joint_speed):
-            self.last_joint_speed[joint_number] = (keyframe[joint_number+1]-(self.nao.hinge_joints[joint_number].value + self.last_joint_speed[joint_number] * self._default_time)) / (keyframe[0] - self.progressed_time) * self._default_time
-            joint_number = joint_number + 1
+            joint_name = 1
+            while joint_name < len(name):
+                if name[joint_name] == self.nao.hinge_joints[joint_number].description:
+                    self.last_joint_speed[joint_number] = (keyframe[joint_name]-(self.nao.hinge_joints[joint_number].value + self.last_joint_speed[joint_number] * self._default_time)) / (keyframe[0] - self.progressed_time) * self._default_time
+                    joint_number = joint_number + 1
+                    break
+                joint_name = joint_name + 1
         self.progressed_time = self.progressed_time + 20
         if (keyframe[0] - self.progressed_time) < self._default_time:                
             self.progressed_time = 0
             self.keyframe_line = self.keyframe_line + 1
             
-<<<<<<< HEAD
     def send(self, *params):
         self.socket.send(" ".join(map(str, ["("] + list(params) + [")"])))
    
    
-=======
-    def send(self):
-        print 'Placeholder Print'
-            
->>>>>>> 5d8302beaee3faf29972d5c7f44d27f070cf5d52
         

@@ -14,7 +14,11 @@ class Nao:
     def __init__(self, world, player_nr):
         self.world = world
         self.player_nr = player_nr
-        
+        name = ['Time', 'Neck Pitch', 'Neck Yaw', 'RShoulderPitch', 'Left Shoulder Pitch', 
+                'RShoulderRoll', 
+'Left Shoulder Yaw' ,'RElbowRoll', 'Left Arm Roll', 'RElbowYaw', 'Left Arm Yaw', 'RHipYawPitch', 
+'Left Hip YawPitch', 'RHipPitch', 'Left Hip Pitch', 'RHipRoll', 'Left Hip Roll', 'RKneePitch', 'LKneePitch', 
+'RAnklePitch', 'LAnklePitch', 'RAnkleRoll', 'LAnkleRoll']
         self.hinge_joints = []
         self.hinge_joints += [
             HingeJoint('Neck Yaw', 'hj1', 'he1'), 
@@ -60,5 +64,8 @@ class Nao:
         joint_number = 0
         for i in parsed:
             if i[0] == 'HJ':
-                self.hinge_joints[joint_number].value = i[2][1]
-                joint_number = joint_number +1    
+                for j in self.hinge_joints:
+                    if i[1][1] == j.perceptor:
+                        j.value = i[2][1]
+                        joint_number = joint_number +1  
+                        break  
