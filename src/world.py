@@ -63,7 +63,10 @@ class WorldEntity:
     def __init__(self, identifier, x, y):
         self._position = Vector(x, y)
         self._identifier = identifier
-        self._perception_heights = 0 # soll jan dann richten ;P (used to compute the distance)
+        
+        """The height an entity is percepted at. (e.g. goal pole is
+        percepted at the gole's height, but a flag is percepted at 0."""
+        self._perception_height = 0
 
     def get_position(self):
         return copy.deepcopy(self._position)
@@ -119,7 +122,6 @@ class MobileEntity(WorldEntity):
         self.velocity = Vector(0.0, 0.0)
         self.timestamp = 0
         self.confidency = 0.0
-
 
     def set_position(self, x, y):
         self._position.x = x

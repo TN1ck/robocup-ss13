@@ -19,7 +19,7 @@ class Agent:
         
         self.nao = nao.Nao(self.world, self.player_nr)
 
-        self.perception = perception.Perception()
+        self.perception = perception.Perception(self.player_nr)
 
         #setup a socket-connection to the server
         self.socket = sock.Sock("localhost", 3100, "DAI-Labor", self.player_nr)
@@ -46,7 +46,7 @@ class Agent:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
-            self.perception.process_vision_perceptors(parsed_stuff, self.world, self.player_nr)
+            self.perception.process_vision_perceptors(parsed_stuff, self.world)
 
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             logging.debug('agent location: ' + str(self.nao.get_position()))

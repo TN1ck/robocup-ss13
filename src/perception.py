@@ -8,8 +8,10 @@ class Perception:
     location_diff = 0
     location_diff_counter = 0
 
-    def __init__(self):
-        pass
+    PERCEPTOR_HEIGHT = 0.5 + 1/30 # calculated w/ simspark - should be really veeeery accurate
+
+    def __init__(self, player_nr):
+        self.player_nr = player_nr
 
     def get_parser_part(self, descriptor, parser_output):
         """Get a parser output part specified by its descriptor (e.g. 'See')"""
@@ -26,7 +28,7 @@ class Perception:
         return None
 
 
-    def process_vision_perceptors(self, parser_output, w, player_nr):
+    def process_vision_perceptors(self, parser_output, w):
         """Processes the parser's output and updates the world info."""
 
         #logging.debug('process_vision_perceptors BEGIN')
@@ -60,16 +62,34 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P' + str(player_nr)]
+                player = w.entity_from_identifier['P' + str(self.player_nr)]
                 player._position = localization_result[0]
-                player._see_vector = localization_result[1] 
+                player._see_vector = localization_result[1]
+                
+                # if self localization was successful, calculate positions of mobile enties:
+                self.mobile_entity_localization(mobile_entities, w)
+                
         #logging.debug('process_vision_perceptors END')
+
+    def mobile_entity_localization(self, mobile_entities, w):
+        """Calculates the position of the given percepted mobile entities and
+        writes this info into the given world."""
+        for me in mobile_entities: # me = mobile entity
+            logging.debug(me)
+            if me[0] == 'P': # it's a player!
+                id = int(me[2][0][3:])
+                if id != self.player_nr: # don't process own arms etc.
+                    pass
+            elif me[0] == 'B': # it's a ball!
+                pass
+            else: # wtf!
+                logging.warning('found unknown entity: ' + me[0])
 
     def self_localization(self, static_entities, w):
         """Calculates the own agent's position given the perception of some static entities (static_entities)
-        and the world (w). (NO LINES YET!)"""
+        and the world (w). (NO LINES YET!)
+        Returns (position, see_vector)."""
 
-        PERCEPTOR_HEIGHT = 0.5 + 1/30 # calculated w/ simspark - should be really veeeery accurate
         
         # first, get rid of lines:
         lines = []
@@ -96,7 +116,8 @@ class Perception:
             pol1 = self.get_pol_from_parser_entity(list1)
             
             #distance from 3D Sphere to 2d cartesian
-            d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+            d_s_o1 =  (pol1[0]**2 - (w.entity_from_identifier[list1[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
+            #logging.debug('huhuuuu ' + str((w.entity_from_identifier[list1[0]]._perception_height - PERCEPTOR_HEIGHT)))
             #define the center
             v1 = world.Vector(w.get_entity_position(list1[0]).x, w.get_entity_position(list1[0]).y)
             a1 = pol1[1]
@@ -105,13 +126,13 @@ class Perception:
                     # polar coords as list:
                     pol2 = self.get_pol_from_parser_entity(list2)
                     #distance from 3D Sphere to 2d cartesian
-                    d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[list2[0]]._perception_height - PERCEPTOR_HEIGHT)**2 )**(0.5)
+                    d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[list2[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
                     #define the center
                     v2 = world.Vector(w.get_entity_position(list2[0]).x, w.get_entity_position(list2[0]).y)
                     a2 = pol2[1]
                     
-                    if d_s_o1 > 0 and d_s_o2 > 0 and abs(a1 - a2) > 2*math.pi/180: #die 2 grad sind ausgedacht, mal nachrechnen was wirklich gut waere; NICHT GUT Genug!
-                        trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2) 
+                    if d_s_o1 > 0.1 and d_s_o2 > 0.1 and abs(a1 - a2) > 2.0:
+                        trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
                             position_list += [trig_res[0]]
                             see_vector_list += [trig_res[1]]
@@ -180,7 +201,7 @@ class Perception:
 
 
     def trigonometry(self, v1, d1, a1, v2, d2, a2):
-        """Self localisation by trigonometry.
+        """Self localization by trigonometry.
         Returns a list of 2 vectors: the first representing your position and the second vector the see vector,
         based on the position of the 2 given objects and the distance to them.
 
@@ -199,6 +220,7 @@ class Perception:
         logging.debug(acos_arg)
         logging.debug(str(a) + ', ' + str(c) + ', ' + str(b))
         #TODO revise this! (Felix):
+        # distance error is e.g.: 28.99 - 29.09
         if acos_arg < -1:
             beta = math.pi
         elif acos_arg > 1:
