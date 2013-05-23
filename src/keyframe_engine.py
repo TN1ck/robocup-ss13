@@ -25,10 +25,28 @@ class Keyframe_Engine:
         self.get_new_joint_postion(keyframe[self.keyframe_line])
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
+<<<<<<< HEAD
         i = 0
         while i < len(self.nao.hinge_joints):
             self.send(self.nao.hinge_joints[i].effector, self.last_joint_speed[i])
             i = i + 1
+=======
+        self.send()
+        
+    def stand(self):
+        keyframe = kf.stand.keyframe
+        self.get_new_joint_postion(keyframe[self.keyframe_line])
+        if self.keyframe_line >= len(keyframe): # alt: 1
+            self.keyframe_line = 0
+        self.send()
+        
+    def stand_up_from_front(self):
+        keyframe = kf.stand_up_from_front.keyframe
+        self.get_new_joint_postion(keyframe[self.keyframe_line])
+        if self.keyframe_line >= len(keyframe): # alt: 6
+            self.keyframe_line = 0
+        self.send()
+>>>>>>> 5d8302beaee3faf29972d5c7f44d27f070cf5d52
     
     def get_new_joint_postion(self, keyframe):
         joint_number = 0
@@ -40,8 +58,14 @@ class Keyframe_Engine:
             self.progressed_time = 0
             self.keyframe_line = self.keyframe_line + 1
             
+<<<<<<< HEAD
     def send(self, *params):
         self.socket.send(" ".join(map(str, ["("] + list(params) + [")"])))
    
    
+=======
+    def send(self):
+        print 'Placeholder Print'
+            
+>>>>>>> 5d8302beaee3faf29972d5c7f44d27f070cf5d52
         
