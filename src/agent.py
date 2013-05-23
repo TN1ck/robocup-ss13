@@ -32,7 +32,7 @@ class Agent:
         m = movement.Movement(self.world, self.socket, self.player_nr)
         t = tactics_main.TacticsMain(self.world, m, self.player_nr)
 
-        self.socket.send("(beam -14 9 0)")
+        self.socket.send("(beam 0 0 0)")
 
         #Beispiel fuer laufen
         #Zielkoordinaten duerfen nicht 0 sein, sonst crash
