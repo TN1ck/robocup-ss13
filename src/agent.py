@@ -64,11 +64,12 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
     try:
-        agent_id = argv[1]
+        agent_id = int(argv[1])
     except:
         print("You need to call \"./agent.py <player_id>\".")
         exit(1)
 
     Agent(agent_id)
+
 
 
