@@ -6,8 +6,8 @@ class Movement:
         self.world = world
         self.socket = socket
         self.player_nr = player_nr
-        self.velocity = 0.02
-        self.divergence = 1
+        self.velocity = 0.01
+        self.divergence = 1.5
         self.stopped = True
         self.destination = None
         self.angular_precision = 0.5;
