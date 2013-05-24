@@ -53,7 +53,7 @@ class Sock:
         self.sock.connect((self.server_ip, self.server_port))
         self.send('(scene rsg/agent/nao/nao.rsg)')
         
-        logging.debug("init response 1: " + self.receive())
+        #logging.debug("init response 1: " + self.receive())
         
         self.send('(init (unum ' + str(self.player_nr) + ')(teamname ' + str(self.team_name) + '))')
-        logging.debug("init response 2: " + self.receive())
+        #logging.debug("init response 2: " + self.receive())

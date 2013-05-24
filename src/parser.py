@@ -48,7 +48,7 @@ def parse_sexp(sexp):
             stack.append(out)
             out = []
         elif term == 'brackr':
-            print stack
+            #print stack
             assert stack, "Trouble with nesting of brackets"
             tmpout, out = out, stack.pop(-1)
             out.append(tmpout)
