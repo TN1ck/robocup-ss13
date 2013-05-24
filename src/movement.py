@@ -2,17 +2,18 @@ from math import sin, cos, acos, atan, degrees, pi, pow, sqrt, tan
 import time
 
 class Movement:
-
     def __init__(self, world, socket, player_nr):
         self.world = world
         self.socket = socket
         self.player_nr = player_nr
         self.velocity = 0.1
-        self.divergence = 1
+        self.divergence = 5
         self.stopped = True
         self.destination = None
         self.angular_precision = 0.5;
         self.rotation = 0
+        self.position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        self.beampos = self.position
 
     def get_world(self):
         return self.world
@@ -22,7 +23,6 @@ class Movement:
 
     def run(self, *destination):
         self.stopped = False
-        position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
         # Destination parameters are present in parameters
         if destination:
             self.destination = destination
@@ -31,14 +31,24 @@ class Movement:
             c = sqrt(x**2 + y**2)
             self.rotation =  acos(x/c) if y >= 0 else -acos(x/c)
         if ((self.destination and
-            abs(self.destination[0] - position.x) < self.divergence) and
-           (abs(self.destination[1] - position.y) < self.divergence)):
+            abs(self.destination[0] - self.position.x) < self.divergence) and
+           (abs(self.destination[1] - self.position.y) < self.divergence)):
             self.stopped = True
             return
         dy = sin(self.rotation) * self.velocity
         dx = cos(self.rotation) * self.velocity
+        self.position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        if(abs(self.beampos.x - self.position.x) < self.divergence):
+            self.beampos.x = self.beampos.x + dx
+        else:
+            self.beampos.x = self.position.x + dx
+
+        if(abs(self.beampos.y - self.position.y) < self.divergence):
+            self.beampos.y = self.beampos.y + dy
+        else:
+            self.beampos.y = self.position.y + dy
         #trigonometry crash workaround: change 'self.rotation' to '0' in the following function
-        self.send("beam", position.x + dx, position.y + dy, degrees(self.rotation))
+        self.send("beam", self.beampos.x, self.beampos.y, degrees(self.rotation))
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
 
