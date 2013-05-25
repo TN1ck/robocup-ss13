@@ -46,8 +46,6 @@ class Agent:
         m.run(-14, -10)
 
         while True:
-            #self.socket.enqueue("(beam -3 -4 0)")
-            
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
