@@ -30,11 +30,12 @@ class Agent:
         #start listening
         self.socket.start()
 
-        #m = movement.Movement(self.world, self.socket, self.player_nr)
+        m = movement.Movement(self.world, self.socket, self.player_nr)
         #kfe = keyframe_engine.Keyframe_Engine(self.nao, self.socket)
         #t = tactics_main.TacticsMain(self.world, m, self.player_nr)
 
-        #self.socket.send("(beam -10 0 0)")
+        self.socket.enqueue("(beam -1 9.9 0)")
+        self.socket.flush()
 
         #Beispiel fuer laufen
         #Zielkoordinaten duerfen nicht 0 sein, sonst crash
@@ -42,10 +43,10 @@ class Agent:
         #trigonometry funktion der perception klasse
         #siehe kommentare in der movement klasse fuer workaround 
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-        #m.run(-14, 0)
+        m.run(-14, -10)
 
         while True:
-            self.socket.send("(beam -3 -4 0)")
+            #self.socket.enqueue("(beam -3 -4 0)")
             
             msg = self.socket.receive()
             #logging.debug(msg)
@@ -57,10 +58,10 @@ class Agent:
             logging.debug('agent location: ' + str(self.nao.get_position()))
             logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
 
-            #m.update()
+            m.update()
             #t.run_tactics()
 
-            # self.socket.send("(beam "+str(x)+" "+str(y)+" 0)")
+            # self.socket.enqueue("(beam "+str(x)+" "+str(y)+" 0)")
             # world.w.process_vision_perceptors(parsed)
             # logging.debug(world.w.flags[0].get_position().x)
 
