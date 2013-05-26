@@ -22,15 +22,15 @@ class Keyframe_Engine:
 
     def fall_on_front(self):
         while(self.fall):
-		    self.socket.enqueue("(rle5 2.0)")
-		    self.socket.flush()
-		    self.fall = False
+            self.socket.enqueue("(rle5 2.0)")
+            self.socket.flush()
+            self.fall = False
     
     def fall_on_back(self):
-	    while(self.fall):
-		    self.socket.enqueue("(rle5 -2.0)")
-		    self.socket.flush()
-		    self.fall = False
+        while(self.fall):
+            self.socket.enqueue("(rle5 -2.0)")
+            self.socket.flush()
+            self.fall = False
     
     def stand_up_from_back(self):
         keyframe = stand_up_from_back.keyframe
