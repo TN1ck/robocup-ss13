@@ -19,7 +19,7 @@ class Movement:
         return self.world
 
     def send(self, *params):
-        self.socket.send(" ".join(map(str, ["("] + list(params) + [")"])))
+        self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
         self.stopped = False

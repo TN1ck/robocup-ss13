@@ -142,6 +142,8 @@ class Perception:
             for p in position_list:
                 pos = pos + p
             pos = pos / len(position_list)
+        else:
+            return # give up, if position could not be calculated
             
         # pos is our position now, yay!
         
