@@ -10,6 +10,7 @@ class Keyframe_Engine:
         self._default_time = 20
         self.nao = nao
         self.socket = socket
+        self.fall = True
  
 #    def get_joint_position(self, parsed):
 #        joint_number = 0
@@ -18,6 +19,18 @@ class Keyframe_Engine:
 #                value = float(i[2].split(' ', 1 )[1])
 #                self.joint_position[joint_number] = value
 #                joint_number = joint_number +1
+
+    def fall_on_front(self):
+        while(self.fall):
+		    self.socket.enqueue("(rle5 2.0)")
+		    self.socket.flush()
+		    self.fall = False
+    
+    def fall_on_back(self):
+	    while(self.fall):
+		    self.socket.enqueue("(rle5 -2.0)")
+		    self.socket.flush()
+		    self.fall = False
     
     
     def stand_up_from_back(self):
