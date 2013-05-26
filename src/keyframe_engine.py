@@ -32,7 +32,6 @@ class Keyframe_Engine:
 		    self.socket.flush()
 		    self.fall = False
     
-    
     def stand_up_from_back(self):
         keyframe = stand_up_from_back.keyframe
         name = stand_up_from_back.name
