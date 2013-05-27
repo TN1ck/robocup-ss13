@@ -27,7 +27,7 @@ class Agent:
         self.start()
 
     def start(self):
-        #start listening
+        #start listen#self.perception.process_vision_perceptors(parsed_stuff, self.world)ing
         self.socket.start()
 
 
@@ -53,8 +53,10 @@ class Agent:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
-            self.nao.update_joint_positions(parsed_stuff)
             #self.perception.process_vision_perceptors(parsed_stuff, self.world)
+            
+            #lets the nao stand up from back
+            self.nao.update_joint_positions(parsed_stuff)
             if kfe.done == 1:
                 kfe.stand_up_from_back()
             if kfe.done == 0:
