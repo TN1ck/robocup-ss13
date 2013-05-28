@@ -1,5 +1,6 @@
 import world
 import logging
+import numpy
 
 class HingeJoint:
     
@@ -50,12 +51,25 @@ class Nao:
             self.from_description[joint.description] = joint
             self.from_perceptor[joint.perceptor] = joint
             self.from_effector[joint.effector] = joint
-        
+
+        # gyro:
+        self._gyro_rate = numpy.array([0, 0, 0])
+        self._gyro_state = numpy.array([0, 0, 0])
+    
     def get_position(self):
         return self.world.get_entity_position('P' + str(self.player_nr))
 
     def get_see_vector(self):
         return self.world.entity_from_identifier['P' + str(self.player_nr)].get_see_vector()
+
+    def set_gyro_rate(self, rate):
+        """Sets the current gyro rate and adjusts the absolute gyro state with the new value."""
+        self._gyro_rate = numpy.array(rate)
+        self._gyro_state += rate
+
+    def get_gyro_state(self, rate):
+        """Returns the absolute gyro orientation."""
+        return copy.deepcopy(self._gyro_state)
     
     def update_joint_positions(self, parsed):
         '''
@@ -67,5 +81,5 @@ class Nao:
                 for j in self.hinge_joints:
                     if i[1][1] == j.perceptor:
                         j.value = i[2][1]
-                        joint_number = joint_number +1  
-                        break  
+                        joint_number = joint_number +1
+                        break

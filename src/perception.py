@@ -31,9 +31,16 @@ class Perception:
         # if not found:
         return None
 
+    def process_gyros(self, parser_output, nao):
+        """Takes the parser output and updates the world info with the percepted gyro data."""
 
-    def process_vision_perceptors(self, parser_output, w):
-        """Processes the parser's output and updates the world info."""
+        # gyro only:
+        gyro = self.get_parser_part('GYR', parser_output)
+        # gyro should be like: ['GYR', ['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
+        nao.set_gyro_rate(map(float, gyro[2][1:]))
+
+    def process_vision(self, parser_output, w):
+        """Takes the parser output and updates the world info with the percepted vision data."""
 
         #logging.debug('process_vision_perceptors BEGIN')
         #logging.debug('parser_output: ' + str(parser_output))

@@ -53,7 +53,7 @@ class Agent:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
-            #self.perception.process_vision_perceptors(parsed_stuff, self.world)
+            #self.perception.process_vision(parsed_stuff, self.world)
             
             #lets the nao stand up from back
             self.nao.update_joint_positions(parsed_stuff)
@@ -72,7 +72,6 @@ class Agent:
             #t.run_tactics()
 
             # self.socket.enqueue("(beam "+str(x)+" "+str(y)+" 0)")
-            # world.w.process_vision_perceptors(parsed)
             # logging.debug(world.w.flags[0].get_position().x)
 
 if __name__ == "__main__":
