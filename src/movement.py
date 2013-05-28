@@ -47,8 +47,10 @@ class Movement:
             self.beampos.y = self.beampos.y + dy
         else:
             self.beampos.y = self.position.y + dy
+        ## WTF! ROTATION
+        #self.rotation = bla if self.beampos.y >= 0 else -bla
         #trigonometry crash workaround: change 'self.rotation' to '0' in the following function
-        self.send("beam", self.beampos.x, self.beampos.y, degrees(self.rotation))
+        self.send("beam", self.beampos.x, self.beampos.y, 90)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
 
