@@ -36,8 +36,8 @@ class Perception:
 
         # gyro only:
         gyro = self.get_parser_part('GYR', parser_output)
-        # gyro should be like: ['GYR', ['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
-        nao.set_gyro_rate(map(float, gyro[2][1:]))
+        # gyro is like: [['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
+        nao.set_gyro_rate(map(float, gyro[1][1:]))
 
     def process_vision(self, parser_output, w):
         """Takes the parser output and updates the world info with the percepted vision data."""

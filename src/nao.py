@@ -1,6 +1,7 @@
 import world
 import logging
 import numpy
+import copy
 
 class HingeJoint:
     
@@ -53,8 +54,8 @@ class Nao:
             self.from_effector[joint.effector] = joint
 
         # gyro:
-        self._gyro_rate = numpy.array([0, 0, 0])
-        self._gyro_state = numpy.array([0, 0, 0])
+        self._gyro_rate = numpy.array([0.0, 0.0, 0.0])
+        self._gyro_state = numpy.array([0.0, 0.0, 0.0])
     
     def get_position(self):
         return self.world.get_entity_position('P' + str(self.player_nr))
@@ -65,9 +66,9 @@ class Nao:
     def set_gyro_rate(self, rate):
         """Sets the current gyro rate and adjusts the absolute gyro state with the new value."""
         self._gyro_rate = numpy.array(rate)
-        self._gyro_state += rate
+        self._gyro_state += (self._gyro_rate / 1000 * 20) # rate is in degrees/second. we want degrees/cycle.
 
-    def get_gyro_state(self, rate):
+    def get_gyro_state(self):
         """Returns the absolute gyro orientation."""
         return copy.deepcopy(self._gyro_state)
     

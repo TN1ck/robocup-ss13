@@ -53,7 +53,11 @@ class Agent:
             msg = self.socket.receive()
             #logging.debug(msg)
             parsed_stuff = parser.parse_sexp(msg)
-            #self.perception.process_vision(parsed_stuff, self.world)
+            self.perception.process_vision(parsed_stuff, self.world)
+            self.perception.process_gyros(parsed_stuff, self.nao)
+
+            #logging.debug('gyro rate: ' + str(self.nao._gyro_rate))
+            #logging.debug('gyro state: ' + str(self.nao.get_gyro_state()))
             
             #lets the nao stand up from back
             self.nao.update_joint_positions(parsed_stuff)
