@@ -31,11 +31,11 @@ class Agent:
         self.socket.start()
 
 
-        #m = movement.Movement(self.world, self.socket, self.player_nr)
+        m = movement.Movement(self.world, self.socket, self.player_nr)
         kfe = keyframe_engine.Keyframe_Engine(self.nao, self.socket)
         #t = tactics_main.TacticsMain(self.world, m, self.player_nr)
         
-        self.socket.enqueue("(beam -5 5 0)")
+        self.socket.enqueue("beam -5 5 0.5")
         self.socket.flush()
         
 
@@ -47,8 +47,8 @@ class Agent:
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
 
         #m.run(-14, 0)
-
-
+        t = False
+        
         while True:
             msg = self.socket.receive()
             #logging.debug(msg)
@@ -60,16 +60,16 @@ class Agent:
             #logging.debug('gyro state: ' + str(self.nao.get_gyro_state()))
             
             #lets the nao stand up from back
-            self.nao.update_joint_positions(parsed_stuff)
-            if kfe.done == 1:
-                kfe.stand_up_from_back()
-            if kfe.done == 0:
-                kfe.fall_on_back()
-            
+                        
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             
+            if(not t):
+              m.run(-15,0)
+              t = True
+            else:
+              m.update()
             self.socket.flush()
 
             #m.update()
