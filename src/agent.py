@@ -34,11 +34,20 @@ class Agent:
 
         m = movement.Movement(self.world, self.socket, self.player_nr)
         kfe = keyframe_engine.Keyframe_Engine(self.nao, self.socket)
-        #t = tactics_main.TacticsMain(self.world, m, self.player_nr)
+        t = tactics_main.TacticsMain(self.world, m, self.nao)
 
-        self.socket.enqueue("beam -5 5 0.5")
+        # You need a first flush in order that "beam" works
         self.socket.flush()
 
+        msg = self.socket.receive()
+        parsed_stuff = parser.parse_sexp(msg)
+        self.perception.process_vision(parsed_stuff, self.world)
+        self.perception.process_gyros(parsed_stuff, self.nao)
+
+        offset_for_player = -9 + (3*self.player_nr)
+
+        self.socket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 0.1 ) ")
+        self.socket.flush()
 
         #Beispiel fuer laufen
         #Zielkoordinaten duerfen nicht 0 sein, sonst crash
@@ -46,9 +55,6 @@ class Agent:
         #trigonometry funktion der perception klasse
         #siehe kommentare in der movement klasse fuer workaround
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-
-        #m.run(-14, 0)
-        t = False
 
         while True:
             msg = self.socket.receive()
@@ -61,22 +67,16 @@ class Agent:
             #logging.debug('gyro state: ' + str(self.nao.get_gyro_state()))
 
             #lets the nao stand up from back
+            # self.socket.enqueue("( beam 0 0 0 )")
 
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
 
-            if(not t):
-              m.run(-15,0)
-              t = True
-            else:
-              m.update()
+            # m.run(-14, 0)
+            # t.run_tactics()
             self.socket.flush()
 
-            #m.update()
-            #t.run_tactics()
-
-            # self.socket.enqueue("(beam "+str(x)+" "+str(y)+" 0)")
             # logging.debug(world.w.flags[0].get_position().x)
 
 if __name__ == "__main__":
@@ -88,4 +88,4 @@ if __name__ == "__main__":
         print("You need to call \"./agent.py <player_id>\".")
         exit(1)
 
-    Agent(0)
+    Agent(agent_id)

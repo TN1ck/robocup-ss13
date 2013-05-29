@@ -5,5 +5,5 @@ for i in `seq 0 5`; do
   ./agent.py $i &
   # Print process id of every agent in order that you can kill them
   echo $! >> .kill_info
-  sleep 0.5s
+  sleep 1s
 done

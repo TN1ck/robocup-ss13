@@ -1,4 +1,4 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 """Organizes world data structures and its calculation.
 Calculation may be transferred into a separate module in the future."""
 
@@ -49,7 +49,7 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
         self.x = x
 
         return self
-    
+
     #magnitude (zu deutsch Betrag)
     def mag(self):
         return (self.x**2 + self.y**2)**0.5
@@ -63,7 +63,7 @@ class WorldEntity:
     def __init__(self, identifier, x, y):
         self._position = Vector(x, y)
         self._identifier = identifier
-        
+
         """The height an entity is percepted at. (e.g. goal pole is
         percepted at the gole's height, but a flag is percepted at 0."""
         self._perception_height = 0
@@ -136,7 +136,7 @@ class Player(MobileEntity):
         MobileEntity.__init__(self, identifier)
         self.team = team
         self._see_vector = Vector(0.0, 0.0)
-        
+
     def get_see_vector(self):
         return copy.deepcopy(self._see_vector)
 
