@@ -23,8 +23,8 @@ class Movement:
 
     def run(self, *destination):
         self.position = self.world.get_entity_position('P' + str(self.player_nr))
-        print self.position.x
-	print self.position.y
+        #print self.position.x
+	#print self.position.y
         self.stopped = False
         # Destination parameters are present in parameters
         if destination:
