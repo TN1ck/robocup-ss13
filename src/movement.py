@@ -29,7 +29,13 @@ class Movement:
             x = destination[0]
             y = destination[1]
             c = sqrt(x**2 + y**2)
-            self.rotation =  acos(x/c) if y >= 0 else -acos(x/c)
+            # Please fix this
+            # Division by Zero srsly doesn't work!
+            if x != 0:
+                self.rotation = acos(x/c) if y >= 0 else -acos(x/c)
+            else:
+                # What do you do now?
+                pass
         if ((self.destination and
             abs(self.destination[0] - self.position.x) < self.divergence) and
            (abs(self.destination[1] - self.position.y) < self.divergence)):

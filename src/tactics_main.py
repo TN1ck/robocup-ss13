@@ -59,7 +59,7 @@ class TacticsMain:
       self.distance_lines = {}
       self.distance_team1= {}
       self.distance_team2 ={}
-      self.distance_ball = -1
+      self.distance_ball = None
 
   """ Some field object position are specified by a point. This method calcs the distance to them """
   def calc_point_distance(self,x1,x2):
@@ -77,8 +77,6 @@ class TacticsMain:
         list[self.field_lines_idfs[4]] = (x1.x)
       return list
 
-
-
   def find_maxima(self, l):
     maximum = -float("inf")
     maxima = []
@@ -93,26 +91,53 @@ class TacticsMain:
 
 
 # Utility functions
+  def enemy_owns_ball(self):
+    for i in self.world.players:
+      if i.team != our_team:
+        distance = calc_point_distance(self.world.get_entity_position(i.get_identifier), self.world.get_entity_position('B'))
+        if distance <= 1:
+          return True
+    return False
 
   def enemy_owns_ball(self):
+    for i in self.world.players:
+      if i.team == our_team:
+        distance = calc_point_distance(self.world.get_entity_position(i.get_identifier), self.world.get_entity_position('B'))
+        if distance <= 1:
+          return True
     return False
 
-  def player_owns_ball(self, player):
-    return False
+  # def player_owns_ball(self, player):
+  #   return False
+
+  def i_own_ball(self):
+    if calc_point_distance(my_position, self.world.get_entity_position('B')) <= 1:
+      return True
+    else:
+      return False
 
   def base(self, x):
-      return 1 / x
+      if x == 0:
+        return 0.9
+      else:
+        return min(0.9 / x, 1)
 
 # Tactical functions
 
   def run_to_ball(self, x):
-    return 0.5 * self.base(x)
+    return 0.8 * self.base(x)
 
   def run_to_own_goal(self, x):
-    return 0.5 * self.base(x)
+    if enemy_owns_ball():
+      return 0.8
+    else:
+     return 0.2 * self.base(x)
 
   def run_to_enemy_goal(self, x):
-    return 0.5 * self.base(x)
+    if we_own_ball():
+      return 1
+    else:
+      return 0.2 * self.base(x)
 
   def stay(self):
     return 0.1
@@ -122,65 +147,37 @@ class TacticsMain:
   # return 0.5 * base(x)
 
   def run_away_from_friend(self, x):
-    return 0
-  # return 0.5 * base(x)
+    return base(x)
 
   def run_away_from_l1(self):
     return 0.5
 
   def run_away_from_r2(self):
-    return 0.
+    return 0.5
 
 
   def run_tactics(self):
     self.clear_distances()
     self.set_own_position()
     self.get_distances()
-    print "Begin"
-    print self.my_position
-    print self.distance_ball
-    print self.distance_lines
-    print self.distance_team1
-    print self.distance_team2
-    print self.distance_goal_poles_left
-    print self.distance_goal_poles_right
-    print "end"
 
-    """
-    all_arguments = [
-      5,  # run_to_ball,
-      5,  # run_to_own_goal,
-      5,  # run_to_enemy_goal,
-      None,  # stay,
-      0,  # run_to_friend,
-      0,  # run_away_from_friend
-      None,  # run_away_from_l1,
-      None,  # run_away_from_r2,
-    ]
-    all_functions = [
-      self.run_to_ball,
-      self.run_to_own_goal,
-      self.run_to_enemy_goal,
-      self.stay,
-      self.run_to_friend,
-      self.run_away_from_friend,
-      self.run_away_from_l1,
-      self.run_away_from_r2,
-    ]
+    ll = []
+    ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
+    ll.append(('stay', self.stay()))
+    # ll.append('run_to_enemy_goal', run_to_enemy_goal())
+    # ll.append('run_to_own_goal', run_to_own_goal())
 
-    all_results = []
-
-    for i in range(len(all_functions)):
-      if all_arguments[i]:
-        all_results.append((all_functions[i].__name__, all_functions[i](all_arguments[i])))
-      else:
-        all_results.append((all_functions[i].__name__, all_functions[i]))
-
-    maxima = self.find_maxima(all_results)
-
+    maxima = self.find_maxima(ll)
     shuffle(maxima)
+    maximum = maxima[0][0]
 
-    actual_tuple = maxima[0]"""
+    if maximum == 'run_to_ball':
+      ball_pos = self.world.get_entity_position('B').to_list()
+      self.mov.run(ball_pos[0], ball_pos[1])
+    elif maximum == 'stay':
+      self.mov.stop()
+
+    self.mov.update()
 
 
 

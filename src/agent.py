@@ -12,6 +12,10 @@ import nao
 import keyframe_engine
 from sys import argv
 
+global our_team
+our_team = "DAI-Labor"
+
+
 
 class Agent:
     def __init__(self,p_nr):
@@ -24,7 +28,7 @@ class Agent:
         self.perception = perception.Perception(self.player_nr)
 
         #setup a socket-connection to the server
-        self.socket = sock.Sock("localhost", 3100, "DAI-Labor", self.player_nr)
+        self.socket = sock.Sock("localhost", 3100, our_team, self.player_nr)
         self.start()
 
     def start(self):
@@ -46,7 +50,7 @@ class Agent:
 
         offset_for_player = -9 + (3*self.player_nr)
 
-        self.socket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 0.1 ) ")
+        self.socket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 270 ) ")
         self.socket.flush()
 
         #Beispiel fuer laufen
@@ -73,7 +77,7 @@ class Agent:
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
 
-            # m.run(-14, 0)
+            m.run(0,0)
             # t.run_tactics()
             self.socket.flush()
 

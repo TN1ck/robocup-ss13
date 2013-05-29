@@ -54,6 +54,9 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
     def mag(self):
         return (self.x**2 + self.y**2)**0.5
 
+    def to_list(self):
+        return [self.x, self.y]
+
 
 class WorldEntity:
     """Basic world entity.
