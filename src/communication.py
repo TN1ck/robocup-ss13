@@ -34,10 +34,12 @@ class Communication(object):
         self.socket.send("(say " + msg + ")")
     
     def sayGoToBall(self, nao, x,y):
-        pass
+        msg = self.e.encodeSCWPTR(1,nao,x,y)
+        self.socket.send("(say " + msg + ")")
 
     def sayBallPosition(self, x,y):
-        pass
+        msg = self.e.encodeSCWP(5, x, y)
+        self.socket.send("(say " + msg + ")")
 
     def parser(self, parsed):
         i = 0

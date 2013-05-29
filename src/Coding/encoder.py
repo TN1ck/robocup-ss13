@@ -26,6 +26,27 @@ class Encoder(object):
         msg = msg + self.checksum(msg, 3)
         return msg
 
+    #message type 3
+    #single command with parameters
+    def encodeSCWP(self, i_c, x, y):
+        msg = chr(self.mapping(3)) 
+        msg = msg + chr(self.mapping(i_c))
+        msg = msg + self.encodeDouble(x,3)
+        msg = msg + self.encodeDouble(y,3)
+        msg = msg + self.checksum(msg, 3)
+        return msg
+
+    #message type 4
+    #single command with parameters to nao(robot)
+    def encodeSCWPTR(self, i_c, i_nao, x, y):
+        msg = chr(self.mapping(3)) 
+        msg = msg + chr(self.mapping(i_c))
+        msg = msg + chr(self.mapping(i_nao))
+        msg = msg + self.encodeDouble(x,3)
+        msg = msg + self.encodeDouble(y,3)
+        msg = msg + self.checksum(msg, 3)
+        return msg
+
     # calculate the checksum
     # s_msg the message
     # checksum length
