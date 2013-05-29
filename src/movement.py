@@ -22,20 +22,21 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
+        self.position = self.world.get_entity_position('P' + str(self.player_nr))
+        print self.position.x
+	print self.position.y
         self.stopped = False
         # Destination parameters are present in parameters
         if destination:
             self.destination = destination
-            x = destination[0]
-            y = destination[1]
+            x = destination[0] - self.position.x
+            y = destination[1] - self.position.y
             c = sqrt(x**2 + y**2)
+            if c == 0:
+                return
             # Please fix this
             # Division by Zero srsly doesn't work!
-            if x != 0:
-                self.rotation = acos(x/c) if y >= 0 else -acos(x/c)
-            else:
-                # What do you do now?
-                pass
+            self.rotation = acos(x/c) if y >= 0 else -acos(x/c)
         if ((self.destination and
             abs(self.destination[0] - self.position.x) < self.divergence) and
            (abs(self.destination[1] - self.position.y) < self.divergence)):
@@ -43,7 +44,8 @@ class Movement:
             return
         dy = sin(self.rotation) * self.velocity
         dx = cos(self.rotation) * self.velocity
-        self.position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        
+	
         if(abs(self.beampos.x - self.position.x) < self.divergence):
             self.beampos.x = self.beampos.x + dx
         else:

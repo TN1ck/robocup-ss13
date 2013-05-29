@@ -59,7 +59,7 @@ class Agent:
         #trigonometry funktion der perception klasse
         #siehe kommentare in der movement klasse fuer workaround
         #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-
+        i = False
         while True:
             msg = self.socket.receive()
             #logging.debug(msg)
@@ -76,8 +76,10 @@ class Agent:
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
-
-            m.run(0,0)
+            
+            if i : 
+                m.run(-10,3)
+            i = True
             # t.run_tactics()
             self.socket.flush()
 
