@@ -7,7 +7,7 @@ class Movement:
         self.socket = socket
         self.player_nr = player_nr
         self.velocity = 0.01
-        self.divergence = 1.5
+        self.divergence = 0.1
         self.stopped = True
         self.destination = None
         self.angular_precision = 0.5;
@@ -24,7 +24,7 @@ class Movement:
     def run(self, *destination):
         self.position = self.world.get_entity_position('P' + str(self.player_nr))
         #print self.position.x
-	#print self.position.y
+	    #print self.position.y
         self.stopped = False
         # Destination parameters are present in parameters
         if destination:
@@ -33,9 +33,8 @@ class Movement:
             y = destination[1] - self.position.y
             c = sqrt(x**2 + y**2)
             if c == 0:
-                return
-            # Please fix this
-            # Division by Zero srsly doesn't work!
+                # AMAZING FIX
+                c = 0.001
             self.rotation = acos(x/c) if y >= 0 else -acos(x/c)
         if ((self.destination and
             abs(self.destination[0] - self.position.x) < self.divergence) and
@@ -44,8 +43,7 @@ class Movement:
             return
         dy = sin(self.rotation) * self.velocity
         dx = cos(self.rotation) * self.velocity
-        
-	
+
         if(abs(self.beampos.x - self.position.x) < self.divergence):
             self.beampos.x = self.beampos.x + dx
         else:
