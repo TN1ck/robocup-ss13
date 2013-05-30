@@ -30,7 +30,7 @@ term_regex = r'''(?mx)
 
 def parse_sexp(sexp):
     sexp = "("+sexp+")"
-    sexp = sexp.replace('(','( ').replace(')',' )')
+    sexp = sexp.replace('(',' ( ').replace(')',' ) ')
     stack = []
     out = []
     if dbg: print("%-6s %-14s %-44s %-s" % tuple("term value out stack".split()))
@@ -81,7 +81,7 @@ def print_sexp(exp):
 if __name__ == '__main__':
     # sexp = '''(time (now 3.58))(GS (unum 1) (team left) (t 0.00) (pm BeforeKickOff))(GYR (n torso) (rt -0.00 -0.00 -0.00))(ACC (n torso) (a -0.00 -0.00 29.42))(HJ (n hj1) (ax 0.00))(HJ (n hj2) (ax -0.00))(HJ (n raj1) (ax -0.00))(HJ (n raj2) (ax -0.00))(HJ (n raj3) (ax -0.00))(HJ (n raj4) (ax 0.00))(HJ (n laj1) (ax 0.00))(HJ (n laj2) (ax 0.00))(HJ (n laj3) (ax 0.00))(HJ (n laj4) (ax -0.00))(HJ (n rlj1) (ax 0.00))(HJ (n rlj2) (ax -0.00))(HJ (n rlj3) (ax -0.00))(HJ (n rlj4) (ax 0.00))(HJ (n rlj5) (ax -0.00))(HJ (n rlj6) (ax -0.00))(HJ (n llj1) (ax -0.00))(HJ (n llj2) (ax 0.00))(HJ (n llj3) (ax -0.00))(HJ (n llj4) (ax 0.00))(HJ (n llj5) (ax 0.00))(HJ (n llj6) (ax -0.00))'''
     # sexp = "(((foo)))"
-    sexp = '''(here self 0 hallo#)'''
+    sexp = '''((time 0))(RDS 0 1)((nd(nd))(nd(nd))(nd(nd StaticMesh))(nd(nd StaticMesh))(nd(nd(nd StaticMesh))(nd)(nd)(nd)(nd)(nd))(nd(nd(nd StaticMesh))(nd)(nd)(nd)(nd)(nd))(nd(nd SMN))(nd(nd SMN))(nd(nd SMN))(nd(nd SMN))(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd(nd StaticMesh)))'''
 
 
     print('Input S-expression: %r' % (sexp, ))
