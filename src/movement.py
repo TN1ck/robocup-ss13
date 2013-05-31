@@ -1,4 +1,4 @@
-from math import sin, cos, acos, atan, degrees, pi, pow, sqrt, tan
+from math import sin, cos, acos, atan2, degrees, pi, pow, sqrt, tan
 import time
 
 class Movement:
@@ -53,10 +53,9 @@ class Movement:
             self.beampos.y = self.beampos.y + dy
         else:
             self.beampos.y = self.position.y + dy
-        ## WTF! ROTATION
-        #self.rotation = bla if self.beampos.y >= 0 else -bla
-        #trigonometry crash workaround: change 'self.rotation' to '0' in the following function
-        self.send("beam", self.beampos.x, self.beampos.y, 90)
+
+        self.rotation = degrees(atan2(abs(self.beampos.x - self.destination[0]), abs(self.beampos.y - self.destination[1])))
+        self.send("beam", self.beampos.x, self.beampos.y, self.rotation)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
 
