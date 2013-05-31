@@ -4,6 +4,7 @@ import math
 import world
 import logging
 import numpy
+import copy
 
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
@@ -156,13 +157,13 @@ class Perception:
             pos = pos / len(position_list)
         else:
             return # give up, if position could not be calculated
-            
+        
         # pos is our position now, yay!
         
         ## calculate NAO's see vector ##
         #logging.debug(' ')
 
-        see_vector_list = []
+        see_sum = numpy.array([0, 0, 0])
         for se in static_entities:
             #logging.debug('processing : ' + se[0])
             
@@ -177,44 +178,18 @@ class Perception:
             see = numpy.array([se_pos.x - pos.x, se_pos.y - pos.y, se_height - self.PERCEPTOR_HEIGHT])
             #logging.debug('vector to se: ' + str(see))
             
-            # now some rotationz...
+            # rotate the vector so it points to the vision center instead of the static entity:
             see = self.add_pol_to_vector(see, -numpy.array(se_pol))
-            '''
-            z_axis = numpy.array([0, 0, 1]) # horizontally
-            y_axis = numpy.array([0, 1, 0]) # vertically
-            # 2d part of the vector -> angle is:
-            rot2d = numpy.arctan2(see[0], see[1]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
-            #logging.debug('2d rotation: %f' % (rot2d * 180.0 / math.pi) + '°')
 
-            # reset 2d rotation:
-            see = numpy.dot(self.rotation_matrix(z_axis, -rot2d), see)
-            #logging.debug('after -rot2d: ' + str(see))
-            #logging.debug('2d in deg: %f' % ((numpy.arctan2(see[0], see[1]) - math.pi / 2.0) * 180.0 / math.pi) + '°')
-            
-            # apply (subtract) vertical rotation (-> around y axis):
-            see = numpy.dot(self.rotation_matrix(y_axis, -se_pol[2] / 180.0 * math.pi), see) # subtraction is approved
-            #see = numpy.dot(self.rotation_matrix(y_axis, -45.0 / 180.0 * math.pi), see)
-            #logging.debug('after vert rot: ' + str(see))
-            # correct til here
-            
-            # apply (add) horizontal rotation and re-apply 2d rotation:
-            see = numpy.dot(self.rotation_matrix(z_axis, se_pol[1] / 180.0 * math.pi + rot2d), see)
-            # addition is approved (in simspark pol right means negative values)
-            #see = numpy.dot(self.rotation_matrix(z_axis, -45.0 / 180.0 * math.pi), see)
-            #logging.debug('after hor rot: ' + str(see))
-            '''
-
-            # add to list:
-            see_vector_list += [see]
+            # sum up:
+            see_sum += see
             
             #logging.debug(' ')
         
+        # normalize summed up see vector:
         see = None
-        if len(see_vector_list) > 0:
-            see = numpy.array([0, 0, 0])
-            for s in see_vector_list:
-                see = see + s
-            see = see / numpy.linalg.norm(see)
+        if numpy.linalg.norm(see_sum) > 0: # check if any data was collected in the first place
+            see = see_sum / numpy.linalg.norm(see_sum)
         #logging.debug('see_vector: ' + str(see))
         
         # we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
