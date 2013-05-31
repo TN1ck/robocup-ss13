@@ -95,7 +95,11 @@ class Perception:
                     pass
             elif me[0] == 'B': # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
-                pos = self.add_pol_to_vector(player._see_vector, pol)
+                vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
+                # NAO cam position:
+                pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
+                # add vector_to_ball:
+                pos += vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
                 pass
             else: # wtf!

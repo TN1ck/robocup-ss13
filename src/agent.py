@@ -50,8 +50,8 @@ class Agent:
 
         offset_for_player = -9 + (3*self.player_nr)
 
-        #self.socket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 270 ) ")
-        self.socket.enqueue(" ( beam 0 -7 270 ) ")
+        self.socket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 270 ) ")
+        #self.socket.enqueue(" ( beam -1 0 270 ) ")
         self.socket.flush()
 
         #Beispiel fuer laufen
