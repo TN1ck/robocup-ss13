@@ -85,12 +85,17 @@ class Perception:
     def mobile_entity_localization(self, mobile_entities, w):
         """Calculates the position of the given percepted mobile entities and
         writes this info into the given world."""
+        player = w.entity_from_identifier['P' + str(self.player_nr)]
+        position_list = []
         for me in mobile_entities: # me = mobile entity
             if me[0] == 'P': # it's a player!
                 id = int(me[2][1])
                 if id != self.player_nr: # don't process own arms etc.
                     pass
             elif me[0] == 'B': # it's a ball!
+                pol = self.get_pol_from_parser_entity(me)
+                pos = self.add_pol_to_vector(player._see_vector, pol)
+                w.entity_from_identifier['B'].set_position(pos[0], pos[1])
                 pass
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
@@ -173,6 +178,8 @@ class Perception:
             #logging.debug('vector to se: ' + str(see))
             
             # now some rotationz...
+            see = self.add_pol_to_vector(see, -numpy.array(se_pol))
+            '''
             z_axis = numpy.array([0, 0, 1]) # horizontally
             y_axis = numpy.array([0, 1, 0]) # vertically
             # 2d part of the vector -> angle is:
@@ -195,6 +202,7 @@ class Perception:
             # addition is approved (in simspark pol right means negative values)
             #see = numpy.dot(self.rotation_matrix(z_axis, -45.0 / 180.0 * math.pi), see)
             #logging.debug('after hor rot: ' + str(see))
+            '''
 
             # add to list:
             see_vector_list += [see]
@@ -223,6 +231,21 @@ class Perception:
         
         return pos, see
 
+    def add_pol_to_vector(self, vector, pol):
+        """Returns the rotated 3d-vector by applying the given polar coordinates as a rotation."""
+        # init z/y-axis:
+        z_axis = numpy.array([0, 0, 1]) # horizontally
+        y_axis = numpy.array([0, 1, 0]) # vertically
+        # 2d part of the vector -> angle:
+        rot2d = numpy.arctan2(vector[0], vector[1]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
+        # reset 2d rotation:
+        result = numpy.dot(self.rotation_matrix(z_axis, -rot2d), vector)
+        # apply (subtract) vertical rotation (-> around y axis):
+        result = numpy.dot(self.rotation_matrix(y_axis, pol[2] / 180.0 * math.pi), result) # subtraction is approved
+        # apply (add) horizontal rotation and re-apply 2d rotation:
+        result = numpy.dot(self.rotation_matrix(z_axis, -pol[1] / 180.0 * math.pi + rot2d), result)
+
+        return result
 
     def get_pol_from_parser_entity(self, entity, which_pol = 0):
         """Returns the polar coordinates in a parser block (entity block)

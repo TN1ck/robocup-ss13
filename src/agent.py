@@ -76,6 +76,7 @@ class Agent:
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
+            #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
             
             if i : 
                 m.run(-10,3)
