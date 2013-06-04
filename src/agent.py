@@ -18,7 +18,7 @@ our_team = "DAI-Labor"
 
 
 class Agent:
-    def __init__(self,p_nr):
+    def __init__(self, p_nr):
         self.player_nr = p_nr #TODO needs to be revised for multiple players
 
         self.world = world.World(6, 30, 20) # 6 players per team, field size: 30 meters x 20 meters
@@ -54,7 +54,7 @@ class Agent:
 
         offset_for_player = -9 + (3*self.player_nr)
 
-        self.agentSocket.enqueue(" ( beam -5 "+ str(offset_for_player) +" 270 ) ")
+        self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 270 ) ")
         #self.agentSocket.enqueue(" ( beam -1 0 270 ) ")
         self.agentSocket.flush()
 
@@ -84,10 +84,10 @@ class Agent:
             #logging.debug('agent location: ' + str(self.world.get_entity_position('P' + str(self.player_nr))))
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
-            logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
+            #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
             
             if i : 
-                m.run(-10,3)
+                m.run(-1, -1)
             i = True
             # t.run_tactics()
             self.agentSocket.flush()

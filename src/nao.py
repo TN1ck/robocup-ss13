@@ -58,10 +58,10 @@ class Nao:
         self._gyro_state = numpy.array([0.0, 0.0, 0.0])
     
     def get_position(self):
-        return self.world.get_entity_position('P' + str(self.player_nr))
+        return self.world.get_entity_position('P_1_' + str(self.player_nr))
 
     def get_see_vector(self):
-        return self.world.entity_from_identifier['P' + str(self.player_nr)].get_see_vector()
+        return self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_see_vector()
 
     def set_gyro_rate(self, rate):
         """Sets the current gyro rate and adjusts the absolute gyro state with the new value."""

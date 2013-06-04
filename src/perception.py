@@ -90,6 +90,7 @@ class Perception:
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
             if me[0] == 'P':                            # it's a player!
+                #logging.debug('seeing player')
                 # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
                 # player.team = 1 iff friendly player / player.team = 2 iff hostile player
                 # TODO: set hostile player ids when seen
@@ -101,7 +102,7 @@ class Perception:
                     pos_list = []
                     for bp in bps:
                         pol = self.get_pol_from_parser_entity(bp)
-                        logging.debug('body part pol: ' + str(pol))
+                        #logging.debug('body part pol: ' + str(pol))
                         vector_to_player = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
                         pos_list += [cam_pos + vector_to_player]
                     # arithmetic mean:
@@ -110,6 +111,7 @@ class Perception:
                         pos += pos_item
                     pos /= len(pos_list)
                     w.entity_from_identifier['P_' + str(team) + '_' + str(id)].set_position(pos[0], pos[1])
+                    #logging.debug('other player: ' + str(pos))
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
@@ -285,8 +287,10 @@ class Perception:
         # distance error is e.g.: 28.99 - 29.09
         if acos_arg < -1:
             beta = math.pi
+            logging.debug('triangle ain\'t no triangle.')
         elif acos_arg > 1:
             beta = 0
+            logging.debug('triangle ain\'t no triangle.')
         else:
             beta = math.acos(acos_arg) 
         
