@@ -54,7 +54,7 @@ class Movement:
         else:
             self.beampos.y = self.position.y + dy
 
-        self.rotation = degrees(self.beampos.y - self.destination[1], atan2(self.beampos.x - self.destination[0])) + 90
+        self.rotation = degrees(atan2(self.beampos.y - self.destination[1]), atan2(self.beampos.x - self.destination[0])) + 90
         self.send("beam", self.beampos.x, self.beampos.y, self.rotation)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
