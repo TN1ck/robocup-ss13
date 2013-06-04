@@ -37,7 +37,6 @@ class Agent:
         self.agentSocket.start()
         self.monitorSocket.start()
 
-       
 
 
         m = movement.Movement(self.world, self.agentSocket, self.player_nr)
@@ -85,8 +84,8 @@ class Agent:
             #logging.debug('agent location: ' + str(self.nao.get_position()))
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
-            
-            if i : 
+
+            if i :
                 m.run(-1, -1)
             i = True
             # t.run_tactics()
