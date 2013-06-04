@@ -27,15 +27,8 @@ class Movement:
 	    #print self.position.y
         self.stopped = False
         # Destination parameters are present in parameters
-        '''if destination:
+        if destination:
             self.destination = destination
-            x = destination[0] - self.position.x
-            y = destination[1] - self.position.y
-            c = sqrt(x**2 + y**2)
-            if c == 0:
-                # AMAZING FIX
-                c = 0.001
-            self.rotation = acos(x/c) if y >= 0 else -acos(x/c)'''
         if ((self.destination and
             abs(self.destination[0] - self.position.x) < self.divergence) and
            (abs(self.destination[1] - self.position.y) < self.divergence)):
@@ -54,7 +47,7 @@ class Movement:
         else:
             self.beampos.y = self.position.y + dy
 
-        self.rotation = degrees(atan2(self.beampos.y - self.destination[1], self.beampos.x - self.destination[0])) + 90
+        self.rotation = degrees(atan2(self.beampos.y - self.destination[1], self.beampos.x - self.destination[0])) + 90.0
         self.send("beam", self.beampos.x, self.beampos.y, self.rotation)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
