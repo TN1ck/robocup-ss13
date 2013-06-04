@@ -63,6 +63,8 @@ class Sock:
             self.flush('(scene rsg/agent/nao/nao.rsg)')
         
             #logging.debug("init response 1: " + self.receive())
+            self.receive()
         
             self.flush('(init (unum ' + str(self.player_nr) + ')(teamname ' + str(self.team_name) + '))')
             #logging.debug("init response 2: " + self.receive())
+            self.receive()

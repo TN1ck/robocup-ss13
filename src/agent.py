@@ -25,7 +25,7 @@ class Agent:
 
         self.nao = nao.Nao(self.world, self.player_nr)
 
-        self.perception = perception.Perception(self.player_nr)
+        self.perception = perception.Perception(self.player_nr, our_team)
 
         #setup a agentSocket-connection to the server
         self.agentSocket = sock.Sock("localhost", 3100, our_team, self.player_nr)
