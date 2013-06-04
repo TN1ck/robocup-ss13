@@ -74,7 +74,7 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P' + str(self.player_nr)]
+                player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
                 
@@ -86,10 +86,13 @@ class Perception:
     def mobile_entity_localization(self, mobile_entities, w):
         """Calculates the position of the given percepted mobile entities and
         writes this info into the given world."""
-        player = w.entity_from_identifier['P' + str(self.player_nr)]
+        player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
         position_list = []
         for me in mobile_entities: # me = mobile entity
             if me[0] == 'P': # it's a player!
+                # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
+                # player.team = 1 iff friendly player / player.team = 2 iff hostile player
+                # TODO: set hostile player ids when seen
                 id = int(me[2][1])
                 if id != self.player_nr: # don't process own arms etc.
                     pass
@@ -101,7 +104,6 @@ class Perception:
                 # add vector_to_ball:
                 pos += vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
-                pass
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 

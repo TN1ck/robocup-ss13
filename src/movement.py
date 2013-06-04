@@ -12,7 +12,7 @@ class Movement:
         self.destination = None
         self.angular_precision = 0.5;
         self.rotation = 0
-        self.position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
 
     def get_world(self):
@@ -22,7 +22,7 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-        self.position = self.world.get_entity_position('P' + str(self.player_nr))
+        self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
         #print self.position.x
 	    #print self.position.y
         self.stopped = False
