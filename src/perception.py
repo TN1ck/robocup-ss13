@@ -87,22 +87,34 @@ class Perception:
         """Calculates the position of the given percepted mobile entities and
         writes this info into the given world."""
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
-        position_list = []
+        cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
-            if me[0] == 'P': # it's a player!
+            if me[0] == 'P':                            # it's a player!
                 # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
                 # player.team = 1 iff friendly player / player.team = 2 iff hostile player
                 # TODO: set hostile player ids when seen
+                team = 1 if me[1][1] == our_team else 2
                 id = int(me[2][1])
-                if id != self.player_nr: # don't process own arms etc.
-                    pass
-            elif me[0] == 'B': # it's a ball!
+                if id != self.player_nr or team != 1:   # don't process own arms etc.
+                    bps = me[3]                         # bodyparts
+                    # collect bodypart positions:
+                    pos_list = []
+                    for bp in bps:
+                        pol = self.get_pol_from_parser_entity(bp)
+                        logging.debug('body part pol: ' + str(pol))
+                        vector_to_player = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
+                        pos_list += [cam_pos + vector_to_player]
+                    # arithmetic mean:
+                    pos = numpy.array([0, 0, 0])
+                    for pos_item in pos_list:
+                        pos += pos_item
+                    pos /= len(pos_list)
+                    w.entity_from_identifier['P_' + str(team) + '_' + str(id)].set_position(pos[0], pos[1])
+            elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
-                # NAO cam position:
-                pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
-                # add vector_to_ball:
-                pos += vector_to_ball
+                # NAO cam position + vector_to_ball:
+                pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
