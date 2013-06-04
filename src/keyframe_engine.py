@@ -1,4 +1,4 @@
-from Keyframes import stand_up_from_back, testframe, fall_back, fall_front, stand_up_from_front
+from Keyframes import stand_up_from_back, testframe, fall_back, fall_front, stand_up_from_front, kick1, lookAround
 import math
 
 class Keyframe_Engine:
@@ -67,6 +67,23 @@ class Keyframe_Engine:
         '''
         keyframe = stand_up_from_front.keyframe
         name = stand_up_from_front.name
+        self.next_step(keyframe, name)
+        
+    def lookAround(self):
+        '''
+        funktion for look around
+        '''
+        keyframe = lookAround.keyframe
+        name = lookAround.name
+        self.next_step(keyframe, name)
+        
+    def kick1(self):
+        '''
+        first kick-function
+        the ball has to lay in front of the nao
+        '''
+        keyframe = kick1.keyframe
+        name = kick1.name
         self.next_step(keyframe, name)
     
     def test_frame(self):

@@ -4,6 +4,7 @@ import math
 import world
 import logging
 import numpy
+import copy
 
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
@@ -73,7 +74,7 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P' + str(self.player_nr)]
+                player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
                 
@@ -85,13 +86,38 @@ class Perception:
     def mobile_entity_localization(self, mobile_entities, w):
         """Calculates the position of the given percepted mobile entities and
         writes this info into the given world."""
+        player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
+        cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
-            if me[0] == 'P': # it's a player!
+            if me[0] == 'P':                            # it's a player!
+                #logging.debug('seeing player')
+                # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
+                # player.team = 1 iff friendly player / player.team = 2 iff hostile player
+                # TODO: set hostile player ids when seen
+                team = 1 if me[1][1] == our_team else 2
                 id = int(me[2][1])
-                if id != self.player_nr: # don't process own arms etc.
-                    pass
-            elif me[0] == 'B': # it's a ball!
-                pass
+                if id != self.player_nr or team != 1:   # don't process own arms etc.
+                    bps = me[3]                         # bodyparts
+                    # collect bodypart positions:
+                    pos_list = []
+                    for bp in bps:
+                        pol = self.get_pol_from_parser_entity(bp)
+                        #logging.debug('body part pol: ' + str(pol))
+                        vector_to_player = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
+                        pos_list += [cam_pos + vector_to_player]
+                    # arithmetic mean:
+                    pos = numpy.array([0, 0, 0])
+                    for pos_item in pos_list:
+                        pos += pos_item
+                    pos /= len(pos_list)
+                    w.entity_from_identifier['P_' + str(team) + '_' + str(id)].set_position(pos[0], pos[1])
+                    #logging.debug('other player: ' + str(pos))
+            elif me[0] == 'B':                          # it's a ball!
+                pol = self.get_pol_from_parser_entity(me)
+                vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
+                # NAO cam position + vector_to_ball:
+                pos = cam_pos + vector_to_ball
+                w.entity_from_identifier['B'].set_position(pos[0], pos[1])
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
@@ -151,13 +177,13 @@ class Perception:
             pos = pos / len(position_list)
         else:
             return # give up, if position could not be calculated
-            
+        
         # pos is our position now, yay!
         
         ## calculate NAO's see vector ##
         #logging.debug(' ')
 
-        see_vector_list = []
+        see_sum = numpy.array([0, 0, 0])
         for se in static_entities:
             #logging.debug('processing : ' + se[0])
             
@@ -172,41 +198,18 @@ class Perception:
             see = numpy.array([se_pos.x - pos.x, se_pos.y - pos.y, se_height - self.PERCEPTOR_HEIGHT])
             #logging.debug('vector to se: ' + str(see))
             
-            # now some rotationz...
-            z_axis = numpy.array([0, 0, 1]) # horizontally
-            y_axis = numpy.array([0, 1, 0]) # vertically
-            # 2d part of the vector -> angle is:
-            rot2d = numpy.arctan2(see[0], see[1]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
-            #logging.debug('2d rotation: %f' % (rot2d * 180.0 / math.pi) + '°')
+            # rotate the vector so it points to the vision center instead of the static entity:
+            see = self.add_pol_to_vector(see, -numpy.array(se_pol))
 
-            # reset 2d rotation:
-            see = numpy.dot(self.rotation_matrix(z_axis, -rot2d), see)
-            #logging.debug('after -rot2d: ' + str(see))
-            #logging.debug('2d in deg: %f' % ((numpy.arctan2(see[0], see[1]) - math.pi / 2.0) * 180.0 / math.pi) + '°')
-            
-            # apply (subtract) vertical rotation (-> around y axis):
-            see = numpy.dot(self.rotation_matrix(y_axis, -se_pol[2] / 180.0 * math.pi), see) # subtraction is approved
-            #see = numpy.dot(self.rotation_matrix(y_axis, -45.0 / 180.0 * math.pi), see)
-            #logging.debug('after vert rot: ' + str(see))
-            # correct til here
-            
-            # apply (add) horizontal rotation and re-apply 2d rotation:
-            see = numpy.dot(self.rotation_matrix(z_axis, se_pol[1] / 180.0 * math.pi + rot2d), see)
-            # addition is approved (in simspark pol right means negative values)
-            #see = numpy.dot(self.rotation_matrix(z_axis, -45.0 / 180.0 * math.pi), see)
-            #logging.debug('after hor rot: ' + str(see))
-
-            # add to list:
-            see_vector_list += [see]
+            # sum up:
+            see_sum += see
             
             #logging.debug(' ')
         
+        # normalize summed up see vector:
         see = None
-        if len(see_vector_list) > 0:
-            see = numpy.array([0, 0, 0])
-            for s in see_vector_list:
-                see = see + s
-            see = see / numpy.linalg.norm(see)
+        if numpy.linalg.norm(see_sum) > 0: # check if any data was collected in the first place
+            see = see_sum / numpy.linalg.norm(see_sum)
         #logging.debug('see_vector: ' + str(see))
         
         # we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
@@ -223,6 +226,21 @@ class Perception:
         
         return pos, see
 
+    def add_pol_to_vector(self, vector, pol):
+        """Returns the rotated 3d-vector by applying the given polar coordinates as a rotation."""
+        # init z/y-axis:
+        z_axis = numpy.array([0, 0, 1]) # horizontally
+        y_axis = numpy.array([0, 1, 0]) # vertically
+        # 2d part of the vector -> angle:
+        rot2d = numpy.arctan2(vector[0], vector[1]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
+        # reset 2d rotation:
+        result = numpy.dot(self.rotation_matrix(z_axis, -rot2d), vector)
+        # apply (subtract) vertical rotation (-> around y axis):
+        result = numpy.dot(self.rotation_matrix(y_axis, pol[2] / 180.0 * math.pi), result) # subtraction is approved
+        # apply (add) horizontal rotation and re-apply 2d rotation:
+        result = numpy.dot(self.rotation_matrix(z_axis, -pol[1] / 180.0 * math.pi + rot2d), result)
+
+        return result
 
     def get_pol_from_parser_entity(self, entity, which_pol = 0):
         """Returns the polar coordinates in a parser block (entity block)
@@ -269,8 +287,10 @@ class Perception:
         # distance error is e.g.: 28.99 - 29.09
         if acos_arg < -1:
             beta = math.pi
+            logging.debug('triangle ain\'t no triangle.')
         elif acos_arg > 1:
             beta = 0
+            logging.debug('triangle ain\'t no triangle.')
         else:
             beta = math.acos(acos_arg) 
         
