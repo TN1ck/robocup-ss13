@@ -23,7 +23,7 @@ term_regex = r'''(?mx)
     \s*(?:
         (?P<brackl>\()|
         (?P<brackr>\))|
-        (?P<num>\-?\d+\.\d+|\-?\d+)|
+        (?P<num>\-?\d+\.\d+e\-?\d+|\-?\d+\.\d+|\-?\d+)|
         (?P<sq>"[^"]*")|
         (?P<s>\S+)
        )'''
@@ -65,6 +65,7 @@ def parse_sexp(sexp):
     result = out[0]
     if len(result) == 1 and result[0].__class__.__name__ == 'list':
         result = result[0]
+    print result
     return result
 
 def print_sexp(exp):
@@ -81,7 +82,7 @@ def print_sexp(exp):
 if __name__ == '__main__':
     # sexp = '''(time (now 3.58))(GS (unum 1) (team left) (t 0.00) (pm BeforeKickOff))(GYR (n torso) (rt -0.00 -0.00 -0.00))(ACC (n torso) (a -0.00 -0.00 29.42))(HJ (n hj1) (ax 0.00))(HJ (n hj2) (ax -0.00))(HJ (n raj1) (ax -0.00))(HJ (n raj2) (ax -0.00))(HJ (n raj3) (ax -0.00))(HJ (n raj4) (ax 0.00))(HJ (n laj1) (ax 0.00))(HJ (n laj2) (ax 0.00))(HJ (n laj3) (ax 0.00))(HJ (n laj4) (ax -0.00))(HJ (n rlj1) (ax 0.00))(HJ (n rlj2) (ax -0.00))(HJ (n rlj3) (ax -0.00))(HJ (n rlj4) (ax 0.00))(HJ (n rlj5) (ax -0.00))(HJ (n rlj6) (ax -0.00))(HJ (n llj1) (ax -0.00))(HJ (n llj2) (ax 0.00))(HJ (n llj3) (ax -0.00))(HJ (n llj4) (ax 0.00))(HJ (n llj5) (ax 0.00))(HJ (n llj6) (ax -0.00))'''
     # sexp = "(((foo)))"
-    sexp = '''((time 0))(RDS 0 1)((nd(nd))(nd(nd))(nd(nd StaticMesh))(nd(nd StaticMesh))(nd(nd(nd StaticMesh))(nd)(nd)(nd)(nd)(nd))(nd(nd(nd StaticMesh))(nd)(nd)(nd)(nd)(nd))(nd(nd SMN))(nd(nd SMN))(nd(nd SMN))(nd(nd SMN))(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd)(nd(nd StaticMesh)))'''
+    sexp = '''(bla 1.3678e-005)'''
 
 
     print('Input S-expression: %r' % (sexp, ))
