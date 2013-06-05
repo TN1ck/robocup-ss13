@@ -46,24 +46,19 @@ class Agent:
         # You need a first flush in order that "beam" works
         self.agentSocket.flush()
 
-        msg = self.agentSocket.receive()
-        parsed_stuff = parser.parse_sexp(msg)
-        self.perception.process_vision(parsed_stuff, self.world)
-        self.perception.process_gyros(parsed_stuff, self.nao)
+        #msg = self.agentSocket.receive()
+        #parsed_stuff = parser.parse_sexp(msg)
+        #self.perception.process_vision(parsed_stuff, self.world)
+        #self.perception.process_gyros(parsed_stuff, self.nao)
 
         offset_for_player = -9 + (3*self.player_nr)
 
-        self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 270 ) ")
-        #self.agentSocket.enqueue(" ( beam -1 0 270 ) ")
+        #self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 270 ) ")
+        #self.agentSocket.enqueue(" ( beam -1 -1 180 ) ")
         self.agentSocket.flush()
 
-        #Beispiel fuer laufen
-        #Zielkoordinaten duerfen nicht 0 sein, sonst crash
-        #Durch das drehen des sichtfeldes crashed ab und zu die
-        #trigonometry funktion der perception klasse
-        #siehe kommentare in der movement klasse fuer workaround
-        #velocity und divergence kann in init angepasst werden (velocity immer < divergence)
-        i = False
+      
+        i = 1
         while True:
             msg = self.agentSocket.receive()
 
@@ -85,9 +80,11 @@ class Agent:
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
 
-            if i :
-                m.run(-1, -1)
-            i = True
+            if i > 10 and i < 600 :
+                m.run(0, 0)
+            if i > 600:
+                m.run(-10, 9)
+            i = i + 1
             # t.run_tactics()
             self.agentSocket.flush()
 
