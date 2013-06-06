@@ -1,34 +1,34 @@
-from treeNode import TreeNode
+from tree_node import Tree_Node
 
 # tree node for storing the light setting of the simulation
-class LightNode(TreeNode):
+class Light_Node(Tree_Node):
     
     def __init__(self, id, diffuse, ambient, specular):
-        super(LightNode, self).__init__(id);
+        super(Light_Node, self).__init__(id);
         self.__diffuse = diffuse;
         self.__ambient = ambient;
         self.__specular = specular;
         
-    def getDiffuse(self):
+    def get_diffuse(self):
         return self.__diffuse;
     
-    def getAmbient(self):
+    def get_ambient(self):
         return self.__ambient;
     
-    def getSpecular(self):
+    def get_specular(self):
         return self.__specular;
     
-    def setDiffuse(self, diffuse):
+    def set_diffuse(self, diffuse):
         self.__diffuse = diffuse;
     
-    def setAmbient(self, ambient):
+    def set_ambient(self, ambient):
         self.__ambient = abient;
         
-    def setSpecular(self, specular):
+    def set_specular(self, specular):
         self.__specular = specular;
         
     def update(self, diffuse, ambient, specular):
-        self.setDiffuse(diffuse);
-        self.setAmbient(ambient);
-        self.setSpecular(specular);
+        self.set_diffuse(diffuse);
+        self.set_ambient(ambient);
+        self.set_specular(specular);
         

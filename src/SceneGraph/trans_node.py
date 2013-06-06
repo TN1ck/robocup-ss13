@@ -1,14 +1,14 @@
-from treeNode import TreeNode
+from tree_node import Tree_Node
 
 # a node that holds transformation matrices
-class TransNode(TreeNode):
+class Trans_Node(Tree_Node):
     
     def __init__(self, id, matrix):
-        super(TransNode, self).__init__(id);
+        super(Trans_Node, self).__init__(id);
         self.__matrix = matrix;
         
-    def getMatrix(self):
+    def get_matrix(self):
         return self.__matrix;
     
-    def setMatrix(self, matrix):
+    def set_matrix(self, matrix):
         self.__matrix = matrix;

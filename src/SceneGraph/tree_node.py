@@ -1,6 +1,6 @@
 
 #basic implementation of a tree node class.
-class TreeNode(object):
+class Tree_Node(object):
     
     def __init__(self, id):
         self.__parent = None;
@@ -11,27 +11,27 @@ class TreeNode(object):
         if (self.__children != None):
             if (child in self.__children):
                 return;
-            self.__children = self.__children + [child];
+            self.__children.append(child);
         else:
             self.__children = [child];
-        child.__setParent__(self);
+        child.__set_parent__(self);
         
-    def __setParent__(self,parent):
+    def __set_parent__(self,parent):
         self.__parent = parent;
         
-    def getParent(self):
+    def get_parent(self):
         return self.__parent;
     
-    def getChildren(self):
+    def get_children(self):
         return self.__children;
     
-    def getId(self):
+    def get_id(self):
         return self.__id
     
 if __name__ == "__main__":
-    myNode = TreeNode(0);
-    print (myNode.getId());
-    two = TreeNode(1);
+    myNode = Tree_Node(0);
+    print (myNode.get_id());
+    two = Tree_Node(1);
     myNode.append(two);
     myNode.append(two);
-    print (myNode.getChildren());
+    print (myNode.get_children());
