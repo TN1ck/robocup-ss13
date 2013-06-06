@@ -5,6 +5,7 @@ class Movement:
         self.world = world
         self.socket = socket
         self.player_nr = player_nr
+        #self.team = team
         self.velocity = 0.01
         self.divergence = 0.1
         self.stopped = True
@@ -22,17 +23,20 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-        print destination[0]
-        print destination[1]
+        #print destination[0]
+        #print destination[1]
         if self.fresh:
             self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
+            #print "play"
+            #self.socket.enqueue("playMode PlayOn")
+            #self.socket.flush()
         else:
             self.position = self.beampos
-        print self.position.x
-	print self.position.y
+        #print self.position.x
+	#print self.position.y
         self.stopped = False
-        self.destination = destination
+        if destination: self.destination = destination
         # Destination parameters are present in parameters
         #if destination:
         #    self.destination = destination
@@ -43,10 +47,10 @@ class Movement:
         #    return
 
         self.rotation = atan2(self.destination[0] - self.beampos.x, self.destination[1] - self.beampos.y)
-        print self.rotation
-        print degrees(self.rotation)
-        print sin(self.rotation)
-        print cos(self.rotation)
+        #print self.rotation
+        #print degrees(self.rotation)
+        #print sin(self.rotation)
+        #print cos(self.rotation)
         dy = cos(self.rotation) * self.velocity
         dx = sin(self.rotation) * self.velocity
 
@@ -59,10 +63,12 @@ class Movement:
             self.beampos.y = self.beampos.y + dy
         else:
             self.beampos.y = self.position.y + dy
+        
+        #self.send("agent (unum", self.player_nr, ") (team", self.team, ") (move", self.beampos.x, self.beampos.y, "100",(-1 * degrees(self.rotation) )+90, ")")
+        #self.socket.flush()
+        #self.socket.receive()
+        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)  
 
-        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
-        #self.world.player.pos.x = player.pos.x + dx
-        #self.world.player.pos.y = player.pos.y + dy
 
     def stop(self):
         self.stopped = True
