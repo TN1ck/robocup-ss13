@@ -72,10 +72,9 @@ class Nao:
         """Returns the absolute gyro orientation."""
         return copy.deepcopy(self._gyro_state)
     
+    """
     def update_joint_positions(self, parsed):
-        '''
-        update all currently perceived joints of the nao
-        '''
+        '''Updates all currently perceived joints of the nao.'''
         joint_number = 0
         for i in parsed:
             if i[0] == 'HJ':
@@ -84,3 +83,4 @@ class Nao:
                         j.value = i[2][1]
                         joint_number = joint_number +1
                         break
+    """

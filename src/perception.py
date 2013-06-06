@@ -33,8 +33,15 @@ class Perception:
         # if not found:
         return None
 
+    def process_joint_positions(self, parser_output, nao):
+        """Takes the parser output and updates the nao with the perceived joint positions."""
+
+        for part in parser_output:
+            if part[0] == 'HJ':
+                nao.from_perceptor[part[1][1]].value = part[2][1]
+
     def process_gyros(self, parser_output, nao):
-        """Takes the parser output and updates the world info with the percepted gyro data."""
+        """Takes the parser output and updates the nao with the perceived gyro data."""
 
         # gyro only:
         gyro = self.get_parser_part('GYR', parser_output)
@@ -42,7 +49,7 @@ class Perception:
         nao.set_gyro_rate(map(float, gyro[1][1:]))
 
     def process_vision(self, parser_output, w):
-        """Takes the parser output and updates the world info with the percepted vision data."""
+        """Takes the parser output and updates the world info with the perceived vision data."""
 
         #logging.debug('process_vision_perceptors BEGIN')
         #logging.debug('parser_output: ' + str(parser_output))
@@ -85,7 +92,7 @@ class Perception:
         #logging.debug('process_vision_perceptors END')
 
     def mobile_entity_localization(self, mobile_entities, w):
-        """Calculates the position of the given percepted mobile entities and
+        """Calculates the position of the given perceived mobile entities and
         writes this info into the given world."""
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
