@@ -1,102 +1,91 @@
-import socket
 import struct
+import drawing_advanced
+import world
 
-'''  For more information on these commands see
-     https://sites.google.com/site/umroboviz/drawing-api/draw-commands '''
+''' This Class is supposed to make drawing calls a little easier. 
+    For all coordinates it uses the Vector class from world.py.
+    This means that all shapes will be 2-Dimensional only - 
+    for 3D stuff you will have to use the more complex drawing_advanced.py
+    There are also some more advanced functions like drawArrow'''
+class Drawing:
+        drawer = None
 
-
-class DrawingAdvanced:
-
-        udpIp = "127.0.0.1"
-        udpPort = 32769
-        sock = socket.socket(socket.AF_INET,  # Internet
-                             socket.SOCK_DGRAM)  # UDP
-
-        ''' If you wish to use this locally you can just call this
-            as drawing_basics.DrawingBasics(0,0) otherwise udpIp should be a string'''
+        ''' If you wish to use this locally you can just call this as 
+            drawing.Drawing(0,0) otherwise udpIp should be a string'''
         def __init__(self, udpIp, udpPort):
-                if (udpIp != 0):
-                    self.udpIp = udpIp
-                if (udpPort != 0):
-                    self.udpPort = udpPort
+                self.drawer = drawing_advanced.DrawingAdvanced(udpIp,udpPort)
 
-        def _sendCommand(self, message):
-                self.sock.sendto(message, (self.udpIp, self.udpPort))
+        def _checkColor(self, color):
+            if ((color[0]>255 or color[1]>255 or color[2]>255) or (color[0]<0 or color[1]<0 or color[2]<0)):
+                        print("Color values should be between 0 and 255 - current values are " + str(color))
+                        return 1
+            return 0
 
-        ''' Formats floats into Strings of length 6 as explained
-            in the Command documentation linked above'''
-        def _formatFloat(self, number):
-            number = str(number)[:6]
-            if len(number) < 6:
-                    if("." in number):
-                            number = (number+"00000")[:6]
-                    else:
-                            number = (number+".0000")[:6]
-            return number
+        ''' This will display all drawings that have a name 
+            starting with name AND have not been displayed yet.
+            All the drawings with that name that have
+            already been displayed WILL DISAPPEAR'''
+        def showDrawingsNamed(self, name):
+            self.drawer.swapBuffers(name)
 
-        ''' You have to call this function after drawing your stuff
-            (if you want to actually see the drawings)'''
-        def swapBuffers(self, setName):
-                self._sendCommand(bytearray([0,0]+list(setName)+[0]))
+        def drawCircle(self, center, radius, thickness, color, name):
+                if self._checkColor(color) == 0:
+                        self.drawer.drawCircle(center.x, center.y, radius, thickness, color[0], color[1], color[2], name)
 
-        def drawCircle(self, posX, posY, radius, thickness, red, green, blue, setName):
-                posX = self._formatFloat(posX)
-                posY = self._formatFloat(posY)
-                radius = self._formatFloat(radius)
-                thickness = self._formatFloat(thickness)
-                self._sendCommand(bytearray([1,0]+list(posX)+list(posY)+list(radius)+list(thickness)+[red,green,blue]+list(setName)+[0]))
+        ''' startPoint and endPoint should be Vectors,
+            thickness should be a float or int 
+            color should be a list or array ([red, green, blue])'''
+        def drawLine(self, startPoint, endPoint, thickness, color, name):
+                if self._checkColor(color) == 0:
+                        self.drawer.drawLine(startPoint.x, startPoint.y, 0, endPoint.x, endPoint.y, 0, thickness, color[0], color[1], color[2], name)
+        
+        def drawPoint(self, position, size, color, name):
+                if self._checkColor(color) == 0:
+                        self.drawer.drawPoint(position.x, position.y, 0, size, color[0], color[1], color[2], name)
 
-        def drawLine(self, startX, startY, startZ, endX, endY, endZ, thickness, red, green, blue, setName):
-                startX = self._formatFloat(startX)
-                startY = self._formatFloat(startY)
-                startZ = self._formatFloat(startZ)
-                endX = self._formatFloat(endX)
-                endY = self._formatFloat(endY)
-                endZ = self._formatFloat(endZ)
-                thickness = self._formatFloat(thickness)
-                self._sendCommand(bytearray([1,1]+list(startX)+list(startY)+list(startZ)+list(endX)+list(endY)+list(endZ)+list(thickness)+[red,green,blue]+list(setName)+[0]))
+        ''' in this case radius is measured in meters (don't ask me why)'''
+        def drawSphere(self, center, radius, color, name):
+                if self._checkColor(color) == 0:
+                        self.drawer.drawSphere(center.x, center.y, 0, radius, color[0], color[1], color[2], name)
 
-        def drawPoint(self, posX, posY, posZ, size, red, green, blue, setName):  # recommended Values for size are within [1,10]
-                posX = self._formatFloat(posX)
-                posY = self._formatFloat(posY)
-                posZ = self._formatFloat(posZ)
-                size = self._formatFloat(size)
-                self._sendCommand(bytearray([1,2]+list(posX)+list(posY)+list(posZ)+list(size)+[red,green,blue]+list(setName)+[0]))
+        ''' This one is a little special:
+            vertices should be a list or array of Vectors 
+            representing all the cornerpoints of the shape'''
+        def drawPolygon(self, vertices, color, name):
+                if self._checkColor(color) == 0:
+                        _vertices = []
+                        for v in vertices:
+                                _vertices.extend([v.x, v.y, 0])
+                        print(_vertices+color+[255])
+                        self.drawer.drawPolygon(_vertices, color[0], color[1], color[2], 255, name)
 
-        def drawSphere(self, posX, posY, posZ, radius, red, green, blue, setName):
-                posX = self._formatFloat(posX)
-                posY = self._formatFloat(posY)
-                posZ = self._formatFloat(posZ)
-                radius = self._formatFloat(radius)
-                self._sendCommand(bytearray([1,3]+list(posX)+list(posY)+list(posZ)+list(radius)+[red,green,blue]+list(setName)+[0]))
+        def drawStandardAnnotation(self, position, color, text, name):
+                if self.checkColor == 0:
+                        self.drawer.drawStandardAnnotation(position.x, position.y, 0, color[0], color[1], color[2], name)
 
-        ''' To draw a Polygon you need to pass a List of vertices to the '''
-        def drawPolygon(self, vertices, red, green, blue, alpha, setName):
-                vertexString = ""
-                for i in vertices:
-                    vertexString += self._formatFloat(i)
-                self._sendCommand(bytearray([1,4,len(vertices)/3,red,green,blue,alpha]+list(vertexString)+list(setName)+[0]))
+        def drawAgentAnnotaion(self, agentNum, teamNum, color, text):
+                if self.checkColor == 0:
+                        if agentNum<128
+                                if teamNum == 0:
+                                        agentTeam = agentNum - 1
+                                elif teamNum == 1:
+                                        agentTeam = agentNum + 127
+                                else
+                                        print("Team number must be 0 or 1, but is "+str(teamNum))
+                                        return
+                                self.drawer.drawAgentAnnotation(agentTeam, color[0], color[1], color[2], text)
+                        else
+                                print("agentNum must be lower than 128 but is "+str(agentNum))                        
 
-        '''drawStandardAnnotation writes the specified text to the specified x,y,z position'''
-        def drawStandardAnnotation(self, posX, posY, posZ, red, green, blue, text, setName):
-                posX = self._formatFloat(posX)
-                posY = self._formatFloat(posY)
-                posZ = self._formatFloat(posZ)
-                msg = bytearray([2,0]+list(posX)+list(posY)+list(posZ)+[red,green,blue]+list(text)+[0]+list(setName)+[0])
-                self._sendCommand(msg)
-
-        ''' drawAgentAnnotation writes the specified text above the Head of the robot specified by agentTeam
-            agentTeam should be one Number containing information about the agent who gets the annotation and the team he's playing for.
-            #
-            You can calculate the Team/Agent byte as follows (leftTeam is a boolean; agentNum is an integer):
-                if(leftTeam):
-                    agentTeam = agentNum - 1
-                else:
-                    agentTeam = agentNum + 127
-            #
-            agentNum should NOT be greater than 128'''
-        def drawAgentAnnotation(self, agentTeam, red, green, blue, text):
-                self._sendCommand(bytearray([2,1,agentTeam,red,green,blue]+list(text)+[0]))
-
-        def removeAgentAnnotation(self, agentTeam):
-                self._sendCommand(bytearray([2,2,agentTeam]))
+        def removeAgentAnnotation(self, agentNum, teamNum)
+                if agentNum<128
+                        if teamNum == 0:
+                                agentTeam = agentNum - 1
+                        elif teamNum == 1:
+                                agentTeam = agentNum + 127
+                        else
+                                print("Team number must be 0 or 1, but is "+str(teamNum))
+                                return
+                        self.drawer.removeAgentAnnotation(agentTeam)
+                else
+                        print("agentNum must be lower than 128 but is "+str(agentNum))
