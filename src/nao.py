@@ -58,10 +58,10 @@ class Nao:
         self._gyro_state = numpy.array([0.0, 0.0, 0.0])
     
     def get_position(self):
-        return self.world.get_entity_position('P' + str(self.player_nr))
+        return self.world.get_entity_position('P_1_' + str(self.player_nr))
 
     def get_see_vector(self):
-        return self.world.entity_from_identifier['P' + str(self.player_nr)].get_see_vector()
+        return self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_see_vector()
 
     def set_gyro_rate(self, rate):
         """Sets the current gyro rate and adjusts the absolute gyro state with the new value."""
@@ -72,10 +72,9 @@ class Nao:
         """Returns the absolute gyro orientation."""
         return copy.deepcopy(self._gyro_state)
     
+    """
     def update_joint_positions(self, parsed):
-        '''
-        update all currently perceived joints of the nao
-        '''
+        '''Updates all currently perceived joints of the nao.'''
         joint_number = 0
         for i in parsed:
             if i[0] == 'HJ':
@@ -84,3 +83,4 @@ class Nao:
                         j.value = i[2][1]
                         joint_number = joint_number +1
                         break
+    """

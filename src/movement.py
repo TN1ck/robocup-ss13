@@ -1,5 +1,4 @@
 from math import sin, cos, acos, atan2, degrees, pi, pow, sqrt, tan
-import time
 
 class Movement:
     def __init__(self, world, socket, player_nr):
@@ -12,8 +11,9 @@ class Movement:
         self.destination = None
         self.angular_precision = 0.5;
         self.rotation = 0
-        self.position = self.world.entity_from_identifier['P' + str(self.player_nr)].get_position()
+        self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
+        self.fresh = True
 
     def get_world(self):
         return self.world
@@ -22,27 +22,33 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-        self.position = self.world.get_entity_position('P' + str(self.player_nr))
-        #print self.position.x
-	    #print self.position.y
+        print destination[0]
+        print destination[1]
+        if self.fresh:
+            self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
+            self.fresh = False
+        else:
+            self.position = self.beampos
+        print self.position.x
+	print self.position.y
         self.stopped = False
+        self.destination = destination
         # Destination parameters are present in parameters
-        if destination:
-            self.destination = destination
-            x = destination[0] - self.position.x
-            y = destination[1] - self.position.y
-            c = sqrt(x**2 + y**2)
-            if c == 0:
-                # AMAZING FIX
-                c = 0.001
-            self.rotation = acos(x/c) if y >= 0 else -acos(x/c)
-        if ((self.destination and
-            abs(self.destination[0] - self.position.x) < self.divergence) and
-           (abs(self.destination[1] - self.position.y) < self.divergence)):
-            self.stopped = True
-            return
-        dy = sin(self.rotation) * self.velocity
-        dx = cos(self.rotation) * self.velocity
+        #if destination:
+        #    self.destination = destination
+        #if ((self.destination and
+        #    abs(self.destination[0] - self.position.x) < self.divergence) and
+        #   (abs(self.destination[1] - self.position.y) < self.divergence)):
+        #    self.stopped = True
+        #    return
+
+        self.rotation = atan2(self.destination[0] - self.beampos.x, self.destination[1] - self.beampos.y)
+        print self.rotation
+        print degrees(self.rotation)
+        print sin(self.rotation)
+        print cos(self.rotation)
+        dy = cos(self.rotation) * self.velocity
+        dx = sin(self.rotation) * self.velocity
 
         if(abs(self.beampos.x - self.position.x) < self.divergence):
             self.beampos.x = self.beampos.x + dx
@@ -54,8 +60,7 @@ class Movement:
         else:
             self.beampos.y = self.position.y + dy
 
-        self.rotation = degrees(atan2(abs(self.beampos.x - self.destination[0]), abs(self.beampos.y - self.destination[1])))
-        self.send("beam", self.beampos.x, self.beampos.y, self.rotation)
+        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
         #self.world.player.pos.x = player.pos.x + dx
         #self.world.player.pos.y = player.pos.y + dy
 
@@ -83,6 +88,6 @@ class Movement:
     def delete_destination(self):
         self.destination = None
 
-    def update(self):
-        if not self.stopped:
-            self.run()
+    #def update(self):
+    #    if not self.stopped:
+    #        self.run()

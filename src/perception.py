@@ -14,8 +14,9 @@ class Perception:
 
     PERCEPTOR_HEIGHT = 0.5 + 1.0 / 30.0 # calculated w/ simspark - should be really veeeery accurate
 
-    def __init__(self, player_nr):
+    def __init__(self, player_nr, our_team):
         self.player_nr = player_nr
+        self.our_team = our_team
         numpy.set_printoptions(precision=3, suppress=True)
 
     def get_parser_part(self, descriptor, parser_output):
@@ -32,8 +33,15 @@ class Perception:
         # if not found:
         return None
 
+    def process_joint_positions(self, parser_output, nao):
+        """Takes the parser output and updates the nao with the perceived joint positions."""
+
+        for part in parser_output:
+            if part[0] == 'HJ':
+                nao.from_perceptor[part[1][1]].value = part[2][1]
+
     def process_gyros(self, parser_output, nao):
-        """Takes the parser output and updates the world info with the percepted gyro data."""
+        """Takes the parser output and updates the nao with the perceived gyro data."""
 
         # gyro only:
         gyro = self.get_parser_part('GYR', parser_output)
@@ -41,7 +49,7 @@ class Perception:
         nao.set_gyro_rate(map(float, gyro[1][1:]))
 
     def process_vision(self, parser_output, w):
-        """Takes the parser output and updates the world info with the percepted vision data."""
+        """Takes the parser output and updates the world info with the perceived vision data."""
 
         #logging.debug('process_vision_perceptors BEGIN')
         #logging.debug('parser_output: ' + str(parser_output))
@@ -74,7 +82,7 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P' + str(self.player_nr)]
+                player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
                 
@@ -84,24 +92,42 @@ class Perception:
         #logging.debug('process_vision_perceptors END')
 
     def mobile_entity_localization(self, mobile_entities, w):
-        """Calculates the position of the given percepted mobile entities and
+        """Calculates the position of the given perceived mobile entities and
         writes this info into the given world."""
-        player = w.entity_from_identifier['P' + str(self.player_nr)]
-        position_list = []
+        player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
+        cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
-            if me[0] == 'P': # it's a player!
+            if me[0] == 'P':                            # it's a player!
+                #logging.debug('seeing player')
+                # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
+                # player.team = 1 iff friendly player / player.team = 2 iff hostile player
+                # TODO: set hostile player ids when seen
+                team = 1 if me[1][1] == self.our_team else 2
                 id = int(me[2][1])
-                if id != self.player_nr: # don't process own arms etc.
-                    pass
-            elif me[0] == 'B': # it's a ball!
+                if id != self.player_nr or team != 1:   # don't process own arms etc.
+                    bps = me[3:]                         # bodyparts
+                    #logging.debug('body parts: ' + str(bps))
+                    # collect bodypart positions:
+                    pos_list = []
+                    for bp in bps:
+                        #logging.debug('body part: ' + str(bp))
+                        pol = self.get_pol_from_parser_entity(bp)
+                        #logging.debug('body part pol: ' + str(pol))
+                        vector_to_player = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
+                        pos_list += [cam_pos + vector_to_player]
+                    # arithmetic mean:
+                    pos = numpy.array([0, 0, 0])
+                    for pos_item in pos_list:
+                        pos += pos_item
+                    pos /= len(pos_list)
+                    w.entity_from_identifier['P_' + str(team) + '_' + str(id)].set_position(pos[0], pos[1])
+                    #logging.debug('other player: ' + str(pos))
+            elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
-                # NAO cam position:
-                pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
-                # add vector_to_ball:
-                pos += vector_to_ball
+                # NAO cam position + vector_to_ball:
+                pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
-                pass
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
@@ -271,8 +297,10 @@ class Perception:
         # distance error is e.g.: 28.99 - 29.09
         if acos_arg < -1:
             beta = math.pi
+            logging.debug('triangle ain\'t no triangle.')
         elif acos_arg > 1:
             beta = 0
+            logging.debug('triangle ain\'t no triangle.')
         else:
             beta = math.acos(acos_arg) 
         

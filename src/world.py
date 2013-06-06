@@ -206,15 +206,10 @@ class World:
             GoalPole('G2R', width_half, -goal_width / 2, 0.8, 0.02),    # bottom/south right
         ]
 
-        # set up playerz:
+        # set up our playerz:
         self.players = []
-        for i in range(players_per_team * 2):
-            if i < players_per_team:
-                team = 1
-            else:
-                team = 2
-            self.players += [Player('P' + str(i), team)]
-        #self.players = [Player('P', 1)] * players_per_team + [Player('P', 2)] * players_per_team
+        for i in range(players_per_team):
+            self.players += [Player('P_1_' + str(i), 1)]                # 1 ~> our team
 
         # set up ball:
         self.ball = Ball(0.04, 26)
