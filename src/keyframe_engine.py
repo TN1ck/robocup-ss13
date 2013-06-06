@@ -1,4 +1,4 @@
-from Keyframes import stand_up_from_back, testframe, fall_back, fall_front, stand_up_from_front, kick1, lookAround
+import Keyframes as kf
 import math
 
 class Keyframe_Engine:
@@ -23,8 +23,8 @@ class Keyframe_Engine:
         '''
         Testfunction to let the Nao fall on its front
         '''
-        keyframe = fall_front.keyframe
-        name = stand_up_from_back.name
+        keyframe = kf.fall_front.keyframe
+        name = kf.stand_up_from_back.name
         self.get_new_joint_postion(keyframe[self.keyframe_line], name)
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
@@ -40,8 +40,8 @@ class Keyframe_Engine:
         '''
         Testfunction to let the Nao fall on its back
         '''
-        keyframe = fall_back.keyframe
-        name = stand_up_from_back.name
+        keyframe = kf.fall_back.keyframe
+        name = kf.stand_up_from_back.name
         self.get_new_joint_postion(keyframe[self.keyframe_line], name)
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
@@ -53,28 +53,36 @@ class Keyframe_Engine:
             self.send(self.nao.hinge_joints[i].effector, self.last_joint_speed[i])
             i = i + 1
     
+    def stand(self):
+        '''
+        Stand position of the NAO
+        '''
+        keyframe = kf.stand.keyframe
+        name = kf.stand.name
+        self.next_step(keyframe, name)
+    
     def stand_up_from_back(self):
         '''
         Stand_up-function from back
         '''
-        keyframe = stand_up_from_back.keyframe
-        name = stand_up_from_back.name
+        keyframe = kf.stand_up_from_back.keyframe
+        name = kf.stand_up_from_back.name
         self.next_step(keyframe, name)
                
     def stand_up_from_front(self):
         '''
         Stand_up-function from front
         '''
-        keyframe = stand_up_from_front.keyframe
-        name = stand_up_from_front.name
+        keyframe = kf.stand_up_from_front.keyframe
+        name = kf.stand_up_from_front.name
         self.next_step(keyframe, name)
         
     def lookAround(self):
         '''
         funktion for look around
         '''
-        keyframe = lookAround.keyframe
-        name = lookAround.name
+        keyframe = kf.lookAround.keyframe
+        name = kf.lookAround.name
         self.next_step(keyframe, name)
         
     def kick1(self):
@@ -82,16 +90,16 @@ class Keyframe_Engine:
         first kick-function
         the ball has to lay in front of the nao
         '''
-        keyframe = kick1.keyframe
-        name = kick1.name
+        keyframe = kf.kick1.keyframe
+        name = kf.kick1.name
         self.next_step(keyframe, name)
     
     def test_frame(self):
         '''
         Testfunction that moves all  joints
         '''
-        keyframe = testframe.keyframe
-        name = testframe.name
+        keyframe = kf.testframe.keyframe
+        name = kf.testframe.name
         self.get_new_joint_postion(keyframe[self.keyframe_line], name)
         if self.keyframe_line >= len(keyframe): # alt: 6
             self.keyframe_line = 0
