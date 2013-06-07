@@ -140,7 +140,7 @@ class Scene:
                                (msg[4],msg[8],msg[12],msg[16])) )
         node = trans_node.Trans_Node(self.__idcount, matrix)
         self.__nodes.append(node)
-        self.__idcount = self.__idcount + 1
+        self.__idcount += 1
         return node
      
     # creates a light node. msg should be a list containing lists full of information concerning the node like:
@@ -154,7 +154,7 @@ class Scene:
         specular = numpy.array([msg[2][1],msg[2][2],msg[2][3],msg[2][4]])
         node = light_node.Light_Node(self.__idcount,diffuse,ambient,specular)
         self.__nodes.append(node)
-        self.__idcount = self.__idcount + 1
+        self.__idcount += 1
         return node
     
     # creates a smn node. msg should be a list containing lists full of information concerning the node like:
@@ -175,7 +175,7 @@ class Scene:
                 visible = element[1]
         node = smn_node.Smn_Node(self.__idcount, load, sSc, visible, transparent, sMat)
         self.__nodes.append(node)
-        self.__idcount = self.__idcount + 1
+        self.__idcount += 1
         return node
     
     # creates a static mesh node. msg should be a list containing lists full of information concerning the node like:
@@ -196,14 +196,44 @@ class Scene:
                 visible = element[1]
         node = stat_mesh_node.Stat_Mesh_Node(self.__idcount, load, sSc, visible, transparent, reset)
         self.__nodes.append(node)
-        self.__idcount = self.__idcount + 1
+        self.__idcount += 1
         if (load == "models/naobody.obj"):
             self.__naos[len(self.__naos)] = node
         return node
     
-    # should update the sceneGraph. Should be called if the server sends (RDS 0 1)
+    # updates the sceneGraph. Should be called if the server sends (RDS 0 1)
     def update_scene(self, msg):
+        header = msg[1]
+        graph = msg[2]
+        if (header[0] != "RDS"):
+            print("Error: Message doesn't a contain partial scene graph")
+            return
+        if (header[1] != 0 | header[2] != 1):
+            print("Wrong scene graph version")
+            return
+        idcount = self.__idcount
+        self.__idcount = 0
+        self.update_children(graph)
+        self.__idcount += 1
+         
         return
+    
+    # iterates through a list of nodes and updates them if necessary
+    def update_children(self, msg):
+        for element in msg:
+            if (element[0] == "nd"):
+                self.__idcount += 1
+                if(len(element) > 1):
+                    if((element[1] == "StaticMesh") | (element[1] == "SMN")):
+                        self.update_children(element[2:])
+                    else:
+                        self.update_children(element[1:])
+            if (element[0] == "SLT"):
+                matrix = numpy.array( ((element[1],element[5],element[9],element[13]),
+                                       (element[2],element[6],element[10],element[14]),
+                                       (element[3],element[7],element[11],element[15]),
+                                       (element[4],element[8],element[12],element[16])) )
+                self.__nodes[self.__idcount].set_matrix(matrix)
     
     # we still have to figure out how to distinguish the naos in the servers message.
     # IF YOU JUST USE ONE AGENT YOU CAN ALREADY USE THIS BY CALLING get_position(0). 
@@ -236,5 +266,4 @@ if __name__ == "__main__":
     scene = Scene.Instance();
     scene.run_cycle();
     print(scene.get_position(0));
-  
-        
+    
