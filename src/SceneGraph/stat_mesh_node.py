@@ -1,58 +1,57 @@
-from treeNode import TreeNode
+from tree_node import Tree_Node
 
-# Mesh node holding information about standard objects (like spheres) on the pitch
-class SmnNode(TreeNode):
- 
-# Params:
+# static mesh node. Stores information about objects like Naos or the ball.
+class Stat_Mesh_Node(Tree_Node):
+       
+	# Params:
 #    id          id of the node  
-#    load        the <type> and optional <params> 
+#    load        the model to be loaded (path to .obj file)
 #    sSc         the scale of the object (three values)
 #    visible     holds setVisible. As this is an optional parameter of the sceneGraph message use None if it's not specified
 #    transparent holds setTransparent. As this is an optional parameter of the sceneGraph message use None if it's not specified
 #    reset       defines the list of materials used in the associated .obj file 
     def __init__(self, id, load, sSc, visible, transparent, reset):
-        super(SmnNode, self).__init__(id);
+        super(Stat_Mesh_Node, self).__init__(id);
         self.__load = load;
         self.__sSc = sSc;
         self.__reset = reset;
         self.__visible = visible;
         self.__transparent = transparent;
             
-    def getLoad(self):
+    def get_load(self):
         return self.__load;
     
-    def getSSc(self):
+    def get_sSc(self):
         return self.__sSc;
     
-    def getVisible(self):
+    def get_visible(self):
         return self.__visible;
     
-    def getTransparent(self):
+    def get_transparent(self):
         return self.__transparent;
     
-    def getReset(self):
+    def get_reset(self):
         return self.__reset;
     
-    def setLoad(self, load):
+    def set_load(self, load):
         self.__load = load;
     
-    def setSSc(self, sSc):
+    def set_sSc(self, sSc):
         self.__sSc = sSc;
         
-    def setVisible(self, visible):
+    def set_visible(self, visible):
         self.__visible = visible;
         
-    def setTransparent(self, transparent):
+    def set_transparent(self, transparent):
         self.__transparent = transparent;
         
-    def setReset(self,reset):
+    def set_reset(self,reset):
         self.__reset = reset;
         
     def update(self, load, sSc, visible, transparent, reset):
-        self.setLoad(load);
-        self.setSSc(sSc);
-        self.setVisible(visible);
-        self.setTransparent(transparent);
-        self.setReset(reset);
-
-            
+        self.set_load(load);
+        self.set_sSc(sSc);
+        self.set_visible(visible);
+        self.set_transparent(transparent);
+        self.set_reset(reset);
+	

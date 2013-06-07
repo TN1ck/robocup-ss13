@@ -38,6 +38,7 @@ class Agent:
         self.monitorSocket.start()
 
 
+        #m = movement.Movement(self.world, self.monitorSocket, self.player_nr, our_team)
 
         m = movement.Movement(self.world, self.agentSocket, self.player_nr)
         kfe = keyframe_engine.Keyframe_Engine(self.nao, self.agentSocket)
@@ -53,7 +54,7 @@ class Agent:
 
         offset_for_player = -9 + (3*self.player_nr)
 
-        #self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 270 ) ")
+        self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
         #self.agentSocket.enqueue(" ( beam -1 -1 180 ) ")
         self.agentSocket.flush()
 
@@ -82,9 +83,12 @@ class Agent:
 
             if i > 10 and i < 600 :
                 m.run(0, 0)
-            if i > 600:
+            if i > 600 and i < 1600:
                 m.run(-10, 9)
+            if i > 1600:
+                m.run(0, 0)
             i = i + 1
+            print i
             # t.run_tactics()
             self.agentSocket.flush()
 
