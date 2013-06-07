@@ -63,7 +63,7 @@ class Drawing:
                 if self._checkColor(color) == 0:
                         self.drawer.drawStandardAnnotation(position.x, position.y, 0, color[0], color[1], color[2], text, name)
 
-        def drawAgentAnnotaion(self, agentNum, teamNum, color, text):
+        def drawAgentAnnotation(self, agentNum, teamNum, color, text):
                 if self._checkColor(color) == 0:
                         if agentNum<128:
                                 if teamNum == 0:
