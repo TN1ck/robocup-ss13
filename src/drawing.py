@@ -60,32 +60,32 @@ class Drawing:
                         self.drawer.drawPolygon(_vertices, color[0], color[1], color[2], 255, name)
 
         def drawStandardAnnotation(self, position, color, text, name):
-                if self.checkColor == 0:
-                        self.drawer.drawStandardAnnotation(position.x, position.y, 0, color[0], color[1], color[2], name)
+                if self._checkColor(color) == 0:
+                        self.drawer.drawStandardAnnotation(position.x, position.y, 0, color[0], color[1], color[2], text, name)
 
         def drawAgentAnnotaion(self, agentNum, teamNum, color, text):
-                if self.checkColor == 0:
-                        if agentNum<128
+                if self._checkColor(color) == 0:
+                        if agentNum<128:
                                 if teamNum == 0:
                                         agentTeam = agentNum - 1
                                 elif teamNum == 1:
                                         agentTeam = agentNum + 127
-                                else
+                                else:
                                         print("Team number must be 0 or 1, but is "+str(teamNum))
                                         return
                                 self.drawer.drawAgentAnnotation(agentTeam, color[0], color[1], color[2], text)
-                        else
+                        else:
                                 print("agentNum must be lower than 128 but is "+str(agentNum))                        
 
-        def removeAgentAnnotation(self, agentNum, teamNum)
-                if agentNum<128
+        def removeAgentAnnotation(self, agentNum, teamNum):
+                if agentNum<128:
                         if teamNum == 0:
                                 agentTeam = agentNum - 1
                         elif teamNum == 1:
                                 agentTeam = agentNum + 127
-                        else
+                        else:
                                 print("Team number must be 0 or 1, but is "+str(teamNum))
                                 return
                         self.drawer.removeAgentAnnotation(agentTeam)
-                else
+                else:
                         print("agentNum must be lower than 128 but is "+str(agentNum))
