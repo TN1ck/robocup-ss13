@@ -65,7 +65,6 @@ def parse_sexp(sexp):
     result = out[0]
     if len(result) == 1 and result[0].__class__.__name__ == 'list':
         result = result[0]
-    print result
     return result
 
 def print_sexp(exp):
