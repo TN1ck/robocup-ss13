@@ -3,14 +3,18 @@
 import socket
 import struct
 import logging
+import time
 
 
 class Sock:
     HOST = 'localhost'
     PORT = 3100
     
+    MIN_FLUSH_INTERVAL = 0.001 # 'cool-down' time for socket.flush()
+
     _read_buffer = ''
     _write_buffer = ''
+    _last_flush_time = -1
 
     def __init__(self, server_ip, server_port, team_name, player_nr):
         self.server_ip = server_ip
@@ -31,8 +35,17 @@ class Sock:
         the length of the payload message. The length prefix is a 32 bit
         unsigned integer in network order."""
         self.enqueue(msg)
+        #logging.debug('time: ' + str(time.time()))
+        #logging.debug('last_flush_time: ' + str(self._last_flush_time))
+        #logging.debug('MIN_FLUSH_INTERVAL: ' + str(self.MIN_FLUSH_INTERVAL))
+        #logging.debug('wait time: ' + str(self.MIN_FLUSH_INTERVAL - (time.time() - self._last_flush_time)))
+        now = time.time()
+        if (now - self._last_flush_time < self.MIN_FLUSH_INTERVAL):
+            logging.debug('waiting')
+            time.sleep(self.MIN_FLUSH_INTERVAL - (now- self._last_flush_time))
         self.sock.send(struct.pack("!I", len(self._write_buffer)) + self._write_buffer)
         self._write_buffer = ''
+        self._last_flush_time = time.time()
 
     def receive(self):
         """Handles message length and stores potential beginning of next package, if 'accidentally' received."""
