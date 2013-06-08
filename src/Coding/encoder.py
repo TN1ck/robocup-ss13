@@ -39,11 +39,22 @@ class Encoder(object):
     #message type 4
     #single command with parameters to nao(robot)
     def encodeSCWPTR(self, i_c, i_nao, x, y):
-        msg = chr(self.mapping(3)) 
+        msg = chr(self.mapping(4)) 
         msg = msg + chr(self.mapping(i_c))
         msg = msg + chr(self.mapping(i_nao))
         msg = msg + self.encodeDouble(x,3)
         msg = msg + self.encodeDouble(y,3)
+        msg = msg + self.checksum(msg, 3)
+        return msg
+
+    #message type 5
+    def encodeMT5(self, c, fNao, tNao, x, y):
+        msg = chr(selfMapping(5))
+        msg = msg + chr(self.mapping(c))
+        msg = msg + chr(self.mapping(fNao))
+        msg = msg + chr(self.mapping(tNao))
+        msg = msg + self.encodeDouble(x, 3)
+        msg = msg + self.encodeDouble(y, 3)
         msg = msg + self.checksum(msg, 3)
         return msg
 
