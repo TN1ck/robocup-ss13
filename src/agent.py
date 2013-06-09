@@ -55,37 +55,37 @@ class Agent:
                     elif current_preceptor[0] == 'hear':
                         pass
                     # For Testing
-                    actions = (('run', 0, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
-                    if not self.keyFrameEngine.working:
-                        if i > 10:
-                            for item in actions:
-                                if item[0] == 'stand_up':
-                                    if item[1] == 'front':
-                                        self.keyFrameEngine.stand_up_from_front()
-                                        break
-                                    if item[1] == 'back':
-                                        self.keyFrameEngine.stand_up_from_back()
-                                        break
-                                if item[0] == 'kick':
-                                    if item[1] == 1:
-                                        self.keyFrameEngine.kick1()
-                                    else:
-                                        pass
-                                if item[0] == 'run':
-                                    if item[1] is False:
-                                        self.movement.stop()
-                                    else:
-                                        self.movement.run(item[1],item[2])
-                                if item[0] == 'say':
+                actions = (('run',False),('stand_up',False),('kick',False),('say',False), ('head',False))
+                if not self.keyFrameEngine.working:
+                    if i > 10:
+                        for item in actions:
+                            if item[0] == 'stand_up':
+                                if item[1] == 'front':
+                                    self.keyFrameEngine.stand_up_from_front()
+                                    break
+                                if item[1] == 'back':
+                                    self.keyFrameEngine.stand_up_from_back()
+                                    break
+                            if item[0] == 'kick':
+                                if item[1] == 1:
+                                    self.keyFrameEngine.kick1()
+                                else:
                                     pass
-                                if item[0] == 'head':
-                                    if item[1] == True:
-                                        self.keyFrameEngine.head_lookAround()
-                                    elif item[1] != False:
-                                        self.keyFrameEngine.head_move(item1[1])
-                    self.keyFrameEngine.work()
-                    self.agentSocket.flush()
-                    self.monitorSocket.flush()
+                            if item[0] == 'run':
+                                if item[1] is False:
+                                    self.movement.stop()
+                                else:
+                                    self.movement.run(item[1],item[2])
+                            if item[0] == 'say':
+                                pass
+                            if item[0] == 'head':
+                                if item[1] == True:
+                                    self.keyFrameEngine.head_lookAround()
+                                elif item[1] != False:
+                                    self.keyFrameEngine.head_move(item1[1])
+                self.keyFrameEngine.work()
+                self.agentSocket.flush()
+                self.monitorSocket.flush()
 
                 i += 1
 
