@@ -6,7 +6,7 @@ class Movement:
         self.socket = socket
         self.player_nr = player_nr
         #self.team = team
-        self.velocity = 0.1
+        self.velocity = 0.02
         self.divergence = 0.1
         self.stopped = True
         self.destination = None
@@ -14,6 +14,7 @@ class Movement:
         self.rotation = 0
         self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
+        self.fresh = True
 
     def get_world(self):
         return self.world
@@ -24,7 +25,9 @@ class Movement:
     def run(self, *destination):
         #print destination[0]
         #print destination[1]
-        self.position = self.beampos
+        if self.fresh:
+            self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
+            self.fresh = False
         #print self.position.x
 	#print self.position.y
         self.stopped = False
@@ -46,15 +49,15 @@ class Movement:
         dy = cos(self.rotation) * self.velocity
         dx = sin(self.rotation) * self.velocity
 
-        if(abs(self.beampos.x - self.position.x) < self.divergence):
-            self.beampos.x = self.beampos.x + dx
-        else:
-            self.beampos.x = self.position.x + dx
+        #if(abs(self.beampos.x - self.position.x) < self.divergence):
+        self.beampos.x = self.beampos.x + dx
+        #else:
+        #    self.beampos.x = self.position.x + dx
 
-        if(abs(self.beampos.y - self.position.y) < self.divergence):
-            self.beampos.y = self.beampos.y + dy
-        else:
-            self.beampos.y = self.position.y + dy
+        #if(abs(self.beampos.y - self.position.y) < self.divergence):
+        self.beampos.y = self.beampos.y + dy
+        #else:
+        #    self.beampos.y = self.position.y + dy
 
         #self.send("agent (unum", self.player_nr, ") (team", self.team, ") (move", self.beampos.x, self.beampos.y, "100",(-1 * degrees(self.rotation) )+90, ")")
         #self.socket.flush()

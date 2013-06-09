@@ -60,7 +60,7 @@ class Agent:
         self.agentSocket.flush()
 
 
-        # i = 1
+        i = 1
         while True:
             msg = self.agentSocket.receive()
 
@@ -82,17 +82,17 @@ class Agent:
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
 
-            # if i > 10 and i < 600 :
-            #     m.run(0, 0)
-            # if i > 600 and i < 1600:
-            #     m.run(-10, 9)
-            # if i > 1600:
-            #     m.run(0, 0)
-            # i = i + 1
-            # print i
+            if i > 10 and i < 300 :
+                m.run(0, 0)
+            if i > 300 and i < 800:
+                m.run(-10, 9)
+            if i > 800:
+                m.run(0, 0)
+            i = i + 1
+            #print i
 
-            sleep(1)
-            m.run(10, 10)
+            #sleep(1)
+            #m.run(10, 10)
 
             # t.run_tactics()
             self.agentSocket.flush()
