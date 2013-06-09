@@ -19,8 +19,8 @@ class TacticsMain:
     self.my_position = None
 
     self.field_lines_idfs   = ["L1","L2","LL","LR","LM"]       #Field lines
-    self.right_penalty_idfs = ["LG1R","LG2R","LGR"]            #right penalty area
-    self.left_penalty_ifds  = ["LG1L","LG2L","LGL"]            #left penalty area
+    # self.right_penalty_idfs = ["LG1R","LG2R","LGR"]            #right penalty area
+    # self.left_penalty_ifds  = ["LG1L","LG2L","LGL"]            #left penalty area
     self.right_goal_ifds    = ["G1R","G2R"]                    #right goal
     self.left_goal_idfs     = ["G1L","G2R"]                    #left goal
     self.player_t1_idfs     = ["P_1_0","P_1_1","P_1_2","P_1_3","P_1_4","P_1_5"]  #team 1
@@ -46,17 +46,23 @@ class TacticsMain:
           self.distance_team1[self.player_t1_idfs[i]] = val
           val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
           self.distance_team2[self.player_t2_idfs[i]] = val
-          if i < 2:
-            val = self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[i]), self.my_position)
-            self.distance_goal_poles_left[self.left_goal_idfs[i]] = val
-            val = self.calc_point_distance(self.world.get_entity_position(self.right_goal_ifds[i]), self.my_position)
-            self.distance_goal_poles_right[self.right_goal_ifds[i]] = val
+
+      calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
       self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
 
+  def calculate_goal_distances(self, my_position):
+      val = self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[0]), my_position)
+      val = (val + self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[1]), my_position))/2
+      self.distance_goal_left[self.left_goal_idfs] = val
+
+      val = self.calc_point_distance(self.world.get_entity_position(self.right_goal_idfs[0]), self.my_position)
+      val = (val + self.calc_point_distance(self.world.get_entity_position(self.right_goal_idfs[1]), my_position))/2
+      self.distance_goal_left[self.right_goal_idfs] = val
+
   def clear_distances(self):
-      self.distance_goal_poles_left = {}
-      self.distance_goal_poles_right= {}
+      self.distance_goal_left = {}
+      self.distance_goal_right= {}
       self.distance_lines = {}
       self.distance_team1= {}
       self.distance_team2 ={}
@@ -143,10 +149,6 @@ class TacticsMain:
   def stay(self):
     return 0.1
 
-  def run_to_friend(self, x):
-    return 0
-  # return 0.5 * base(x)
-
   def run_away_from_friend(self, x):
     return base(x)
 
@@ -179,6 +181,3 @@ class TacticsMain:
       self.mov.stop()
 
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-
-
-
