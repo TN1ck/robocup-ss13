@@ -6,7 +6,7 @@ class Movement:
         self.socket = socket
         self.player_nr = player_nr
         #self.team = team
-        self.velocity = 0.01
+        self.velocity = 0.1
         self.divergence = 0.1
         self.stopped = True
         self.destination = None
@@ -14,7 +14,6 @@ class Movement:
         self.rotation = 0
         self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
-        self.fresh = True
 
     def get_world(self):
         return self.world
@@ -25,14 +24,7 @@ class Movement:
     def run(self, *destination):
         #print destination[0]
         #print destination[1]
-        if self.fresh:
-            self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
-            self.fresh = False
-            #print "play"
-            #self.socket.enqueue("playMode PlayOn")
-            #self.socket.flush()
-        else:
-            self.position = self.beampos
+        self.position = self.beampos
         #print self.position.x
 	#print self.position.y
         self.stopped = False
@@ -63,11 +55,11 @@ class Movement:
             self.beampos.y = self.beampos.y + dy
         else:
             self.beampos.y = self.position.y + dy
-        
+
         #self.send("agent (unum", self.player_nr, ") (team", self.team, ") (move", self.beampos.x, self.beampos.y, "100",(-1 * degrees(self.rotation) )+90, ")")
         #self.socket.flush()
         #self.socket.receive()
-        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)  
+        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
 
 
     def stop(self):
