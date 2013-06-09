@@ -71,7 +71,7 @@ class BallPosition(object):
 
     hearObject = HearObject(0.0, 0, 0, 0.0, 0.0)
 
-    def __init__(self, hearObect):
+    def __init__(self, hearObject):
         self.hearObject = hearObject
 
     def eval(self):

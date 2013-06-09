@@ -1,5 +1,5 @@
 from Coding import decoder
-import hearObject
+from hearObject import *
 
 class Translator(object):
 
@@ -26,10 +26,10 @@ class Translator(object):
         # msg-code
         msgc = self.d.reMapping(ord(msg[0]))
 
-        return self.translateMsgC(msgc)
+        return self.translateMsgC(msg, msgc)
 
 
-    def translateMsgC(self, msgc):
+    def translateMsgC(self, msg, msgc):
         if msgc==0:
             pass
         elif msgc==1:
@@ -66,8 +66,8 @@ class Translator(object):
             
         elif(msgc==5):
             c = self.d.reMapping(ord(msg[1]))
-            fnao = self.d.reMapping(ord(msg[2]))
-            tnao = self.d.reMapping(ord(msg[3]))
+            fNao = self.d.reMapping(ord(msg[2]))
+            tNao = self.d.reMapping(ord(msg[3]))
             mx = msg[4] + msg[5] + msg[6]
             my = msg[7] + msg[8] + msg[9]
             x = self.d.decodeDouble(mx)
@@ -83,18 +83,18 @@ class Translator(object):
     # get hear oject
     def getHearObject(self, c, fNao, tNao, x, y):
         #hearObject
-        ho = hearObject.HearObject(self.direction, fNao, tNao, x, y)
+        ho = HearObject(self.direction, fNao, tNao, x, y)
         
         if(c==1):
-            return hearObject.GoToBall(ho)
+            return GoToBall(ho)
         elif(c==2):
-            return hearObject.StandUp(ho)
+            return StandUp(ho)
         elif(c==3):
-            return hearObject.IAmHere(ho)
+            return IAmHere(ho)
         elif(c==4):
-            return hearObject.YouAreHere(ho)
+            return YouAreHere(ho)
         elif(c==5):
-            return hearObject.BallPosition(ho)
+            return BallPosition(ho)
         else:
             print("not be impl.")
             

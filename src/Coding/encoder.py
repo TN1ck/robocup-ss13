@@ -49,7 +49,7 @@ class Encoder(object):
 
     #message type 5
     def encodeMT5(self, c, fNao, tNao, x, y):
-        msg = chr(selfMapping(5))
+        msg = chr(self.mapping(5))
         msg = msg + chr(self.mapping(c))
         msg = msg + chr(self.mapping(fNao))
         msg = msg + chr(self.mapping(tNao))
