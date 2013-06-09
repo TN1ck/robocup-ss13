@@ -40,13 +40,11 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
             self.agentSocket.flush()
 
-            self.keyFrameEngine.fall_on_front()
+            self.keyFrameEngine.fall_on_back()
 
             self.keyFrameEngine.work()
             self.agentSocket.flush()
-            self.keyFrameEngine.stand_up_from_front()
-            self.keyFrameEngine.work()
-            self.agentSocket.flush()
+
 
             while True:
                 msg = self.agentSocket.receive()
@@ -62,10 +60,11 @@ class Agent:
                     elif current_preceptor[0] == 'hear':
                         pass
                     #actions = self.tactics.run_tactics()
-                    actions = (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',False))
+                    print self.keyFrameEngine.working
+                    actions = (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',False))
                     if not self.keyFrameEngine.working:
                         for item in actions:
-                            if item[0] == 'standup':
+                            if item[0] == 'stand_up':
                                 if item[1] == 'front':
                                     self.keyFrameEngine.stand_up_from_front()
                                     break
