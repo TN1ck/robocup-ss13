@@ -100,7 +100,7 @@ class TacticsMain:
           return True
     return False
 
-  def enemy_owns_ball(self):
+  def we_own_ball(self):
     for i in self.world.players:
       if i.team == our_team:
         distance = calc_point_distance(self.world.get_entity_position(i.get_identifier), self.world.get_entity_position('B'))

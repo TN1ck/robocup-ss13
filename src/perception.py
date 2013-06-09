@@ -85,10 +85,10 @@ class Perception:
                 player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
-                
+
                 # if self localization was successful, calculate positions of mobile enties:
                 self.mobile_entity_localization(mobile_entities, w)
-                
+
         #logging.debug('process_vision_perceptors END')
 
     def mobile_entity_localization(self, mobile_entities, w):
@@ -135,7 +135,7 @@ class Perception:
         """Calculates the own agent's position given the perception of some static entities (static_entities)
         and the world (w). (NO LINES YET!)
         Returns (position, see_vector)."""
-        
+
         # first, get rid of lines:
         lines = []
         static_entities2 = []
@@ -144,16 +144,16 @@ class Perception:
                 lines.append(se)
             else:
                 static_entities2.append(se)
-        
+
         static_entities = static_entities2 # TODO pls revise. looks kinda stupid.
-        
+
         # give up, if there're less than 2 static entities:
         if len(static_entities) < 2:
-            logging.debug("localization failed. static entities: " + str(len(static_entities)))
+            logging.warning("localization failed. static entities: " + str(len(static_entities)))
             return
-        
+
         ## calculate NAO's position ##
-        
+
         position_list = []
         for se1 in static_entities:
             # static entity's polar coords as list:
@@ -172,12 +172,12 @@ class Perception:
                     # define the center:
                     v2 = world.Vector(w.get_entity_position(se2[0]).x, w.get_entity_position(se2[0]).y)
                     a2 = pol2[1]
-                    
+
                     if d_s_o1 > 0.1 and d_s_o2 > 0.1 and abs(a1 - a2) > 2.0:
                         trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
                             position_list += [ trig_res ]
-        
+
         # calculate arithmetic mean of all positions:
         pos = None
         if len(position_list) > 0:
@@ -187,41 +187,41 @@ class Perception:
             pos = pos / len(position_list)
         else:
             return # give up, if position could not be calculated
-        
+
         # pos is our position now, yay!
-        
+
         ## calculate NAO's see vector ##
         #logging.debug(' ')
 
         see_sum = numpy.array([0, 0, 0])
         for se in static_entities:
             #logging.debug('processing : ' + se[0])
-            
+
             se_pos = w.get_entity_position(se[0])
             se_height = w.entity_from_identifier[se[0]]._perception_height
             #logging.debug('position: ' + str(se_pos) + ' height: ' + str(se_height))
-            
+
             se_pol = self.get_pol_from_parser_entity(se)
             #logging.debug('pol to se: ' + str(se_pol))
-            
+
             # construct a vector from our camera to the static entity:
             see = numpy.array([se_pos.x - pos.x, se_pos.y - pos.y, se_height - self.PERCEPTOR_HEIGHT])
             #logging.debug('vector to se: ' + str(see))
-            
+
             # rotate the vector so it points to the vision center instead of the static entity:
             see = self.add_pol_to_vector(see, -numpy.array(se_pol))
 
             # sum up:
             see_sum += see
-            
+
             #logging.debug(' ')
-        
+
         # normalize summed up see vector:
         see = None
         if numpy.linalg.norm(see_sum) > 0: # check if any data was collected in the first place
             see = see_sum / numpy.linalg.norm(see_sum)
         #logging.debug('see_vector: ' + str(see))
-        
+
         # we've got a pretty decent location, but that's not enough!!!!!!!!!!1111111111111
         # STEP 2 - process linez
         for l in lines:
@@ -233,7 +233,7 @@ class Perception:
             else:
                 # seen line is (very very likely) the whole line
                 pass
-        
+
         return pos, see
 
     def add_pol_to_vector(self, vector, pol):
@@ -265,7 +265,7 @@ class Perception:
     #    """Returns the 'how_much' nearest vectors in 'vectors[]' measured to 'vector'."""
     #    temp = sorted(vectors, key=lambda v: (v - vector).mag()) # usin all teh ninja skillz (sort by distance to 'vector')
     #    return temp[:how_much + 1]
-    
+
     def rotation_matrix(self, axis, theta):
         axis = axis / numpy.sqrt(numpy.dot(axis, axis))
         a = numpy.cos(theta / 2)
@@ -280,16 +280,16 @@ class Perception:
         based on the position of the 2 given objects and the distance to them.
 
         returns None if the parameters don't form a triangle"""
-        
+
         a = (v2-v1).mag()
 
         b = d2
         c = d1
 
-        if b + c <= a:   #no triangle? 
+        if b + c <= a:   #no triangle?
             return None
 
-        
+
         acos_arg = (a**2 - b**2 + c**2) / (2.0 * a * c)
         #logging.debug(acos_arg)
         #logging.debug(str(a) + ', ' + str(c) + ', ' + str(b))
@@ -302,14 +302,14 @@ class Perception:
             beta = 0
             logging.debug('triangle ain\'t no triangle.')
         else:
-            beta = math.acos(acos_arg) 
-        
+            beta = math.acos(acos_arg)
+
         v1v2 = v2-v1 #vector from v1 to v2
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
 
 
-        if a1 > a2: 
+        if a1 > a2:
             #rotate along the clock (because it is the left object)
             #by the way a positive angle means left of the nao see vector
             beta = -1* beta
@@ -318,7 +318,7 @@ class Perception:
 
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
-        
+
         '''
         #calculate see vector
         #with v1
@@ -330,7 +330,7 @@ class Perception:
         alpha *= -1 #reverse the angle
         see_vector = posv1.rotate(alpha)
         #print world.Vector(x,y)
-        
+
         #with v2
         posv2 = v2 - position #vector from our position to v1
         posv2 = posv2 / posv2.mag()
@@ -344,9 +344,9 @@ class Perception:
 
         see_vector = see_vector / see_vector.mag()
         '''
-        
+
         return position #, see_vector
-        
+
 
 '''#little testbase
 #if you aren't me, dont use it
@@ -363,7 +363,7 @@ a2 = math.atan((1.*v2.y)/v2.x)*180/math.pi
 o = world.Vector(1,2)   #offset to move the triangle
 turn = 99              #turn in degree along the clock
 t = -1*turn *math.pi/180
-see = world.Vector(1,0) 
+see = world.Vector(1,0)
 see = world.Vector(see.x * math.cos(t) - see.y * math.sin(t),
         see.x * math.sin(t) + see.y * math.cos(t))
 

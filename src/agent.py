@@ -82,13 +82,14 @@ class Agent:
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
 
-            if i > 10 and i < 300 :
-                m.run(0, 0)
-            if i > 300 and i < 800:
-                m.run(-10, 9)
-            if i > 800:
-                m.run(0, 0)
-            i = i + 1
+            m.run(-10,-10)
+            # if i > 10 and i < 300 :
+            #     m.run(0, 0)
+            # if i > 300 and i < 800:
+            #     m.run(-10, 9)
+            # if i > 800:
+            #     m.run(0, 0)
+            # i = i + 1
             #print i
 
             #sleep(1)
@@ -96,7 +97,7 @@ class Agent:
 
             # t.run_tactics()
             self.agentSocket.flush()
-
+            i += 1
             # logging.debug(world.w.flags[0].get_position().x)
 
 if __name__ == "__main__":
