@@ -3,6 +3,7 @@
 import world
 from world import Vector
 from random import shuffle
+from logging import *
 import math
 
 
@@ -22,8 +23,8 @@ class TacticsMain:
     self.left_penalty_ifds  = ["LG1L","LG2L","LGL"]            #left penalty area
     self.right_goal_ifds    = ["G1R","G2R"]                    #right goal
     self.left_goal_idfs     = ["G1L","G2R"]                    #left goal
-    self.player_t1_idfs     = ["P0","P1","P2","P3","P4","P5"]  #team 1
-    self.player_t2_idfs     = ["P6","P7","P8","P9","P10","P11"]#team 2
+    self.player_t1_idfs     = ["P_1_0","P_1_1","P_1_2","P_1_3","P_1_4","P_1_5"]  #team 1
+    self.player_t2_idfs     = ["P_1_0","P_1_1","P_1_2","P_1_3","P_1_4","P_1_5"]#team 2
 
     self.distance_team1 = {}
     self.distance_team2 = {}
@@ -177,8 +178,7 @@ class TacticsMain:
     elif maximum == 'stay':
       self.mov.stop()
 
-    self.mov.update()
-
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
 
 
 
