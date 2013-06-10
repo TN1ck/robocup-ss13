@@ -80,18 +80,18 @@ class Agent:
             #logging.debug('agent see vector: ' + str(self.nao.get_see_vector()))
             #logging.debug('ball pos: ' + str(self.world.entity_from_identifier['B'].get_position()))
             
-            if i > 10 and i < 600 :
+            if i > 10 and i < 300 :
                 m.run(0, 0)
-            if i > 600 and i < 900:
+            if i > 300 and i < 600:
                 kfe.fall_on_front()
                 #m.run(-10, 9)
-            if i > 900 and i < 1100:
+            if i > 600 and i < 950:
                 kfe.stand_up_from_front()
             if i > 1150 and i < 1250:
                 m.run(0, 0)
             if i > 1250 and i < 1450:
                 kfe.fall_on_back()
-            if i > 1500 and i < 1700:
+            if i > 1500 and i < 1600:
                 kfe.stand_up_from_back()
             if i > 1700 and i < 1800:
                 m.run(0, 0)
