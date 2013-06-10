@@ -1,7 +1,5 @@
 \section{Fähigkeiten}
-\begin{frame}
-\tableofcontents[currentsection]
-\end{frame}
+
 %\frame{\tableofcontents}
 %\section{Einleitung}
 
@@ -23,7 +21,7 @@
     		\item Dribbeln
     		\item Aufstehen
     	\end{itemize}
-    \item spieziell für den Torwart
+    \item speziell für den Torwart
     \begin{itemize}
     		\item Parade
     		\item Aufstehen
@@ -49,10 +47,10 @@
 \frame{\frametitle{Berechnungsformeln}
 für jedes Gelenk:\\
 \begin{equation}
-\varphi = \frac{20ms \cdot (Keyframe\varphi - (\varphi_{aktuell} + \varphi_{letzter Zyklus}))}{\Delta t_{Frame}- \Delta t_{vergangen}} \label{winkel}
+\varphi = \frac{20ms \cdot (\varphi_{Keyframe} - (\varphi_{aktuell} + \varphi_{letzter Zyklus}))}{\Delta t_{Frame}- \Delta t_{vergangen}} \label{winkel}
 \end{equation}
 \begin{equation}
-\omega = \frac{rad(\varphi)}{\underbrace{20 * 0,001}_{\text{20ms}}}
+\omega = \frac{rad(\varphi)}{\underbrace{20 \cdot 0,001}_{\text{20ms}}}
 \end{equation}
 Der berechnete Winkel (\ref{winkel}) wird für den nächsten Zyklus gespeichert und die Geschwindigkeiten and den Socket weitergeleitet.
 }

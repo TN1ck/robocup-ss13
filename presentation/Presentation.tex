@@ -7,6 +7,9 @@
 \usepackage{verbatim}
 \usetheme{Singapore}
 
+\setcounter{tocdepth}{1}
+\AtBeginSection{\frame{\frametitle{\insertsection}{\vspace{-3ex} \tableofcontents[currentsection]}}}
+
 \lstset{basicstyle=\tiny, stringstyle=\ttfamily}
 
 \title{Präsentation für den zweiten Meilenstein}
@@ -16,15 +19,14 @@
 \begin{document}
 
 \frame{\titlepage}
-
-\input{drawing.tex}
+\input{Ueberblick}
 \input{parser.tex}
-\input{Scenegraph.tex}
+\input{Weltmodell_Perception.tex}
+\input{Taktik.tex}
 \input{communication.tex}
 \input{Faehigkeiten}
 \input{Laufen.tex}
-\input{Taktik.tex}
-\input{Weltmodell_Perception.tex}
-
+\input{Scenegraph.tex}
+\input{drawing.tex}
 \end{document}
 
