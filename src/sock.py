@@ -9,7 +9,7 @@ import time
 class Sock:
     HOST = 'localhost'
     PORT = 3100
-    
+
     MIN_FLUSH_INTERVAL = 0.001 # 'cool-down' time for socket.flush()
 
     _read_buffer = ''
@@ -21,6 +21,7 @@ class Sock:
         self.server_port = server_port
         self.team_name = team_name
         self.player_nr = player_nr
+        self.sock = None
 
         self.last_time = 0
         self.current_time = 0
@@ -50,34 +51,35 @@ class Sock:
     def receive(self):
         """Handles message length and stores potential beginning of next package, if 'accidentally' received."""
         data = self.sock.recv(4096)
-        
+
         data = self._read_buffer + data # restore already received package chunk
         self._read_buffer = ''
-        
+
         # first 4 bytes are message length
         msg_length = (ord(data[0]) << 24) + (ord(data[1]) << 16) + (ord(data[2]) << 8) + ord(data[3])
         data = data[4:]
         while len(data) < msg_length:
             data += self.sock.recv(4096)
-        
+
         # store potential beginning of a next package for further use
         if len(data) > msg_length:
             self._read_buffer = data[msg_length:]
             data = data[:msg_length + 1]
-        
+
         return data
 
-
+    def close(self):
+        self.sock.close()
 
     def start(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.server_ip, self.server_port))
         if self.server_port == 3100:
             self.flush('(scene rsg/agent/nao/nao.rsg)')
-        
+
             #logging.debug("init response 1: " + self.receive())
             self.receive()
-        
+
             self.flush('(init (unum ' + str(self.player_nr) + ')(teamname ' + str(self.team_name) + '))')
             #logging.debug("init response 2: " + self.receive())
             self.receive()

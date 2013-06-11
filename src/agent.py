@@ -11,10 +11,14 @@ import movement
 import nao
 import keyframe_engine
 import communication
+import signal
+import sys
 from sys import argv
 
 global our_team
 our_team = "DAI-Labor"
+
+
 
 class Agent:
 
@@ -30,7 +34,6 @@ class Agent:
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
-        self.start()
 
     def start(self):
             self.agentSocket.start()
@@ -55,7 +58,7 @@ class Agent:
                     elif current_preceptor[0] == 'hear':
                         pass
                     # For Testing
-                actions = (('run',False),('stand_up',False),('kick',False),('say',False), ('head',False))
+                actions = (('run', 0, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
                 if not self.keyFrameEngine.working:
                     if i > 10:
                         for item in actions:
@@ -89,8 +92,12 @@ class Agent:
 
                 i += 1
 
-
-
+def signal_handler(signal, frame):
+    print("Received SIGINT")
+    print("Closing sockets and and terminating...")
+    a.agentSocket.close()
+    a.monitorSocket.close()
+    sys.exit()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -101,4 +108,9 @@ if __name__ == "__main__":
         print("You need to call \"./agent.py <player_id>\".")
         exit(1)
 
-    Agent(agent_id)
+    global a
+    a = Agent(agent_id)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+    a.start()
