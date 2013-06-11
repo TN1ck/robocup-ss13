@@ -66,5 +66,8 @@
   
   \begin{itemize}
     \item Fehler im Regul\"aren Ausdruck, Parameter der Sensoren wurden nicht erkannt
+    \item In der ersten Variante wurde \texttt{\textbackslash b} benutzt um das Ende von Strings zu erkennen, das führte zu Fehlern in der bei Strings wie \texttt{AC$\#$}, also Strings die auf Sonderzeichen enden.
+    \item Der reguläre Ausdruck für negative Zahlen, sowie für Float-Zahlen mit e-Teil fehlte.
+    \item Zwischendurch hat der Parser auch mal gar nicht funktioniert.
   \end{itemize}
 }
