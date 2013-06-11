@@ -2,6 +2,7 @@
 
 import math
 import world
+import drawing
 import logging
 import numpy
 import copy
@@ -149,8 +150,34 @@ class Perception:
 
         # give up, if there're less than 2 static entities:
         if len(static_entities) < 2:
+            d = drawing.Drawing(0,0)
             logging.warning("localization failed. static entities: " + str(len(static_entities)))
+            # Process lines, aren't used at the moment
+            # F1L --L1-- F1R
+            # |     |    |
+            # LL    LM   LR
+            # |     |    |
+            # F2L --L2-- F2R
+            # The server sends s-expression like: ['L', ['pol', 11.67, -59.74, -2.74], ['pol', 12.31, -55.59, -2.6]]
+            # using a set could speed this up
+            s_e_names = []
+            for se in static_entities:
+                s_e_names.append(se[0])
+            # function that will return i1, i2 if ...
+            # Depending of other static entities and the angle to them, we can determine which lines we are seeing
+            # Corners
+            if static_entities[0][0][0] == 'F' and len(lines) > 1:
+                corners = {'F1L': ['LL', 'L1'], 'F1R': ['L1', 'LR'], 'F2R': ['LR', 'L2'], 'F2L': ['L2', 'LL']}
+                left_right = lambda x, ids: ids if x[0][1][2] > x[1][1][2] else [ids[1], ids[0]]
+                # Filter out the penalty lines
+                lines = filter(lambda x: not(x[1][1] + 0.5 > static_entities[0][1][0] or x[2][1] + 0.5 > static_entities[0][1][0]), lines)
+                lines[0][0], lines[1][0] = left_right(lines, corners[static_entities[0][0]])
+                d.drawStandardAnnotation(w.get_entity_position(lines[0][0]), [0,0,0], lines[0][0], 'line1') # does not work :(
+                logging.debug("I'm looking at the corner of %s, I found the lines %s %s" % (static_entities[0][0], lines[0][0], lines[1][0]))
             return
+
+
+
 
         ## calculate NAO's position ##
 
