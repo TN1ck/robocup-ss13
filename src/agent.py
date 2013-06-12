@@ -36,8 +36,8 @@ class Agent:
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
 
     def start(self):
-            self.agentSocket.start()
             self.monitorSocket.start()
+            self.agentSocket.start()
 
             offset_for_player = -9 + (3*self.player_nr)
             self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
