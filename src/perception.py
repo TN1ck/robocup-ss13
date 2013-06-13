@@ -117,12 +117,20 @@ class Perception:
                         vector_to_player = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
                         pos_list += [cam_pos + vector_to_player]
                     # arithmetic mean:
-                    pos = numpy.array([0, 0, 0])
+                    pos = numpy.array([0.0, 0.0, 0.0])
                     for pos_item in pos_list:
                         pos += pos_item
                     pos /= len(pos_list)
-                    w.entity_from_identifier['P_' + str(team) + '_' + str(id)].set_position(pos[0], pos[1])
-                    #logging.debug('other player: ' + str(pos))
+                    # assemble player identifier:
+                    player_key = 'P_' + str(team) + '_' + str(id)
+                    # check if player already exists (hostile players don't exist in the beginning):
+                    if not player_key in w.entity_from_identifier:
+                        # create new player:
+                        new_player = Player(player_key, team)
+                        w.players += [new_player]
+                        w.entity_from_identifier[player_key] = new_player
+                    w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
+                    #logging.debug('other player: ' + str(w.get_entity_position(player_key)))
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]

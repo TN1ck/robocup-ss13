@@ -210,6 +210,7 @@ class World:
         self.players = []
         for i in range(players_per_team):
             self.players += [Player('P_1_' + str(i), 1)]                # 1 ~> our team
+        # hostile players are created 'on sight' in perception.py
 
         # set up ball:
         self.ball = Ball(0.04, 26)
