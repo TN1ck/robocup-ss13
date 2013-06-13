@@ -59,10 +59,10 @@ class Movement:
         #else:
         #    self.beampos.y = self.position.y + dy
 
-        #self.send("agent (unum", self.player_nr, ") (team", self.team, ") (move", self.beampos.x, self.beampos.y, "100",(-1 * degrees(self.rotation) )+90, ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.38",(-1 * degrees(self.rotation) ), ")")
         #self.socket.flush()
         #self.socket.receive()
-        self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
+        #self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
 
 
     def stop(self):

@@ -30,7 +30,7 @@ class Agent:
         self.world = world.World(6, 30, 20)
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team)
-        self.movement = movement.Movement(self.world, self.agentSocket,self.player_nr)
+        self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
