@@ -1,6 +1,7 @@
 import struct
 import drawing_advanced
 import world
+import math
 
 ''' This Class is supposed to make drawing calls a little easier. 
     For all coordinates it uses the Vector class from world.py.
@@ -56,7 +57,6 @@ class Drawing:
                         _vertices = []
                         for v in vertices:
                                 _vertices.extend([v.x, v.y, 0])
-                        print(_vertices+color+[255])
                         self.drawer.drawPolygon(_vertices, color[0], color[1], color[2], 255, name)
 
         def drawStandardAnnotation(self, position, color, text, name):
@@ -89,3 +89,24 @@ class Drawing:
                         self.drawer.removeAgentAnnotation(agentTeam)
                 else:
                         print("agentNum must be lower than 128 but is "+str(agentNum))
+
+        def drawGrid(self, color, name):
+                for i in range(29):
+                    self.drawLine(world.Vector(14-i,-10),world.Vector(14-i,10),1,color,name)
+                for i in range(19):
+                    self.drawLine(world.Vector(15,9-i),world.Vector(-15,9-i),1,color,name)
+
+        def drawArrow(self,startPoint,endPoint,thickness,color,name):
+                self.drawLine(startPoint,endPoint,thickness,color,name)
+                newVector1 = world.Vector(endPoint.x-startPoint.x,endPoint.y-startPoint.y)
+                newVector1.rotate(0.52) #about 30 degrees
+                newVector1 = newVector1.__div__(newVector1.mag())
+                newVector1 = newVector1.__mul__(0.57)
+                newVector1 = world.Vector(endPoint.x - newVector1.x, endPoint.y - newVector1.y)
+                
+                newVector2 = world.Vector(endPoint.x-startPoint.x,endPoint.y-startPoint.y)
+                newVector2.rotate(-0.52) #about -30 degrees
+                newVector2 = newVector2.__div__(newVector2.mag())
+                newVector2 = newVector2.__mul__(0.57)
+                newVector2 = world.Vector(endPoint.x - newVector2.x, endPoint.y - newVector2.y)
+                self.drawPolygon([endPoint,newVector1,newVector2],color,name)
