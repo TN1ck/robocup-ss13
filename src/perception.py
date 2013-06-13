@@ -95,19 +95,22 @@ class Perception:
     def mobile_entity_localization(self, mobile_entities, w):
         """Calculates the position of the given perceived mobile entities and
         writes this info into the given world."""
+
+        # reset confidency in world model:
+        for me in w.mobile_entities:
+            if me.confidency == 1:
+                me.confidency = 0.5
+
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
             if me[0] == 'P':                            # it's a player!
-                #logging.debug('seeing player')
                 # (P (team <teamname>) (id <playerID>) +(<bodypart> (pol <distance> <angle1> <angle2>)))
                 # player.team = 1 iff friendly player / player.team = 2 iff hostile player
-                # TODO: set hostile player ids when seen
                 team = 1 if me[1][1] == self.our_team else 2
                 id = int(me[2][1])
                 if id != self.player_nr or team != 1:   # don't process own arms etc.
-                    bps = me[3:]                         # bodyparts
-                    #logging.debug('body parts: ' + str(bps))
+                    bps = me[3:]                        # bodyparts
                     # collect bodypart positions:
                     pos_list = []
                     for bp in bps:

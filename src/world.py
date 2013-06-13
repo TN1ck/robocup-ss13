@@ -215,6 +215,9 @@ class World:
         # set up ball:
         self.ball = Ball(0.04, 26)
 
+        # universal mobile entity list:
+        self.mobile_entities = self.players + [self.ball]
+
         # add everything to identifier dictionary:
         self.create_entity_dict()
 
