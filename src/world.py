@@ -94,6 +94,9 @@ class Line(StaticEntity):
         StaticEntity.__init__(self, identifier, x1, y1)
         self.position2 = Vector(x2, y2)
 
+    def __repr__(self):
+        return 'Line(' + str(self._identifier) + ', ' + str(self._position) + ', ' + str(self.position2) + ')'
+
 class Flag(StaticEntity):
     """A corner flag defined by its position (vector)."""
 
@@ -187,6 +190,22 @@ class World:
 
             # TODO: find out how the ten circle lines are positioned
         ]
+        # center circle lines:
+        MIDDLE_CIRCLE_RADIUS = 1.8
+        px1 = MIDDLE_CIRCLE_RADIUS
+        py1 = 0.0
+        count = 0
+        for deg in xrange(36, 360 + 36, 36):
+            count += 1
+            px2 = math.cos(deg * math.pi / 180.0) * MIDDLE_CIRCLE_RADIUS;
+            py2 = math.sin(deg * math.pi / 180.0) * MIDDLE_CIRCLE_RADIUS;
+
+            self.lines += [Line('LC' + str(count), px1, py1, px2, py2)]
+            #fieldLines.put("MC_" + (deg - 36) + "-" + deg, new Vector2d[] { new Vector2d(px1, py1), new Vector2d(px2, py2) });
+
+            px1 = px2
+            py1 = py2
+        #logging.debug(str(self.lines))
 
         # set up flagz:
         self.flags = [
