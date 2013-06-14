@@ -14,6 +14,7 @@ import communication
 import signal
 import sys
 from sys import argv
+import drawing
 
 global our_team
 our_team = "DAI-Labor"
@@ -43,7 +44,9 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
             self.agentSocket.flush()
 
-            i=0
+            self.drawer = drawing.Drawing(0, 0)
+
+            i = 0
             while True:
                 msg = self.agentSocket.receive()
                 parsed_msg = parser.parse_sexp(msg)
@@ -53,6 +56,12 @@ class Agent:
                         self.perception.process_joint_positions([current_preceptor], self.nao)
                     elif current_preceptor[0] == 'See':
                         self.perception.process_vision([current_preceptor],self.world)
+                        # drawing some position as stored in world model:
+                        player = self.world.entity_from_identifier['P_1_' + str(self.player_nr)]
+                        self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all.ownpos")
+                        self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all.see")
+                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all.ballpos")
+                        self.drawer.showDrawingsNamed("all")
                     elif current_preceptor [0] == 'GYR':
                         self.perception.process_gyros([current_preceptor], self.nao)
                     elif current_preceptor[0] == 'hear':
