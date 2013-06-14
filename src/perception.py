@@ -77,15 +77,18 @@ class Perception:
             #logging.debug('static_entities: ' + str(static_entities))
 
             # find out our position first:
+            player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
+            if player.confidency == 1:
+                player.confidency = 0.5
             localization_result = self.self_localization(static_entities, w)
             if localization_result:
                 #logging.debug("localization_result: " + str(localization_result))
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
+                player.confidency = 1.0
 
                 # if self localization was successful, calculate positions of mobile enties:
                 self.mobile_entity_localization(mobile_entities, w)
@@ -133,6 +136,7 @@ class Perception:
                         w.players += [new_player]
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
+                    w.entity_from_identifier[player_key].confidency = 1.0
                     #logging.debug('other player: ' + str(w.get_entity_position(player_key)))
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
@@ -140,6 +144,7 @@ class Perception:
                 # NAO cam position + vector_to_ball:
                 pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
+                w.entity_from_identifier['B'].confidency = 1.0
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
