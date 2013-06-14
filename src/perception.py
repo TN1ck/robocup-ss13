@@ -133,6 +133,7 @@ class Perception:
                         w.players += [new_player]
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
+                    w.entity_from_identifier[player_key].confidency = 1.0
                     #logging.debug('other player: ' + str(w.get_entity_position(player_key)))
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
@@ -140,6 +141,7 @@ class Perception:
                 # NAO cam position + vector_to_ball:
                 pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
+                w.entity_from_identifier['B'].confidency = 1.0
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
