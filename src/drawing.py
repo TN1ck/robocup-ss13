@@ -92,12 +92,16 @@ class Drawing:
 
         def drawGrid(self, color, name):
                 for i in range(29):
-                    self.drawLine(world.Vector(14-i,-10),world.Vector(14-i,10),1,color,name)
+                    self.drawLine(world.Vector(14-i,-10), world.Vector(14-i,10), 1, color, name)
+                    if i%2 == 0:
+                        self.drawStandardAnnotation(world.Vector(14-i,10), color, str(14-i), name)
                 for i in range(19):
                     self.drawLine(world.Vector(15,9-i),world.Vector(-15,9-i),1,color,name)
+                    if i%2 == 1:
+                        self.drawStandardAnnotation(world.Vector(-15,9-i), color, str(9-i), name)
 
         def drawArrow(self,startPoint,endPoint,thickness,color,name):
-                self.drawLine(startPoint,endPoint,thickness,color,name)
+                self.drawLine(startPoint,world.Vector(),thickness,color,name)
                 newVector1 = world.Vector(endPoint.x-startPoint.x,endPoint.y-startPoint.y)
                 newVector1.rotate(0.52) #about 30 degrees
                 newVector1 = newVector1.__div__(newVector1.mag())
@@ -109,4 +113,5 @@ class Drawing:
                 newVector2 = newVector2.__div__(newVector2.mag())
                 newVector2 = newVector2.__mul__(0.57)
                 newVector2 = world.Vector(endPoint.x - newVector2.x, endPoint.y - newVector2.y)
+
                 self.drawPolygon([endPoint,newVector1,newVector2],color,name)
