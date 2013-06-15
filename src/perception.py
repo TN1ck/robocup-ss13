@@ -168,6 +168,9 @@ class Perception:
         if len(static_entities) < 2:
             d = drawing.Drawing(0,0)
             logging.warning("localization failed. static entities: " + str(len(static_entities)))
+            if len(static_entities) == 0:
+                logging.debug("i can't see anything, please help me")
+                return
             # Process lines, aren't used at the moment
             # F1L --L1-- F1R
             # |     |    |
