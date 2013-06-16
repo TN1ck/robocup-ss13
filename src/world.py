@@ -37,7 +37,10 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
         return Vector(self.x / other, self.y / other )
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        if other == None:
+            return False
+        else:
+            return self.x == other.x and self.y == other.y
 
     def __repr__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ')'
