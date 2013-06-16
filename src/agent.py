@@ -15,9 +15,10 @@ import signal
 import sys
 from sys import argv
 import drawing
+import __builtin__
 
-global our_team
-our_team = "DAI-Labor"
+__builtin__.our_team = "DAI-Labor"
+__builtin__.number_of_players_per_team = 6
 
 
 

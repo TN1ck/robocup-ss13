@@ -190,13 +190,12 @@ class TacticsMain:
     shuffle(maxima)
     maximum = maxima[0][0]
 
-    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-
     if maximum == 'run_to_ball':
       ball_pos = self.world.get_entity_position('B').to_list()
-      return (('run', ball_pos[0], ball_pos[1]),('stand_up',False),('kick',False),('say',False), ('head',False))
+      run_tuple = ('run', ball_pos[0], ball_pos[1])
     elif maximum == 'stay':
-      return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',False))
+      run_tuple = ('run', False)
 
 
-
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+    return (run_tuple, ('stand_up',False),('kick',False),('say',False), ('head',False))
