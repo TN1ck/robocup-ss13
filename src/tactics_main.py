@@ -119,6 +119,7 @@ class TacticsMain:
 
   def we_own_ball(self):
     for i in range(len(self.world.players)):
+      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
       if self.world.players[i].team == our_team_number:
         player = self.world.entity_from_identifier[self.world.players[i].get_identifier()]
         if player.confidence > 0.5:
@@ -181,9 +182,10 @@ class TacticsMain:
     return self.base(x)/10
 
 
-
-
   def run_tactics(self,hearObj):
+
+    for i in range(len(self.world.players)):
+      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
 
     self.clear_distances()
     self.set_own_position()
