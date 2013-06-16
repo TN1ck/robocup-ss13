@@ -21,48 +21,56 @@ class TacticsMain:
     self.field_lines_idfs   = ["L1","L2","LL","LR","LM"]       #Field lines
     # self.right_penalty_idfs = ["LG1R","LG2R","LGR"]            #right penalty area
     # self.left_penalty_ifds  = ["LG1L","LG2L","LGL"]            #left penalty area
-    self.right_goal_ifds    = ["G1R","G2R"]                    #right goal
+    self.right_goal_idfs    = ["G1R","G2R"]                    #right goal
     self.left_goal_idfs     = ["G1L","G2R"]                    #left goal
-    self.player_t1_idfs     = ["P_1_0","P_1_1","P_1_2","P_1_3","P_1_4","P_1_5"]  #team 1
-    self.player_t2_idfs     = ["P_1_0","P_1_1","P_1_2","P_1_3","P_1_4","P_1_5"]#team 2
+    self.player_t1_idfs     = ["P_1_1","P_1_2","P_1_3","P_1_4","P_1_5","P_1_6"]  #team 1
+    self.player_t2_idfs     = ["P_2_1","P_2_2","P_2_3","P_2_4","P_2_5","P_2_6"]#team 2
 
     self.distance_team1 = {}
     self.distance_team2 = {}
-    self.distance_goal_poles_right = {}
-    self.distance_goal_poles_left = {}
+    #self.distance_goal_poles_right = {}
+    #self.distance_goal_poles_left = {}
     self.distance_lines = {}
-    self.distance_ball = -1
+    self.distance_ball = None
+    self.distance_goal_left = None
+    self.distance_goal_right= None
 
+    self.headAngle = 0
 
 
 
   def set_own_position(self):
+    #if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidency >=0.5:
       self.my_position = self.nao.get_position()
+    #else:
+     # self.my_position = None
 
   """Calculate distances too all objects on the field  except the Flags and save them in the corresponding list."""
   def get_distances(self):
       for i in range(len(self.player_t1_idfs)):
+        if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidency > 0.5:
           val = self.calc_point_distance(self.world.get_entity_position(self.player_t1_idfs[i]), self.my_position)
           self.distance_team1[self.player_t1_idfs[i]] = val
-          val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
-          self.distance_team2[self.player_t2_idfs[i]] = val
+         #val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
+         # self.distance_team2[self.player_t2_idfs[i]] = val """
 
-      calculate_goal_distances(self.my_position)
+      self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
+      if self.world.entity_from_identifier['B'].confidency >= 0.5:
+        self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
 
   def calculate_goal_distances(self, my_position):
       val = self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[0]), my_position)
       val = (val + self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[1]), my_position))/2
-      self.distance_goal_left[self.left_goal_idfs] = val
+      self.distance_goal_left = val
 
       val = self.calc_point_distance(self.world.get_entity_position(self.right_goal_idfs[0]), self.my_position)
       val = (val + self.calc_point_distance(self.world.get_entity_position(self.right_goal_idfs[1]), my_position))/2
-      self.distance_goal_left[self.right_goal_idfs] = val
+      self.distance_goal_right = val
 
   def clear_distances(self):
-      self.distance_goal_left = {}
-      self.distance_goal_right= {}
+      self.distance_goal_left = None
+      self.distance_goal_right= None
       self.distance_lines = {}
       self.distance_team1= {}
       self.distance_team2 ={}
@@ -159,11 +167,20 @@ class TacticsMain:
     return 0.5
 
 
-  def run_tactics(self):
+  def run_tactics(self,hearObj):
     self.clear_distances()
     self.set_own_position()
+    #if self.my_position == None:
+     # return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
+   # else:
+     # return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+
     self.get_distances()
 
+
+
+    """
+                
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
@@ -180,4 +197,6 @@ class TacticsMain:
     elif maximum == 'stay':
       self.mov.stop()
 
-    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')"""
+    return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
