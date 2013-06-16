@@ -121,11 +121,12 @@ class TacticsMain:
     for i in range(len(self.world.players)):
       print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
       if self.world.players[i].team == our_team_number:
-        distance = self.calc_point_distance(self.world.get_entity_position(self.world.players[i].get_identifier()), self.world.get_entity_position('B'))
-        self.our_players_ball_distance[i] = distance
-        print(distance)
-        if distance <= 0.5:
-          return True
+        player = self.world.entity_from_identifier[self.world.players[i].get_identifier()]
+        if player.confidence > 0.5:
+          distance = self.calc_point_distance(player.get_position(), self.world.get_entity_position('B'))
+          self.enemy_players_ball_distance[i] = distance
+          if distance <= 0.5:
+            return True
     return False
 
   # def player_owns_ball(self, player):
@@ -150,7 +151,7 @@ class TacticsMain:
 
   def run_to_own_goal(self, x):
     if self.enemy_owns_ball():
-      return 0.8 * base(x)
+      return 0.8 * self.base(x)
     else:
       return 0.05
 
@@ -162,6 +163,7 @@ class TacticsMain:
 
   def stay(self):
     return 0.01
+
 
   def run_away_from_friend(self, x):
     return self.base(x)
@@ -184,7 +186,6 @@ class TacticsMain:
       return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
 
     self.get_distances()
-
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
