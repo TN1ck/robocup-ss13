@@ -59,8 +59,8 @@ class TacticsMain:
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      if self.world.entity_from_identifier['B'].confidence >= 0.5:
-        self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
+      #if self.world.entity_from_identifier['B'].confidence >= 0.5:
+      self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
 
   def calculate_goal_distances(self, my_position):
       val = self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[0]), my_position)
@@ -182,8 +182,7 @@ class TacticsMain:
 
 
 
-    """
-
+    
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
@@ -201,5 +200,5 @@ class TacticsMain:
       self.mov.stop()
 
 
-    debug('TACTICS: Decided to do the following action: "' + maximum + '"')"""
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
     return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
