@@ -81,6 +81,7 @@ class Perception:
             #logging.debug('static_entities: ' + str(static_entities))
 
             # find out our position first:
+            print("Player nr: " + str(self.player_nr))
             player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
             player.confidence = lower_confidence(player.confidence)
             localization_result = self.self_localization(static_entities, w)

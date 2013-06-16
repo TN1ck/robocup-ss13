@@ -119,9 +119,11 @@ class TacticsMain:
 
   def we_own_ball(self):
     for i in range(len(self.world.players)):
+      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
       if self.world.players[i].team == our_team_number:
         distance = self.calc_point_distance(self.world.get_entity_position(self.world.players[i].get_identifier()), self.world.get_entity_position('B'))
         self.our_players_ball_distance[i] = distance
+        print(distance)
         if distance <= 0.5:
           return True
     return False
@@ -172,6 +174,10 @@ class TacticsMain:
 
 
   def run_tactics(self,hearObj):
+
+    for i in range(len(self.world.players)):
+      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
+
     self.clear_distances()
     self.set_own_position()
     if self.my_position == None:
@@ -218,6 +224,6 @@ class TacticsMain:
       run_tuple = ('run',self.my_position.x, self.my_position.y - 0.1)
 
 
-    print(ll)
+
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-    return (run_tuple, ('stand_up',False), kick_tuple,('say',False), ('head',False))
+    return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
