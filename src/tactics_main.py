@@ -119,7 +119,6 @@ class TacticsMain:
 
   def we_own_ball(self):
     for i in range(len(self.world.players)):
-      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
       if self.world.players[i].team == our_team_number:
         player = self.world.entity_from_identifier[self.world.players[i].get_identifier()]
         if player.confidence > 0.5:
@@ -165,8 +164,15 @@ class TacticsMain:
     return 0.01
 
 
-  def run_away_from_friend(self, x):
-    return self.base(x)
+  def run_away_from_friend(self):
+    list = []
+    for n in self.distance_team1:
+      if n == 'P_1_' + str(self.nao.player_nr):
+        continue
+      dist =  self.distance_team1[n]
+      if dist <=  2.0:
+        list.append(n)
+    return list
 
   def run_away_from_l1(self,x):
     return self.base(x)/10
@@ -175,17 +181,19 @@ class TacticsMain:
     return self.base(x)/10
 
 
-  def run_tactics(self,hearObj):
 
-    for i in range(len(self.world.players)):
-      print("Player's identifier: " + self.world.players[i].get_identifier() + " and team " + str(self.world.players[i].team))
+
+  def run_tactics(self,hearObj):
 
     self.clear_distances()
     self.set_own_position()
     if self.my_position == None:
       return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
-
+    
     self.get_distances()
+
+    toClose = self.run_away_from_friend() 
+    print toClose
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
@@ -193,6 +201,7 @@ class TacticsMain:
     ll.append(('run_to_own_goal', self.run_to_own_goal(self.distance_goal_left)))
     ll.append(('run_away_from_l1',self.run_away_from_l1(self.distance_lines['L1'])))
     ll.append(('run_away_from_r2',self.run_away_from_r2(self.distance_lines['L2'])))
+    ll.append(('run_away_from_friend',len(toClose)))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
     # ll.append('run_to_own_goal', run_to_own_goal())
 
@@ -200,6 +209,7 @@ class TacticsMain:
     shuffle(maxima)
     maximum = maxima[0][0]
 
+    run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     if maximum == 'run_to_ball':
       ball_pos = self.world.get_entity_position('B').to_list()
@@ -223,8 +233,12 @@ class TacticsMain:
       run_tuple = ('run', self.my_position.x, self.my_position.y + 0.1)
     elif maximum == 'run_away_from_l1':
       run_tuple = ('run',self.my_position.x, self.my_position.y - 0.1)
+    elif maximum == 'run_away_from_friend':
+      run_tuple = ('run',False)
+
+      
 
 
 
-    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+    #debug('TACTICS: Decided to do the following action: "' + maximum + '"')
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
