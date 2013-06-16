@@ -162,13 +162,13 @@ class TacticsMain:
     return 0.01
 
   def run_away_from_friend(self, x):
-    return base(x)
+    return self.base(x)
 
-  def run_away_from_l1(self):
-    return 0.5
+  def run_away_from_l1(self,x):
+    return self.base(x)/10
 
-  def run_away_from_r2(self):
-    return 0.5
+  def run_away_from_r2(self,x):
+    return self.base(x)/10
 
 
   def run_tactics(self,hearObj):
@@ -179,14 +179,13 @@ class TacticsMain:
 
     self.get_distances()
 
-
-
-
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
     ll.append(('run_to_enemy_goal', self.run_to_enemy_goal(self.distance_goal_right)))
     ll.append(('run_to_own_goal', self.run_to_enemy_goal(self.distance_goal_left)))
+    ll.append(('run_away_from_l1',self.run_away_from_l1(self.distance_lines['L1'])))
+    ll.append(('run_away_from_r2',self.run_away_from_r2(self.distance_lines['L2'])))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
     # ll.append('run_to_own_goal', run_to_own_goal())
 
@@ -213,6 +212,10 @@ class TacticsMain:
         x = (self.world.get_entity_position(self.left_goal_idfs[0]).x + self.world.get_entity_position(self.left_goal_idfs[1]).x)/2
         y = (self.world.get_entity_position(self.left_goal_idfs[0]).y + self.world.get_entity_position(self.left_goal_idfs[1]).y)/2
         run_tuple = ('run', x, y)
+    elif maximum == 'run_away_from_r2':
+      run_tuple = ('run', self.my_position.x, self.my_position.y + 0.1)
+    elif maximum == 'run_away_from_l1':
+      run_tuple = ('run',self.my_position.x, self.my_position.y - 0.1)
 
 
     print(ll)
