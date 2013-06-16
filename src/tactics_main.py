@@ -219,6 +219,6 @@ class TacticsMain:
 
 
 
-    # print(ll)
-    # debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+    debug(""+str(ll))
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
