@@ -2,7 +2,7 @@ import Keyframes as kf
 import math
 
 class Keyframe_Engine:
-    
+
     def __init__(self, nao, socket):
         self.last_joint_speed = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         self.last_joint_angle = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
@@ -23,7 +23,7 @@ class Keyframe_Engine:
         self.head_last = 0
         self.head_stop = False
 
-        
+
     def work(self):
         '''
         Runs the actuall keyframes, has to be called at end of tactics!
@@ -32,12 +32,12 @@ class Keyframe_Engine:
             keyframe = self.last_frame.keyframe
             name = self.last_frame.name
             self.next_step(keyframe, name)
-        
+
         if self.head_frame is not None:
             keyframe = self.head_frame.keyframe
             name = self.head_frame.name
             self.next_head_step(keyframe, name)
-    
+
     def fall_on_front(self):
         '''
         Testfunction to let the Nao fall on its front
@@ -45,7 +45,7 @@ class Keyframe_Engine:
         self.last_frame = kf.fall_front
         self.fall = True
         self.working = True
-    
+
     def fall_on_back(self):
         '''
         Testfunction to let the Nao fall on its back
@@ -53,14 +53,14 @@ class Keyframe_Engine:
         self.last_frame = kf.fall_back
         self.fall = True
         self.working = True
-    
+
     def stand(self):
         '''
         Stand position of the NAO
         '''
         self.last_frame = kf.stand
         self.working = True
-    
+
     def stand_up_from_back(self):
         '''
         Stand_up-function from back
@@ -68,7 +68,7 @@ class Keyframe_Engine:
         self.last_frame = kf.stand_up_from_back
         self.working = True
         self.fall = False
-               
+
     def stand_up_from_front(self):
         '''
         Stand_up-function from front
@@ -76,14 +76,14 @@ class Keyframe_Engine:
         self.last_frame = kf.stand_up_from_front
         self.working = True
         self.fall = False
-        
+
     def head_lookAround(self):
         '''
         funktion for look around
         '''
         self.head_frame = kf.lookAround
         self.head_working = True
-        
+
     def kick1(self):
         '''
         first kick-function
@@ -91,42 +91,43 @@ class Keyframe_Engine:
         '''
         self.last_frame = kf.kick1
         self.working = True
-    
+
     def test_frame(self):
         '''
         Testfunction that moves all  joints
         '''
         self.last_frame = kf.testframe
         self.working = True
-    
+
     def head_move(self, angle):
         '''
         Function to move the head horizontal to the given angle. Not yet finished.
-    
+
         self.head_frame = kf.head_reset
         self.head_frame.keyframe = [[math.fabs(angle)*3, 0.0, angle]]
         self.head_working = True
         '''
-        
+        pass
+
     def head_stop(self):
         '''
         Stops the head movement at the actual position. Not yet finished.
-        
+
         self.head_stop = True
         '''
-        
+
     def head_reset(self):
         '''
         Resets the head to 0-Position. Not yet finished.
-        
+
         self.head_frame = kf.head_reset
         self.head_working = True
         '''
-            
+
     def next_step(self, keyframe, name):
         '''
         calculates the next joints speed and sends them to the socket
-        
+
         self.last == 1, if the keyframe is finished
         self.last == 0, if the keyframe is not finished
         '''
@@ -156,8 +157,8 @@ class Keyframe_Engine:
             self.send(self.nao.hinge_joints[i].effector, self.last_joint_speed[i])
             i = i + 1
         if self.last == 2:
-            self.last = 0        
-            
+            self.last = 0
+
     def next_head_step(self, keyframe, name):
         '''
         calculates the next head joints speed and sends them to the socket
@@ -171,7 +172,7 @@ class Keyframe_Engine:
                 self.head_frame = None
                 self.head_working = False
             self.head_last = 2
-            
+
         if self.head_last == 0:
             self.get_new_head_position(keyframe[self.head_line], name)
             if self.head_line >= len(keyframe):
@@ -181,7 +182,7 @@ class Keyframe_Engine:
         self.send(self.nao.hinge_joints[1].effector, self.last_joint_speed[1])
         if self.head_last == 2:
             self.head_last = 0
-            
+
     def get_new_head_position(self, keyframe, name):
         '''
         Calculate the new head speed in rad/sec
@@ -203,12 +204,12 @@ class Keyframe_Engine:
                     break
                 joint_name = joint_name + 1
         self.head_time = self.head_time + 20
-        if (keyframe[0] - self.head_time) < self._default_time:                
+        if (keyframe[0] - self.head_time) < self._default_time:
             self.head_time = 0
             self.head_line = self.head_line + 1
-    
+
     def get_new_joint_postion(self, keyframe, name):
-        '''    
+        '''
         Function to calculate the new speed in rad/sec
         '''
         joint_number = 0
@@ -230,15 +231,15 @@ class Keyframe_Engine:
                     break
                 joint_name = joint_name + 1
         self.progressed_time = self.progressed_time + 20
-        if (keyframe[0] - self.progressed_time) < self._default_time:                
+        if (keyframe[0] - self.progressed_time) < self._default_time:
             self.progressed_time = 0
             self.keyframe_line = self.keyframe_line + 1
-            
+
     def send(self, *params):
         '''
         Enqueue the new joint speeds
         '''
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
-   
-   
-        
+
+
+

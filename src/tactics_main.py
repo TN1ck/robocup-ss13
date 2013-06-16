@@ -173,16 +173,14 @@ class TacticsMain:
   def run_tactics(self,hearObj):
     self.clear_distances()
     self.set_own_position()
-    #if self.my_position == None:
-     # return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
-   # else:
-     # return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+    if self.my_position == None:
+      return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
 
     self.get_distances()
 
 
 
-    
+
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
@@ -195,10 +193,10 @@ class TacticsMain:
 
     if maximum == 'run_to_ball':
       ball_pos = self.world.get_entity_position('B').to_list()
-      self.mov.run(ball_pos[0], ball_pos[1])
+      run_tuple = ('run', ball_pos[0], ball_pos[1])
     elif maximum == 'stay':
-      self.mov.stop()
+      run_tuple = ('run', False)
 
 
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-    return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+    return (run_tuple, ('stand_up',False),('kick',False),('say',False), ('head',False))
