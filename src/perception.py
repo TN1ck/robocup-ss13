@@ -82,8 +82,7 @@ class Perception:
 
             # find out our position first:
             player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
-            if player.confidence == 1.0:
-                player.confidence = lower_confidence(player.confidence)
+            player.confidence = lower_confidence(player.confidence)
             localization_result = self.self_localization(static_entities, w)
             if localization_result:
                 #logging.debug("localization_result: " + str(localization_result))
@@ -105,7 +104,7 @@ class Perception:
 
         # reset confidence in world model:
         for me in w.mobile_entities:
-            if me.confidence == 1:
+            if me._identifier != 'P_1_' + str(self.player_nr):
                 me.confidence = lower_confidence(me.confidence)
 
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
