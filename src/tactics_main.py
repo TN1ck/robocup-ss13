@@ -37,10 +37,13 @@ class TacticsMain:
 
     self.headAngle = 0
 
+    self.ourPlayersBallDistance = [float("inf")] * number_of_players_per_team
+    self.enemyPlayersBallDistance = [float("inf")] * number_of_players_per_team
+
 
 
   def set_own_position(self):
-    #if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidency >=0.5:
+    #if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence >=0.5:
       self.my_position = self.nao.get_position()
     #else:
      # self.my_position = None
@@ -48,7 +51,7 @@ class TacticsMain:
   """Calculate distances too all objects on the field  except the Flags and save them in the corresponding list."""
   def get_distances(self):
       for i in range(len(self.player_t1_idfs)):
-        if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidency > 0.5:
+        if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.5:
           val = self.calc_point_distance(self.world.get_entity_position(self.player_t1_idfs[i]), self.my_position)
           self.distance_team1[self.player_t1_idfs[i]] = val
          #val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
@@ -56,7 +59,7 @@ class TacticsMain:
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      if self.world.entity_from_identifier['B'].confidency >= 0.5:
+      if self.world.entity_from_identifier['B'].confidence >= 0.5:
         self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
 
   def calculate_goal_distances(self, my_position):
