@@ -132,7 +132,7 @@ class TacticsMain:
   #   return False
 
   def i_own_ball(self):
-    if self.calc_point_distance(self.my_position, self.world.get_entity_position('B')) <= 0.15:
+    if self.calc_point_distance(self.my_position, self.world.get_entity_position('B')) <= 0.5:
       return True
     else:
       return False
@@ -163,6 +163,7 @@ class TacticsMain:
   def stay(self):
     return 0.01
 
+<<<<<<< HEAD
 
   def run_away_from_friend(self):
     list = []
@@ -173,6 +174,10 @@ class TacticsMain:
       if dist <=  2.0:
         list.append(n)
     return list
+=======
+  def run_away_from_friend(self, x):
+    return self.base(x)
+>>>>>>> 0b4d7101a58e9b61eb85e162aa90abc619eb6b41
 
   def run_away_from_l1(self,x):
     return self.base(x)/10
@@ -181,9 +186,13 @@ class TacticsMain:
     return self.base(x)/10
 
 
+
+<<<<<<< HEAD
+
   def run_tactics(self,hearObj):
 
-
+=======
+>>>>>>> 0b4d7101a58e9b61eb85e162aa90abc619eb6b41
     self.clear_distances()
     self.set_own_position()
     if self.my_position == None:
@@ -192,6 +201,7 @@ class TacticsMain:
     self.get_distances()
 
     toClose = self.run_away_from_friend() 
+    print toClose
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
@@ -199,9 +209,12 @@ class TacticsMain:
     ll.append(('run_to_own_goal', self.run_to_own_goal(self.distance_goal_left)))
     ll.append(('run_away_from_l1',self.run_away_from_l1(self.distance_lines['L1'])))
     ll.append(('run_away_from_r2',self.run_away_from_r2(self.distance_lines['L2'])))
+<<<<<<< HEAD
     ll.append(('run_away_from_friend',len(toClose)))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
     # ll.append('run_to_own_goal', run_to_own_goal())
+=======
+>>>>>>> 0b4d7101a58e9b61eb85e162aa90abc619eb6b41
 
     maxima = self.find_maxima(ll)
     shuffle(maxima)
@@ -238,5 +251,10 @@ class TacticsMain:
 
 
 
+<<<<<<< HEAD
     #debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+=======
+    # print(ll)
+    # debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+>>>>>>> 0b4d7101a58e9b61eb85e162aa90abc619eb6b41
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
