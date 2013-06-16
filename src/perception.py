@@ -104,7 +104,7 @@ class Perception:
 
         # reset confidence in world model:
         for me in w.mobile_entities:
-            if me._identifier != 'P_1_' + str(self.player_nr):
+            if me.get_identifier() != 'P_1_' + str(self.player_nr):
                 me.confidence = lower_confidence(me.confidence)
 
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
