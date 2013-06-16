@@ -40,10 +40,10 @@ class TacticsMain:
 
 
   def set_own_position(self):
-    #if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence >=0.5:
+    if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence >=0.5:
       self.my_position = self.nao.get_position()
-    #else:
-     # self.my_position = None
+    else:
+      self.my_position = None
 
   """Calculate distances too all objects on the field  except the Flags and save them in the corresponding list."""
   def get_distances(self):
@@ -170,8 +170,8 @@ class TacticsMain:
   def run_tactics(self,hearObj):
     self.clear_distances()
     self.set_own_position()
-    #if self.my_position == None:
-     # return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
+    if self.my_position == None:
+      return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
    # else:
      # return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
 
@@ -190,12 +190,13 @@ class TacticsMain:
     shuffle(maxima)
     maximum = maxima[0][0]
 
+    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
+
     if maximum == 'run_to_ball':
       ball_pos = self.world.get_entity_position('B').to_list()
-      self.mov.run(ball_pos[0], ball_pos[1])
+      return (('run', ball_pos[0], ball_pos[1]),('stand_up',False),('kick',False),('say',False), ('head',False))
     elif maximum == 'stay':
-      self.mov.stop()
+      return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',False))
 
 
-    debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-    return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+
