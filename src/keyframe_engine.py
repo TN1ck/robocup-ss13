@@ -28,14 +28,14 @@ class Keyframe_Engine:
         '''
         Runs the actuall keyframes, has to be called at end of tactics!
         '''
-        if self.last_frame is not None:
+        if self.working:
             keyframe = self.last_frame.keyframe
             name = self.last_frame.name
             self.next_step(keyframe, name)
 
-        if self.head_frame is not None:
-            keyframe = self.head_frame.keyframe
-            name = self.head_frame.name
+        if self.head_working:
+            keyframe = self.head_frame
+            name = kf.lookAround.name
             self.next_head_step(keyframe, name)
 
     def fall_on_front(self):
@@ -81,7 +81,7 @@ class Keyframe_Engine:
         '''
         funktion for look around
         '''
-        self.head_frame = kf.lookAround
+        self.head_frame = kf.lookAround.keyframe
         self.head_working = True
 
     def kick1(self):
@@ -101,13 +101,12 @@ class Keyframe_Engine:
 
     def head_move(self, angle):
         '''
-        Function to move the head horizontal to the given angle. Not yet finished.
-
-        self.head_frame = kf.head_reset
-        self.head_frame.keyframe = [[math.fabs(angle)*3, 0.0, angle]]
-        self.head_working = True
+        Function to move the head horizontal to the given angle.
         '''
-        pass
+        self.head_frame = [[math.fabs(angle)*10, 0.0, angle]]
+        if angle == 0:
+            self.head_frame = [[400, 0.0, angle]]
+        self.head_working = True
 
     def head_stop(self):
         '''
@@ -168,9 +167,8 @@ class Keyframe_Engine:
             self.last_joint_speed[1] = 0.0
             self.last_joint_angle[0] = 0.0
             self.last_joint_angle[1] = 0.0
-            if self.head_frame is not kf.lookAround:
-                self.head_frame = None
-                self.head_working = False
+            self.head_frame = None
+            self.head_working = False
             self.head_last = 2
 
         if self.head_last == 0:
