@@ -217,7 +217,5 @@ class TacticsMain:
     elif maximum == 'run_away_from_l1':
       run_tuple = ('run',self.my_position.x, self.my_position.y - 0.1)
 
-
-    print(ll)
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
     return (run_tuple, ('stand_up',False), kick_tuple,('say',False), ('head',False))
