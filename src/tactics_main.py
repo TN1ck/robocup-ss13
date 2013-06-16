@@ -37,6 +37,9 @@ class TacticsMain:
 
     self.headAngle = 0
 
+    self.enemy_players_ball_distance = [float('inf')] * number_of_players_per_team
+    self.our_players_ball_distance = [float('inf')] * number_of_players_per_team
+
 
 
   def set_own_position(self):
@@ -56,7 +59,6 @@ class TacticsMain:
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      #if self.world.entity_from_identifier['B'].confidence >= 0.5:
       self.distance_ball = self.calc_point_distance(self.world.get_entity_position('B'), self.my_position)
 
   def calculate_goal_distances(self, my_position):
@@ -107,18 +109,20 @@ class TacticsMain:
 
 # Utility functions
   def enemy_owns_ball(self):
-    for i in self.world.players:
-      if i.team != our_team:
-        distance = calc_point_distance(self.world.get_entity_position(i.get_identifier), self.world.get_entity_position('B'))
-        if distance <= 1:
+    for i in range(len(self.world.players)):
+      if self.world.players[i].team != our_team_number:
+        distance = self.calc_point_distance(self.world.get_entity_position(self.world.players[i].get_identifier()), self.world.get_entity_position('B'))
+        self.enemy_players_ball_distance[i] = distance
+        if distance <= 0.5:
           return True
     return False
 
   def we_own_ball(self):
-    for i in self.world.players:
-      if i.team == our_team:
-        distance = calc_point_distance(self.world.get_entity_position(i.get_identifier), self.world.get_entity_position('B'))
-        if distance <= 1:
+    for i in range(len(self.world.players)):
+      if self.world.players[i].team == our_team_number:
+        distance = self.calc_point_distance(self.world.get_entity_position(self.world.players[i].get_identifier()), self.world.get_entity_position('B'))
+        self.our_players_ball_distance[i] = distance
+        if distance <= 0.5:
           return True
     return False
 
@@ -126,7 +130,7 @@ class TacticsMain:
   #   return False
 
   def i_own_ball(self):
-    if calc_point_distance(my_position, self.world.get_entity_position('B')) <= 1:
+    if self.calc_point_distance(self.my_position, self.world.get_entity_position('B')) <= 0.5:
       return True
     else:
       return False
@@ -140,22 +144,22 @@ class TacticsMain:
 # Tactical functions
 
   def run_to_ball(self, x):
-    return 0.8 * self.base(x)
+    return 0.9 * self.base(x)
 
   def run_to_own_goal(self, x):
     if enemy_owns_ball():
-      return 0.8
+      return 0.8 * base(x)
     else:
-     return 0.2 * self.base(x)
+      return 0.05
 
   def run_to_enemy_goal(self, x):
-    if we_own_ball():
-      return 1
+    if self.we_own_ball():
+      return 0.95
     else:
-      return 0.2 * self.base(x)
+      return 0.05
 
   def stay(self):
-    return 0.1
+    return 0.01
 
   def run_away_from_friend(self, x):
     return base(x)
@@ -172,17 +176,17 @@ class TacticsMain:
     self.set_own_position()
     if self.my_position == None:
       return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
-   # else:
-     # return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
 
     self.get_distances()
 
 
 
-    
+
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
+    ll.append(('run_to_enemy_goal', self.run_to_enemy_goal(self.distance_goal_right)))
+    ll.append(('run_to_own_goal', self.run_to_enemy_goal(self.distance_goal_left)))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
     # ll.append('run_to_own_goal', run_to_own_goal())
 
@@ -190,12 +194,27 @@ class TacticsMain:
     shuffle(maxima)
     maximum = maxima[0][0]
 
+    kick_tuple = ('kick', False)
     if maximum == 'run_to_ball':
       ball_pos = self.world.get_entity_position('B').to_list()
       run_tuple = ('run', ball_pos[0], ball_pos[1])
     elif maximum == 'stay':
       run_tuple = ('run', False)
+    elif maximum == 'run_to_enemy_goal':
+      if self.i_own_ball():
+        run_tuple = ('run', False)
+        kick_tuple = ('kick', True)
+      else:
+        x = (self.world.get_entity_position(self.right_goal_idfs[0]).x + self.world.get_entity_position(self.right_goal_idfs[1]).x)/2
+        y = (self.world.get_entity_position(self.right_goal_idfs[0]).y + self.world.get_entity_position(self.right_goal_idfs[1]).y)/2
+        run_tuple = ('run', x, y)
+        kick_tuple = ('kick', False)
+    elif maximum == 'run_to_own_goal':
+        x = (self.world.get_entity_position(self.left_goal_idfs[0]).x + self.world.get_entity_position(self.left_goal_idfs[1]).x)/2
+        y = (self.world.get_entity_position(self.left_goal_idfs[0]).y + self.world.get_entity_position(self.left_goal_idfs[1]).y)/2
+        run_tuple = ('run', x, y)
 
 
+    print(ll)
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
-    return (run_tuple, ('stand_up',False),('kick',False),('say',False), ('head',False))
+    return (run_tuple, ('stand_up',False), kick_tuple,('say',False), ('head',False))

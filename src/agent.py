@@ -18,6 +18,7 @@ import drawing
 import __builtin__
 
 __builtin__.our_team = "DAI-Labor"
+__builtin__.our_team_number = 1
 __builtin__.number_of_players_per_team = 6
 
 
