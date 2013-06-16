@@ -161,10 +161,10 @@ class TacticsMain:
     return self.base(x)
 
   def run_away_from_l1(self,x):
-    return self.base(x)
+    return self.base(x)/10
 
   def run_away_from_r2(self,x):
-    return self.base(x)
+    return self.base(x)/10
 
 
   def run_tactics(self,hearObj):
