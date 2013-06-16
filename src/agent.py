@@ -69,9 +69,7 @@ class Agent:
                         self.hearObj = self.communication.hear(current_preceptor)
 
                 if not self.keyFrameEngine.working:
-                    actions =  self.tactics.run_tactics(self.hearObj)     
-                    # For Testing
-                    #actions = (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+                    actions =  self.tactics.run_tactics(self.hearObj)
                     if i > 10:
                         for item in actions:
                             if item[0] == 'stand_up':
@@ -104,6 +102,8 @@ class Agent:
                 self.monitorSocket.flush()
 
                 i += 1
+
+
 
 def signal_handler(signal, frame):
     print("Received SIGINT")
