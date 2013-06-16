@@ -130,7 +130,7 @@ class MobileEntity(WorldEntity):
         WorldEntity.__init__(self, identifier, 0.0, 0.0)
         self.velocity = Vector(0.0, 0.0)
         self.timestamp = 0
-        self.confidency = 0.0
+        self.confidence = 0.0
 
     def set_position(self, x, y):
         self._position.x = x

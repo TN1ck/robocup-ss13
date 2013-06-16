@@ -78,8 +78,8 @@ class Perception:
 
             # find out our position first:
             player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
-            if player.confidency == 1:
-                player.confidency = 0.5
+            if player.confidence == 1:
+                player.confidence = 0.5
             localization_result = self.self_localization(static_entities, w)
             if localization_result:
                 #logging.debug("localization_result: " + str(localization_result))
@@ -88,7 +88,7 @@ class Perception:
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
                 player._position = localization_result[0]
                 player._see_vector = localization_result[1]
-                player.confidency = 1.0
+                player.confidence = 1.0
 
                 # if self localization was successful, calculate positions of mobile enties:
                 self.mobile_entity_localization(mobile_entities, w)
@@ -99,10 +99,10 @@ class Perception:
         """Calculates the position of the given perceived mobile entities and
         writes this info into the given world."""
 
-        # reset confidency in world model:
+        # reset confidence in world model:
         for me in w.mobile_entities:
-            if me.confidency == 1:
-                me.confidency = 0.5
+            if me.confidence == 1:
+                me.confidence = 0.5
 
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
@@ -136,7 +136,7 @@ class Perception:
                         w.players += [new_player]
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
-                    w.entity_from_identifier[player_key].confidency = 1.0
+                    w.entity_from_identifier[player_key].confidence = 1.0
                     #logging.debug('other player: ' + str(w.get_entity_position(player_key)))
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
@@ -144,7 +144,7 @@ class Perception:
                 # NAO cam position + vector_to_ball:
                 pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
-                w.entity_from_identifier['B'].confidency = 1.0
+                w.entity_from_identifier['B'].confidence = 1.0
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
