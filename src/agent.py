@@ -35,6 +35,7 @@ class Agent:
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
+        self.hearObj = None
 
     def start(self):
             self.monitorSocket.start()
@@ -65,10 +66,12 @@ class Agent:
                     elif current_preceptor [0] == 'GYR':
                         self.perception.process_gyros([current_preceptor], self.nao)
                     elif current_preceptor[0] == 'hear':
-                        pass
-                    # For Testing
-                actions = (('run', 0, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+                        self.hearObj = self.communication.hear(current_preceptor)
+
                 if not self.keyFrameEngine.working:
+                    actions =  self.tactics.run_tactics(self.hearObj)     
+                    # For Testing
+                    #actions = (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
                     if i > 10:
                         for item in actions:
                             if item[0] == 'stand_up':
@@ -91,10 +94,11 @@ class Agent:
                             if item[0] == 'say':
                                 pass
                             if item[0] == 'head':
-                                if item[1] == True:
+                                if item[1] is True:
                                     self.keyFrameEngine.head_lookAround()
                                 elif item[1] != False:
-                                    self.keyFrameEngine.head_move(item1[1])
+                                    self.keyFrameEngine.head_move(item[1])
+                #a = raw_input('press enter:')
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
