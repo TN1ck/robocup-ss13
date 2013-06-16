@@ -155,16 +155,16 @@ class TacticsMain:
       return 0.2 * self.base(x)
 
   def stay(self):
-    return 0.1
+    return 0.0
 
   def run_away_from_friend(self, x):
-    return base(x)
+    return self.base(x)
 
-  def run_away_from_l1(self):
-    return 0.5
+  def run_away_from_l1(self,x):
+    return self.base(x)
 
-  def run_away_from_r2(self):
-    return 0.5
+  def run_away_from_r2(self,x):
+    return self.base(x)
 
 
   def run_tactics(self,hearObj):
@@ -172,17 +172,14 @@ class TacticsMain:
     self.set_own_position()
     if self.my_position == None:
       return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
-   # else:
-     # return (('run', -10, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
 
     self.get_distances()
 
-
-
-    
     ll = []
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
+    ll.append(('run_away_from_l1',self.run_away_from_l1(self.distance_lines['L1'])))
+    ll.append(('run_away_from_r2',self.run_away_from_r2(self.distance_lines['L2'])))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
     # ll.append('run_to_own_goal', run_to_own_goal())
 
@@ -195,6 +192,10 @@ class TacticsMain:
       run_tuple = ('run', ball_pos[0], ball_pos[1])
     elif maximum == 'stay':
       run_tuple = ('run', False)
+    elif maximum == 'run_away_from_r2':
+      run_tuple = ('run', self.my_position.x, self.my_position.y + 0.1)
+    elif maximum == 'run_away_from_l1':
+      run_tuple = ('run',self.my_position.x, self.my_position.y - 0.1)
 
 
     debug('TACTICS: Decided to do the following action: "' + maximum + '"')
