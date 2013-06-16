@@ -101,8 +101,9 @@ class Perception:
 
         # reset confidence in world model:
         for me in w.mobile_entities:
-            if me.confidence == 1:
-                me.confidence = 0.5
+            if me._identifier != 'P_1_' + str(self.player_nr):
+                if me.confidence == 1:
+                    me.confidence = 0.5
 
         player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
