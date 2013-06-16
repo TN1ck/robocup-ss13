@@ -147,7 +147,7 @@ class TacticsMain:
     return 0.9 * self.base(x)
 
   def run_to_own_goal(self, x):
-    if enemy_owns_ball():
+    if self.enemy_owns_ball():
       return 0.8 * base(x)
     else:
       return 0.05
@@ -183,7 +183,7 @@ class TacticsMain:
     ll.append(('run_to_ball', self.run_to_ball(self.distance_ball)))
     ll.append(('stay', self.stay()))
     ll.append(('run_to_enemy_goal', self.run_to_enemy_goal(self.distance_goal_right)))
-    ll.append(('run_to_own_goal', self.run_to_enemy_goal(self.distance_goal_left)))
+    ll.append(('run_to_own_goal', self.run_to_own_goal(self.distance_goal_left)))
     ll.append(('run_away_from_l1',self.run_away_from_l1(self.distance_lines['L1'])))
     ll.append(('run_away_from_r2',self.run_away_from_r2(self.distance_lines['L2'])))
     # ll.append('run_to_enemy_goal', run_to_enemy_goal())
