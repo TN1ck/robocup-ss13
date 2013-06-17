@@ -112,20 +112,19 @@ class Keyframe_Engine:
             self.head_frame = [[400, 0.0, angle]]
         self.head_working = True
 
-    def head_stop(self):
+    def stop_head(self):
         '''
         Stops the head movement at the actual position. Not yet finished.
-
-        self.head_stop = True
         '''
+        self.head_stop = True
+
 
     def head_reset(self):
         '''
         Resets the head to 0-Position. Not yet finished.
-
-        self.head_frame = kf.head_reset
-        self.head_working = True
         '''
+        self.head_frame = [[500, 0, 0]]
+        self.head_working = True
 
     def next_step(self, keyframe, name):
         '''
@@ -166,13 +165,14 @@ class Keyframe_Engine:
         '''
         calculates the next head joints speed and sends them to the socket
         '''
-        if self.head_last == 1:
+        if self.head_last == 1 or self.head_stop:
             self.last_joint_speed[0] = 0.0
             self.last_joint_speed[1] = 0.0
             self.last_joint_angle[0] = 0.0
             self.last_joint_angle[1] = 0.0
             self.head_frame = None
             self.head_working = False
+            self.head_stop = False
             self.head_last = 2
 
         if self.head_last == 0:
