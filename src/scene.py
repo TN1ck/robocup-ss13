@@ -53,7 +53,8 @@ class Scene:
     #initializes the root of the sceneGraph, an empty dictionary for the Naos and a socket that connects to the server
     def __init__(self):
         self.__root = tree_node.Tree_Node(0)
-        self.__naos = {}
+        self.__naos_left = {}
+        self.__naos_right = {}
         self.__socket = Sock("localhost", 3200, None, None)
         self.__socket.start()
         self.__idcount = 1;
@@ -79,8 +80,9 @@ class Scene:
         header = data[1]
         if (header[0] == "RSG"):
             self.__root = tree_node.Tree_Node(0)
-            self.__naos = {}
-            self.__idcount = 1;
+            self.__naos_left = {}
+            self.__naos_right = {}
+            self.__idcount = 1
             self.__nodes = [self.__root]
             self.create_scene(data)
         if (header[0] == "RDS"):
@@ -198,7 +200,10 @@ class Scene:
         self.__nodes.append(node)
         self.__idcount += 1
         if (load == "models/naobody.obj"):
-            self.__naos[len(self.__naos)] = node
+            if(reset[1] == "matLeft"):
+                self.__naos_left[reset[0]] = node
+            if(reset[1] == "matRight"):
+                self.__naos_right[reset[0]] = node
         return node
     
     # updates the sceneGraph. Should be called if the server sends (RDS 0 1)
@@ -235,14 +240,24 @@ class Scene:
                                        (element[4],element[8],element[12],element[16])) )
                 self.__nodes[self.__idcount].set_matrix(matrix)
     
-    # we still have to figure out how to distinguish the naos in the servers message.
-    # IF YOU JUST USE ONE AGENT YOU CAN ALREADY USE THIS BY CALLING get_position(0). 
-    # returns a matrix containing the position and oerientation of the nao with id naoID.
+    # returns a matrix containing the position and orientation of the nao with id naoID of one team.
+    # team needs to be either "left" or "right"
+    # NaoID needs to be the number of the nao (the one that is printed on his back)
     # calculates the position by multiplying the transformation matrixes from the root down to the nao
-    def get_position(self, naoID):
-        if (len(self.__naos)-1 < naoID):
+    def get_position(self, team, naoID):
+        key = "matNum" + str(naoID)
+        if(team == "left"):
+            if (self.__naos_left.has_key(key)):
+                nao = self.__naos_left[key]
+            else:
+                return None
+        if(team == "right"):
+            if (self.__naos_right.has_key(key)):
+                nao = self.__naos_right[key]
+            else:
+                return None
+        else:
             return None
-        nao = self.__naos[naoID]
         parent = nao.get_parent()
         matrices = []
         while (parent != self.__root):
@@ -253,17 +268,18 @@ class Scene:
             result = numpy.dot(result, matrices.pop())
         return result
     
-    # adds a node that represents the Nao with id naoID to the dictionary of Naos
-    def add_nao(self, naoID, node):
-        self.__naos[naoID] = node
     
-    # returns the dictionary containing the nao id : node id pairs
-    def get_naos(self):
-        return self.__naos;
+    # returns the dictionary containing the nao id : node id pairs of the left team
+    def get_naos_left(self):
+        return self.__naos_left;
+    
+    # returns the dictionary containing the nao id : node id pairs of the right team
+    def get_naos_right(self):
+        return self.__naos_right;
  
 # at the moment just used for testing purposes        
 if __name__ == "__main__":
     scene = Scene.Instance();
     scene.run_cycle();
-    print(scene.get_position(0));
+    print(scene.get_position("left", 1));
     
