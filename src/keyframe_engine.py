@@ -41,6 +41,10 @@ class Keyframe_Engine:
     def parry_right(self):
         self.last_frame = kf.parry_right_1
         self.working = True
+        
+    def parry_left(self):
+        self.last_frame = kf.parry_left_1
+        self.working = True
 
     def fall_on_front(self):
         '''
