@@ -38,6 +38,10 @@ class Keyframe_Engine:
             name = kf.lookAround.name
             self.next_head_step(keyframe, name)
 
+    def parry_right(self):
+        self.last_frame = kf.parry_right_1
+        self.working = True
+
     def fall_on_front(self):
         '''
         Testfunction to let the Nao fall on its front
