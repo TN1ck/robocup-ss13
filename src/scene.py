@@ -269,6 +269,35 @@ class Scene:
         return result
     
     
+    # returns a list containing the position and orientation of the nao with id naoID of one team.
+    # team needs to be either "left" or "right"
+    # NaoID needs to be the number of the nao (the one that is printed on his back)
+    # calculates the position by multiplying the transformation matrixes from the root down to the nao
+    def get_position_xy(self, team, naoID):
+        key = "matNum" + str(naoID)
+        if(team == "left"):
+            if (self.__naos_left.has_key(key)):
+                nao = self.__naos_left[key]
+            else:
+                return None
+        elif(team == "right"):
+            if (self.__naos_right.has_key(key)):
+                nao = self.__naos_right[key]
+            else:
+                return None
+        else:
+            return None
+        parent = nao.get_parent()
+        matrices = []
+        while (parent != self.__root):
+            matrices.append(parent.get_matrix())
+            parent = parent.get_parent()
+        result = matrices.pop()
+        while (len(matrices) > 0):
+            result = numpy.dot(result, matrices.pop())
+        return [result[0][3],result[1][3]]
+    
+    
     # returns the dictionary containing the nao id : node id pairs of the left team
     def get_naos_left(self):
         return self.__naos_left;
@@ -282,4 +311,5 @@ if __name__ == "__main__":
     scene = Scene.Instance();
     scene.run_cycle();
     print(scene.get_position("left", 1));
+    print(scene.get_position_xy("left",1))
     
