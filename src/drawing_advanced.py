@@ -26,13 +26,7 @@ class DrawingAdvanced:
         ''' Formats floats into Strings of length 6 as explained
             in the Command documentation linked above'''
         def _formatFloat(self, number):
-            number = str(number)[:6]
-            if len(number) < 6:
-                    if("." in number):
-                            number = (number+"00000")[:6]
-                    else:
-                            number = (number+".0000")[:6]
-            return number
+            return '{0:.4f}'.format(number)[:6]
 
         ''' You have to call this function after drawing your stuff
             (if you want to actually see the drawings)'''
