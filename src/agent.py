@@ -72,6 +72,7 @@ class Agent:
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
+                        self.perception.process_accelerometer(current_preceptor, self.nao)
                         #logging.debug(str(current_preceptor))
                         # when ĺying on back, it's like ['ACC', ['n', 'torso'], ['a', 0, 9.62, -1.82]]
                         # when ĺying on front, it's like ['ACC', ['n', 'torso'], ['a', 0, -9.76, -0.96]]

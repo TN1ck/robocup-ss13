@@ -53,7 +53,14 @@ class Perception:
         #gyro = self.get_parser_part('GYR', parser_output)
         gyro = parser_gyro[1:]
         # gyro is like: [['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
+        
         nao.set_gyro_rate(map(float, gyro[1][1:]))
+    def process_accelerometer(self, parser_acc, nao):
+        """Takes the parser output and updates the nao with the perceived process_accelerometer data."""
+
+        # example message:(ACC (n torso) (a 0.00 0.00 9.81))
+        nao._accelerometer = numpy.array([float(parser_acc[2][1]),float(parser_acc[2][2]),float(parser_acc[2][3])])
+        logging.debug(nao._accelerometer)
 
     def process_vision(self, parser_see, w):
         """Takes the parser output and updates the world info with the perceived vision data."""
