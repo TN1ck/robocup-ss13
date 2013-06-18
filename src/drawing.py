@@ -101,7 +101,10 @@ class Drawing:
                         self.drawStandardAnnotation(world.Vector(-15,9-i), color, str(9-i), name)
 
         def drawArrow(self,startPoint,endPoint,thickness,color,name):
-                self.drawLine(startPoint,endPoint,thickness,color,name)
+                v1 = world.Vector(endPoint.x - startPoint.x, endPoint.y - startPoint.y)
+                v1 = v1.__div__(v1.mag()).__mul__(v1.mag()-0.45)
+                v1 = world.Vector(v1.x + startPoint.x, v1.y + startPoint.y)
+                self.drawLine(startPoint,v1,thickness,color,name)
                 newVector1 = world.Vector(endPoint.x-startPoint.x,endPoint.y-startPoint.y)
                 newVector1.rotate(0.52) #about 30 degrees
                 newVector1 = newVector1.__div__(newVector1.mag())
