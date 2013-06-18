@@ -60,7 +60,7 @@ class Perception:
 
         # example message:(ACC (n torso) (a 0.00 0.00 9.81))
         nao._accelerometer = numpy.array([float(parser_acc[2][1]),float(parser_acc[2][2]),float(parser_acc[2][3])])
-        logging.debug(nao._accelerometer)
+        #logging.debug(nao._accelerometer)
 
     def process_vision(self, parser_see, w):
         """Takes the parser output and updates the world info with the perceived vision data."""
