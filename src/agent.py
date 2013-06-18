@@ -59,23 +59,31 @@ class Agent:
                 while len(parsed_msg) != 0:
                     current_preceptor = parsed_msg.pop()
                     if current_preceptor[0] == 'HJ':
-                        self.perception.process_joint_positions([current_preceptor], self.nao)
+                        self.perception.process_joint_positions(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'See':
-                        self.perception.process_vision([current_preceptor],self.world)
+                        self.perception.process_vision(current_preceptor, self.world)
                         # drawing some position as stored in world model:
                         player = self.world.entity_from_identifier['P_1_' + str(self.player_nr)]
                         self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all.ownpos")
                         self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all.see")
                         self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all.ballpos")
-                        self.drawer.drawCircle(world.Vector(4.4408920985e-16, 0), 0.2, 3, [255, 30, 30], "all.ballpos")
+                        self.drawer.drawCircle(world.Vector(4.4408920985e-16, -4.4408920985e-16), 0.2, 3, [255, 255, 200], "all.testpos")
                         self.drawer.showDrawingsNamed("all")
-                    elif current_preceptor [0] == 'GYR':
-                        self.perception.process_gyros([current_preceptor], self.nao)
+                    elif current_preceptor[0] == 'GYR':
+                        self.perception.process_gyros(current_preceptor, self.nao)
+                    elif current_preceptor[0] == 'ACC':
+                        #logging.debug(str(current_preceptor))
+                        # when ĺying on back, it's like ['ACC', ['n', 'torso'], ['a', 0, 9.62, -1.82]]
+                        # when ĺying on front, it's like ['ACC', ['n', 'torso'], ['a', 0, -9.76, -0.96]]
+                        pass
                     elif current_preceptor[0] == 'hear':
                         self.hearObj = self.communication.hear(current_preceptor)
 
                 if not self.keyFrameEngine.working:
                     actions =  self.tactics.run_tactics(self.hearObj)
+                    # for ACC testing:
+                    #self.keyFrameEngine.fall_on_front()
+                    #actions = []
                     if i > 10:
                         for item in actions:
                             if item[0] == 'stand_up':

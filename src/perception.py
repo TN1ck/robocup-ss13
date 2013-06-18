@@ -39,29 +39,32 @@ class Perception:
         # if not found:
         return None
 
-    def process_joint_positions(self, parser_output, nao):
+    def process_joint_positions(self, parser_joint, nao):
         """Takes the parser output and updates the nao with the perceived joint positions."""
 
-        for part in parser_output:
-            if part[0] == 'HJ':
-                nao.from_perceptor[part[1][1]].value = part[2][1]
+        #for part in parser_output:
+        #    if part[0] == 'HJ':
+        nao.from_perceptor[parser_joint[1][1]].value = parser_joint[2][1]
 
-    def process_gyros(self, parser_output, nao):
+    def process_gyros(self, parser_gyro, nao):
         """Takes the parser output and updates the nao with the perceived gyro data."""
 
         # gyro only:
-        gyro = self.get_parser_part('GYR', parser_output)
+        #gyro = self.get_parser_part('GYR', parser_output)
+        gyro = parser_gyro[1:]
         # gyro is like: [['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
         nao.set_gyro_rate(map(float, gyro[1][1:]))
 
-    def process_vision(self, parser_output, w):
+    def process_vision(self, parser_see, w):
         """Takes the parser output and updates the world info with the perceived vision data."""
 
         #logging.debug('process_vision_perceptors BEGIN')
         #logging.debug('parser_output: ' + str(parser_output))
 
         # vision only:
-        see = self.get_parser_part('See', parser_output)
+        #see = self.get_parser_part('See', parser_output)
+        see = parser_see[1:]
+
         # split mobile and static entities:
         static_entity_identifiers = ['G1L', 'G2L', 'G1R', 'G2R', 'F1L', 'F2L', 'F1R', 'F2R', 'L'] # goals, flags, lines
         static_entities = []
@@ -232,10 +235,9 @@ class Perception:
                             position_list += [ trig_res ]
                             self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all.debug.ownpospart")
                             #logging.debug(str((trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag()))
-                            if (trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag() > 1:
-                                logging.debug(str((v1, d_s_o1, a1, v2, d_s_o2, a2)))
-                                logging.debug('aus der reihe tanzer')
-                                #exit(1)
+                            #if (trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag() > 1:
+                            #    logging.debug(str((v1, d_s_o1, a1, v2, d_s_o2, a2)))
+                            #    logging.debug('aus der reihe tanzer')
                     else:
                         logging.debug('trigonometry not called. d_s_o1: ' + str(d_s_o1) + ' d_s_o2: ' + str(d_s_o2) + ' a1: ' + str(a1) + ' a2: ' + str(a2))
 
