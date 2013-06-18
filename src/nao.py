@@ -81,11 +81,14 @@ class Nao:
     def lies_on_front(self):
         if self.get_accelerometer()[1] < -5: 
             return 1
+        else:
+            return 0
 
     def lies_on_back(self):
         if self.get_accelerometer()[1] > 5: 
             return 1
-    
+        else:
+            return 0    
     """
     def update_joint_positions(self, parsed):
         '''Updates all currently perceived joints of the nao.'''
