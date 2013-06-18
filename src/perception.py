@@ -15,9 +15,10 @@ class Perception:
 
     PERCEPTOR_HEIGHT = 0.5 + 1.0 / 30.0 # calculated w/ simspark - should be really veeeery accurate
 
-    def __init__(self, player_nr, our_team):
+    def __init__(self, player_nr, our_team, drawer):
         self.player_nr = player_nr
         self.our_team = our_team
+        self.drawer = drawer
         numpy.set_printoptions(precision=3, suppress=True)
 
     def get_parser_part(self, descriptor, parser_output):
@@ -198,28 +199,39 @@ class Perception:
         ## calculate NAO's position ##
 
         position_list = []
+        processed = []
         for se1 in static_entities:
+            processed += [se1[0]]
             # static entity's polar coords as list:
             pol1 = self.get_pol_from_parser_entity(se1)
             # calculate cartesian 2d distance from 3d distance:
             d_s_o1 = (pol1[0]**2 - (w.entity_from_identifier[se1[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
             # define the center:
-            v1 = world.Vector(w.get_entity_position(se1[0]).x, w.get_entity_position(se1[0]).y) #TODO get rid of constructor?
+            v1 = w.get_entity_position(se1[0])
             a1 = pol1[1]
             for se2 in static_entities:
-                if se1[0] != se2[0]:
+                #if se1[0] != se2[0]:
+                if not se2[0] in processed:
                     # polar coords as list:
                     pol2 = self.get_pol_from_parser_entity(se2)
                     # 2d distance:
                     d_s_o2 = (pol2[0]**2 - (w.entity_from_identifier[se2[0]]._perception_height - self.PERCEPTOR_HEIGHT)**2 )**(0.5)
                     # define the center:
-                    v2 = world.Vector(w.get_entity_position(se2[0]).x, w.get_entity_position(se2[0]).y)
+                    v2 = w.get_entity_position(se2[0])
                     a2 = pol2[1]
 
                     if d_s_o1 > 0.1 and d_s_o2 > 0.1 and abs(a1 - a2) > 2.0:
                         trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
                             position_list += [ trig_res ]
+                            self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all.debug.ownpospart")
+                            #logging.debug(str((trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag()))
+                            if (trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag() > 1:
+                                logging.debug(str((v1, d_s_o1, a1, v2, d_s_o2, a2)))
+                                logging.debug('aus der reihe tanzer')
+                                #exit(1)
+                    else:
+                        logging.debug('trigonometry not called. d_s_o1: ' + str(d_s_o1) + ' d_s_o2: ' + str(d_s_o2) + ' a1: ' + str(a1) + ' a2: ' + str(a2))
 
         # calculate arithmetic mean of all positions:
         pos = None
@@ -285,7 +297,7 @@ class Perception:
         z_axis = numpy.array([0, 0, 1]) # horizontally
         y_axis = numpy.array([0, 1, 0]) # vertically
         # 2d part of the vector -> angle:
-        rot2d = numpy.arctan2(vector[0], vector[1]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
+        rot2d = numpy.arctan2(vector[1], vector[0]) - math.pi / 2.0 # arctan2 = 0 if vector = [ 0, 1 ]
         # reset 2d rotation:
         result = numpy.dot(self.rotation_matrix(z_axis, -rot2d), vector)
         # apply (subtract) vertical rotation (-> around y axis):
@@ -341,9 +353,11 @@ class Perception:
         if acos_arg < -1:
             beta = math.pi
             logging.debug('triangle ain\'t no triangle.')
+            logging.debug(str(locals()))
         elif acos_arg > 1:
             beta = 0
             logging.debug('triangle ain\'t no triangle.')
+            logging.debug(str(locals()))
         else:
             beta = math.acos(acos_arg)
 
@@ -361,6 +375,9 @@ class Perception:
 
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
+        #self.drawer.drawLine(v1, world.Vector(int(position.x), int(position.y)), 1, [180, 170, 120], "all.debug.ownpospart.line")
+        self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all.debug.ownpospart.line")
+        #logging.debug(str(position))
 
         '''
         #calculate see vector

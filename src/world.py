@@ -5,6 +5,7 @@ Calculation may be transferred into a separate module in the future."""
 import logging
 import copy
 import math
+import numpy
 
 class Vector:
     """A 2-dimensional vector defined by its cartesian x and y coordinates.
@@ -44,8 +45,8 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
 
     #angle in radian
     def rotate(self, a):
-        x = self.x * math.cos(a) - self.y * math.sin(a)
-        self.y = self.x * math.sin(a) + self.y * math.cos(a)
+        x = self.x * numpy.cos(a) - self.y * numpy.sin(a)
+        self.y = self.x * numpy.sin(a) + self.y * numpy.cos(a)
         self.x = x
 
         return self

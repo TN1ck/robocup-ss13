@@ -28,9 +28,11 @@ class Agent:
         self.agentSocket = sock.Sock("localhost", 3100, our_team, self.player_nr)
         self.monitorSocket = sock.Sock("localhost", 3200, None, None)
 
+        self.drawer = drawing.Drawing(0, 0)
+
         self.world = world.World(6, 30, 20)
         self.nao = nao.Nao(self.world, self.player_nr)
-        self.perception = perception.Perception(self.player_nr, our_team)
+        self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
@@ -42,9 +44,9 @@ class Agent:
 
             offset_for_player = -9 + (3*self.player_nr)
             self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
+            #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
 
-            self.drawer = drawing.Drawing(0, 0)
 
             i = 0
             while True:
@@ -61,12 +63,21 @@ class Agent:
                         self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all.ownpos")
                         self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all.see")
                         self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all.ballpos")
+                        self.drawer.drawCircle(world.Vector(4.4408920985e-16, 0), 0.2, 3, [255, 30, 30], "all.ballpos")
                         self.drawer.showDrawingsNamed("all")
                     elif current_preceptor [0] == 'GYR':
                         self.perception.process_gyros([current_preceptor], self.nao)
                     elif current_preceptor[0] == 'hear':
                         pass
                     # For Testing
+                '''if i >= 10 and i < 5000 / 20:
+                    #self.movement.run(-12, -9)
+                    self.movement.run(-8, 0)
+                if i >= 5000 / 20 and i < 15000 / 20:
+                    self.movement.run(-14.9, 0)'''
+                if i > 9 :
+                    self.movement.run(-0.5, 0)
+                '''
                 actions = (('run', 0, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
                 if not self.keyFrameEngine.working:
                     if i > 10:
@@ -95,6 +106,7 @@ class Agent:
                                     self.keyFrameEngine.head_lookAround()
                                 elif item[1] != False:
                                     self.keyFrameEngine.head_move(item1[1])
+                '''
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
