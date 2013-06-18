@@ -251,7 +251,7 @@ class Scene:
                 nao = self.__naos_left[key]
             else:
                 return None
-        if(team == "right"):
+        elif(team == "right"):
             if (self.__naos_right.has_key(key)):
                 nao = self.__naos_right[key]
             else:
