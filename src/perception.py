@@ -22,6 +22,7 @@ class Perception:
     def __init__(self, player_nr, our_team, drawer):
         self.player_nr = player_nr
         self.our_team = our_team
+        self.player_id = 'P_1_' + str(player_nr)
         self.drawer = drawer
         numpy.set_printoptions(precision=3, suppress=True)
 
@@ -85,7 +86,7 @@ class Perception:
             #logging.debug('static_entities: ' + str(static_entities))
 
             # find out our position first:
-            player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
+            player = w.entity_from_identifier[self.player_id]
             player.confidence = lower_confidence(player.confidence)
             localization_result = self.self_localization(static_entities, w)
             if localization_result:
@@ -108,10 +109,10 @@ class Perception:
 
         # reset confidence in world model:
         for me in w.mobile_entities:
-            if me.get_identifier() != 'P_1_' + str(self.player_nr):
+            if me.get_identifier() != self.player_id:
                 me.confidence = lower_confidence(me.confidence)
 
-        player = w.entity_from_identifier['P_1_' + str(self.player_nr)]
+        player = w.entity_from_identifier[self.player_id]
         cam_pos = numpy.array([player.get_position().x, player.get_position().y, self.PERCEPTOR_HEIGHT])
         for me in mobile_entities: # me = mobile entity
             if me[0] == 'P':                            # it's a player!
@@ -139,7 +140,7 @@ class Perception:
                     # check if player already exists (hostile players don't exist in the beginning):
                     if not player_key in w.entity_from_identifier:
                         # create new player:
-                        new_player = Player(player_key, team)
+                        new_player = world.Player(player_key, team)
                         w.players += [new_player]
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
@@ -233,7 +234,7 @@ class Perception:
                         trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
                             position_list += [ trig_res ]
-                            self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all.debug.ownpospart")
+                            self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart")
                             #logging.debug(str((trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag()))
                             #if (trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag() > 1:
                             #    logging.debug(str((v1, d_s_o1, a1, v2, d_s_o2, a2)))
@@ -384,7 +385,7 @@ class Perception:
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
         #self.drawer.drawLine(v1, world.Vector(int(position.x), int(position.y)), 1, [180, 170, 120], "all.debug.ownpospart.line")
-        self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all.debug.ownpospart.line")
+        self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
         #logging.debug(str(position))
 
         '''

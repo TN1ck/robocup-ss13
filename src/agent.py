@@ -63,12 +63,12 @@ class Agent:
                     elif current_preceptor[0] == 'See':
                         self.perception.process_vision(current_preceptor, self.world)
                         # drawing some position as stored in world model:
-                        player = self.world.entity_from_identifier['P_1_' + str(self.player_nr)]
-                        self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all.ownpos")
-                        self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all.see")
-                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all.ballpos")
-                        self.drawer.drawCircle(world.Vector(4.4408920985e-16, -4.4408920985e-16), 0.2, 3, [255, 255, 200], "all.testpos")
-                        self.drawer.showDrawingsNamed("all")
+                        player_id = 'P_1_' + str(self.player_nr)
+                        player = self.world.entity_from_identifier[player_id]
+                        self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
+                        self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all." + player_id + ".see")
+                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all." + player_id + ".ballpos")
+                        self.drawer.showDrawingsNamed("all." + player_id)
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
