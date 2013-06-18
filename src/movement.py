@@ -1,4 +1,4 @@
-from math import sin, cos, acos, atan2, degrees, pi, pow, sqrt, tan
+from math import *
 
 class Movement:
     def __init__(self, world, socket, player_nr):

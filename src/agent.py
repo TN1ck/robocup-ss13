@@ -15,9 +15,12 @@ import signal
 import sys
 from sys import argv
 import drawing
+import __builtin__
 
-global our_team
-our_team = "DAI-Labor"
+# Hacky way to make global variables in Python
+__builtin__.our_team = "DAI-Labor"
+__builtin__.our_team_number = 1
+__builtin__.number_of_players_per_team = 6
 
 
 
@@ -37,6 +40,7 @@ class Agent:
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
+        self.hearObj = None
 
     def start(self):
             self.monitorSocket.start()
@@ -68,18 +72,10 @@ class Agent:
                     elif current_preceptor [0] == 'GYR':
                         self.perception.process_gyros([current_preceptor], self.nao)
                     elif current_preceptor[0] == 'hear':
-                        pass
-                    # For Testing
-                '''if i >= 10 and i < 5000 / 20:
-                    #self.movement.run(-12, -9)
-                    self.movement.run(-8, 0)
-                if i >= 5000 / 20 and i < 15000 / 20:
-                    self.movement.run(-14.9, 0)'''
-                if i > 9 :
-                    self.movement.run(-0.5, 0)
-                '''
-                actions = (('run', 0, 0),('stand_up',False),('kick',False),('say',False), ('head',False))
+                        self.hearObj = self.communication.hear(current_preceptor)
+
                 if not self.keyFrameEngine.working:
+                    actions =  self.tactics.run_tactics(self.hearObj)
                     if i > 10:
                         for item in actions:
                             if item[0] == 'stand_up':
@@ -102,16 +98,18 @@ class Agent:
                             if item[0] == 'say':
                                 pass
                             if item[0] == 'head':
-                                if item[1] == True:
+                                if item[1] is True:
                                     self.keyFrameEngine.head_lookAround()
                                 elif item[1] != False:
-                                    self.keyFrameEngine.head_move(item1[1])
-                '''
+                                    self.keyFrameEngine.head_move(item[1])
+                #a = raw_input('press enter:')
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
 
                 i += 1
+
+
 
 def signal_handler(signal, frame):
     print("Received SIGINT")

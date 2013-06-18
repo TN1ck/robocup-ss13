@@ -38,7 +38,10 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
         return Vector(self.x / other, self.y / other )
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        if other == None:
+            return False
+        else:
+            return self.x == other.x and self.y == other.y
 
     def __repr__(self):
         return 'Vector(' + str(self.x) + ', ' + str(self.y) + ')'
@@ -128,7 +131,7 @@ class MobileEntity(WorldEntity):
         WorldEntity.__init__(self, identifier, 0.0, 0.0)
         self.velocity = Vector(0.0, 0.0)
         self.timestamp = 0
-        self.confidency = 0.0
+        self.confidence = 0.0
 
     def set_position(self, x, y):
         self._position.x = x
@@ -229,7 +232,7 @@ class World:
         # set up our playerz:
         self.players = []
         for i in range(players_per_team):
-            self.players += [Player('P_1_' + str(i), 1)]                # 1 ~> our team
+            self.players += [Player('P_1_' + str(i+1), 1)]                # 1 ~> our team
         # hostile players are created 'on sight' in perception.py
 
         # set up ball:
