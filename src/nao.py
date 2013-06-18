@@ -56,6 +56,8 @@ class Nao:
         # gyro:
         self._gyro_rate = numpy.array([0.0, 0.0, 0.0])
         self._gyro_state = numpy.array([0.0, 0.0, 0.0])
+
+        self._accelerometer = numpy.array([0.0, 0.0, 0.0])
     
     def get_position(self):
         return self.world.get_entity_position('P_1_' + str(self.player_nr))
@@ -71,7 +73,22 @@ class Nao:
     def get_gyro_state(self):
         """Returns the absolute gyro orientation."""
         return copy.deepcopy(self._gyro_state)
-    
+
+    def get_accelerometer(self):
+        """Returns the absolute gyro orientation."""
+        return copy.deepcopy(self._accelerometer)
+
+    def lies_on_front(self):
+        if self.get_accelerometer()[1] < -5: 
+            return 1
+        else:
+            return 0
+
+    def lies_on_back(self):
+        if self.get_accelerometer()[1] > 5: 
+            return 1
+        else:
+            return 0    
     """
     def update_joint_positions(self, parsed):
         '''Updates all currently perceived joints of the nao.'''
