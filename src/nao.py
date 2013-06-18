@@ -70,6 +70,10 @@ class Nao:
         self._gyro_rate = numpy.array(rate)
         self._gyro_state += (self._gyro_rate / 1000 * 20) # rate is in degrees/second. we want degrees/cycle.
 
+    def get_gyro_rate(self):
+        """Returns the gyro change rate as obtained from parser."""
+        return copy.deepcopy(self._gyro_rate)
+
     def get_gyro_state(self):
         """Returns the absolute gyro orientation."""
         return copy.deepcopy(self._gyro_state)
