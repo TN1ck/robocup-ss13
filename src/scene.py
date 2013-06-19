@@ -305,6 +305,13 @@ class Scene:
     # returns the dictionary containing the nao id : node id pairs of the right team
     def get_naos_right(self):
         return self.__naos_right;
+
+    # find node with id
+    def find_node(self, node_id):
+        for node in self.__nodes:
+            if node.get_id() == node_id:
+                return node
+        print 'Node not found'
  
 # at the moment just used for testing purposes        
 if __name__ == "__main__":
