@@ -312,7 +312,7 @@ class Scene:
             if node.get_id() == node_id:
                 return node
         print 'Node not found'
- 
+
 # at the moment just used for testing purposes        
 if __name__ == "__main__":
     scene = Scene.Instance();
