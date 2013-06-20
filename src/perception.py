@@ -265,30 +265,22 @@ class Perception:
         # pos is our position now, yay!
 
         ## calculate NAO's see vector ##
-        #logging.debug(' ')
 
         see_sum = numpy.array([0, 0, 0])
         for se in static_entities:
-            #logging.debug('processing : ' + se[0])
-
             se_pos = w.get_entity_position(se[0])
             se_height = w.entity_from_identifier[se[0]]._perception_height
-            #logging.debug('position: ' + str(se_pos) + ' height: ' + str(se_height))
 
             se_pol = self.get_pol_from_parser_entity(se)
-            #logging.debug('pol to se: ' + str(se_pol))
 
             # construct a vector from our camera to the static entity:
             see = numpy.array([se_pos.x - pos.x, se_pos.y - pos.y, se_height - self.PERCEPTOR_HEIGHT])
-            #logging.debug('vector to se: ' + str(see))
 
             # rotate the vector so it points to the vision center instead of the static entity:
             see = self.add_pol_to_vector(see, -numpy.array(se_pol))
 
             # sum up:
             see_sum += see
-
-            #logging.debug(' ')
 
         # normalize summed up see vector:
         see = None
@@ -350,7 +342,7 @@ class Perception:
 
     def trigonometry(self, v1, d1, a1, v2, d2, a2):
         """Self localization by trigonometry.
-        Returns a list of 2 vectors: the first representing your position and the second vector the see vector,
+        Returns a world.Vectors representing the agent's position
         based on the position of the 2 given objects and the distance to them.
 
         Returns None if the parameters don't form a triangle.
@@ -362,8 +354,9 @@ class Perception:
         v2, d2, a2: second static entity
         """
 
-        a = (v2-v1).mag()
+        v1v2 = v2 - v1      #vector from v1 to v2
 
+        a = v1v2.mag()
         b = d2
         c = d1
 
@@ -385,9 +378,9 @@ class Perception:
             logging.debug('triangle ain\'t no triangle.')
             logging.debug(str(locals()))
         else:
-            beta = math.acos(acos_arg)
+            #beta = math.acos(acos_arg)
+            beta = numpy.arccos(acos_arg)
 
-        v1v2 = v2-v1 #vector from v1 to v2
         v1v2 = v1v2 / v1v2.mag()
         v1v2 = v1v2 * d1
 
