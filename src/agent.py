@@ -66,8 +66,8 @@ class Agent:
                         player_id = 'P_1_' + str(self.player_nr)
                         player = self.world.entity_from_identifier[player_id]
                         self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
-                        self.drawer.drawLine(player.get_position(), player.get_position() + world.Vector(player._see_vector[0], player._see_vector[1]), 3, [30, 255, 30], "all." + player_id + ".see")
-                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [255, 30, 30], "all." + player_id + ".ballpos")
+                        self.drawer.drawArrow(player.get_position(), player.get_position() + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
+                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [200, 200, 200], "all." + player_id + ".ballpos")
                         self.drawer.showDrawingsNamed("all." + player_id)
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)

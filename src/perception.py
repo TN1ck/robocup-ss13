@@ -152,7 +152,8 @@ class Perception:
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
                     w.entity_from_identifier[player_key].confidence = 1.0
-                    #logging.debug('other player: ' + str(w.get_entity_position(player_key)))
+                    self.drawer.drawLine(player.get_position(), world.Vector(pos[0], pos[1]), 1, [255, 0, 0] if team == 2 else [0, 255, 0], "all." + self.player_id + ".other_player_line")
+                    self.drawer.drawCircle(world.Vector(pos[0], pos[1]), 0.2, 3, [255, 0, 0] if team == 2 else [0, 255, 0], "all." + self.player_id + ".other_player_circle")
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
@@ -160,6 +161,7 @@ class Perception:
                 pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
                 w.entity_from_identifier['B'].confidence = 1.0
+                self.drawer.drawLine(player.get_position(), world.Vector(pos[0], pos[1]), 1, [200, 200, 200], "all." + self.player_id + ".debug.ball_line")
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
@@ -216,6 +218,7 @@ class Perception:
         ## calculate NAO's position ##
 
         position_list = []
+        position_weight = []
         processed = []
         for se1 in static_entities:
             processed += [se1[0]]
@@ -241,7 +244,7 @@ class Perception:
                         trig_res = self.trigonometry(v1, d_s_o1, a1, v2, d_s_o2, a2)
                         if trig_res != None:
                             position_list += [ trig_res ]
-                            self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart")
+                            #self.drawer.drawCircle(trig_res, 0.2, 3, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart")
                             #logging.debug(str((trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag()))
                             #if (trig_res - w.get_entity_position('P_1_' + str(self.player_nr))).mag() > 1:
                             #    logging.debug(str((v1, d_s_o1, a1, v2, d_s_o2, a2)))
@@ -350,7 +353,14 @@ class Perception:
         Returns a list of 2 vectors: the first representing your position and the second vector the see vector,
         based on the position of the 2 given objects and the distance to them.
 
-        returns None if the parameters don't form a triangle"""
+        Returns None if the parameters don't form a triangle.
+
+        Parameters:
+        v1: absolute, cartesian position of a static entity as a world.Vector
+        d1: distance to the static entity as obtained from vision perceptor
+        a1: horizontal angle of the static entity in the view field as obtained from vision perceptor
+        v2, d2, a2: second static entity
+        """
 
         a = (v2-v1).mag()
 
@@ -383,7 +393,7 @@ class Perception:
 
 
         if a1 > a2:
-            #rotate along the clock (because it is the left object)
+            #rotate along the clock (because a1 is the left object)
             #by the way a positive angle means left of the nao see vector
             beta = -1* beta
 
@@ -391,9 +401,7 @@ class Perception:
 
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
-        #self.drawer.drawLine(v1, world.Vector(int(position.x), int(position.y)), 1, [180, 170, 120], "all.debug.ownpospart.line")
         self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
-        #logging.debug(str(position))
 
         '''
         #calculate see vector
