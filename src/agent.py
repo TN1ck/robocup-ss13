@@ -16,6 +16,7 @@ import sys
 from sys import argv
 import drawing
 import __builtin__
+import cProfile
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"

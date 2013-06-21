@@ -396,6 +396,10 @@ class Perception:
         position = v1 + v1v2.rotate(beta)
         self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
 
+        # abs(a1 - a2)
+        # a
+        # b
+
         '''
         #calculate see vector
         #with v1
