@@ -157,7 +157,7 @@ class TacticsMain:
         y_dist = pos.y - self.my_position.y
         if x_dist < 0:
           x_dist = -x_dist
-        if x_dist < 1.3:
+        if x_dist >= 1.3:
           if pos.x < self.my_position.x:
             return (self.my_position.x +0.5,self.my_position.y)
           else:
@@ -203,10 +203,8 @@ class TacticsMain:
         if tup is False :
           tup = (self.world.get_entity_position(self.distance_ball[0][0]).x,self.world.get_entity_position(self.distance_ball[0][0]).y)
         run_tuple = ('run',tup[0],tup[1])
-        print run_tuple
     elif result_list[2]:
       pass
-     #print result_list'''
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
 
 

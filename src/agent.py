@@ -98,8 +98,8 @@ class Agent:
                             if item[0] == 'kick':
                                 if item[1] == 1:
                                     self.keyFrameEngine.kick1()
-                                else:
-                                    pass
+                                elif item[1] == 2:
+                                    self.keyFrameEngine.strong_kick()
                             if item[0] == 'run':
                                 if item[1] is False:
                                     self.movement.stop()
