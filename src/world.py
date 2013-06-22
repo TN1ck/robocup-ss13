@@ -56,8 +56,10 @@ Notice that Vector(1,2)* 2 is defined but not 2 * Vector (is there a way to do t
 
     #magnitude (zu deutsch Betrag)
     def mag(self):
-        #return (self.x**2 + self.y**2)**0.5
-        return numpy.linalg.norm(numpy.array([self.x, self.y]))
+        #return numpy.linalg.norm(numpy.array([self.x, self.y]))    # time: 2.81
+        #return numpy.hypot(self.x, self.y)                         # time: 0.29
+        return (self.x**2 + self.y**2)**0.5                         # time: 0.07
+        # numpy, y u no better than native python??
 
     def to_list(self):
         return [self.x, self.y]
