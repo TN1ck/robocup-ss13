@@ -5,6 +5,7 @@ from world import Vector
 from random import shuffle
 from logging import *
 import math
+import copy
 
 
 
@@ -29,18 +30,17 @@ class TacticsMain:
 
     self.distance_team1 = []
     self.distance_team2 = {}
-    #self.distance_goal_poles_right = {}
-    #self.distance_goal_poles_left = {}
     self.distance_lines = {}
     self.distance_ball = []
     self.distance_goal_left = None
     self.distance_goal_right= None
-    self.wasToNear = False
 
     self.headAngle = 0
     self.enemy_players_ball_distance = [float('inf')] * number_of_players_per_team
     self.our_players_ball_distance = [float('inf')] * number_of_players_per_team
     self.last_to_near = [(0,0)]
+    self.run_straight =False
+    self.dest = None
 
 
 
@@ -64,7 +64,7 @@ class TacticsMain:
           if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.5:
             dist =  self.calc_point_distance(self.world.get_entity_position('B'), self.world.get_entity_position(self.player_t1_idfs[i]))
             self.distance_ball.append((self.player_t1_idfs[i],dist))
-            self.distance_ball = sorted(self.distance_ball, key = lambda dist : dist[1] )
+        self.distance_ball = sorted(self.distance_ball, key = lambda dist : dist[1] )
 
   def calculate_goal_distances(self, my_position):
       val = self.calc_point_distance(self.world.get_entity_position(self.left_goal_idfs[0]), my_position)
@@ -101,32 +101,6 @@ class TacticsMain:
 
 
 
-# Utility functions
-  def enemy_owns_ball(self):
-    if len(self.distance_ball) == 0:
-      return False
-    for i in range(len(self.world.players)):
-      if self.world.players[i].team != our_team_number:
-        distance = self.calc_point_distance(self.world.get_entity_position(self.world.players[i].get_identifier()), self.world.get_entity_position('B'))
-        self.enemy_players_ball_distance[i] = distance
-        if distance <= 0.15:
-          return True
-    return False
-
-  def we_own_ball(self):
-    for i in range(len(self.world.players)):
-      if self.world.players[i].team == our_team_number:
-        player = self.world.entity_from_identifier[self.world.players[i].get_identifier()]
-        if player.confidence > 0.5:
-          distance = self.calc_point_distance(player.get_position(), self.world.get_entity_position('B'))
-          self.enemy_players_ball_distance[i] = distance
-          if distance <= 0.15:
-            return True
-    return False
-
-  # def player_owns_ball(self, player):
-  #   return False
-
   def i_own_ball(self):
       if len(self.distance_ball) == 0:
         return False
@@ -148,40 +122,70 @@ class TacticsMain:
         to_near.append(player)
     if len(to_near) == 0:
       return False
-    if len(to_near) == 1:
-        if self.last_to_near[0][0] == to_near[0][0] and self.last_to_near[0][1] >= to_near [0][1]:
-          return (False,False)
-        self.last_to_near = to_near
-        pos = self.world.get_entity_position(to_near[0][0])
-        x_dist = pos.x - self.my_position.x
-        y_dist = pos.y - self.my_position.y
-        if x_dist < 0:
-          x_dist = -x_dist
-        if x_dist >= 1.3:
-          if pos.x < self.my_position.x:
-            return (self.my_position.x +0.5,self.my_position.y)
-          else:
-            return (self.my_position.x -0.5,self.my_position.y)
-        else:
-          if pos.y < self.my_position.y:
-            return (self.my_position.x ,self.my_position.y+0.5)
-          else:
-            return (self.my_position.x ,self.my_position.y -0.5)
+    to_near = sorted(to_near, key = lambda dist :dist[1])
+    self.run_straight = True
+    pos = self.world.get_entity_position(to_near[0][0])
+    x_dist = pos.x - self.my_position.x
+    y_dist = pos.y - self.my_position.y
+    if x_dist < 0:
+      x_dist = -x_dist
+    if y_dist < 0:
+      y_dist = -y_dist
+    if x_dist < y_dist:
+      if pos.x < self.my_position.x:
+        return (self.my_position.x +0.5,self.my_position.y)
+      else:
+        return (self.my_position.x -0.5,self.my_position.y)
     else:
-      return (False,False)
-        
+      if pos.y < self.my_position.y:
+        return (self.my_position.x ,self.my_position.y + 0.5)
+      else:
+        return (self.my_position.x ,self.my_position.y - 0.5)
+         
 
   def run_tactics(self,hearObj):
-    if self.nao.lies_on_front():
-      return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
-    if self.nao.lies_on_back():
-      return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
+    #if self.nao.lies_on_front():
+     # return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
+    #if self.nao.lies_on_back():
+     # return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
 
     self.clear_distances()
     self.set_own_position()
     if self.my_position == None:
       return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
     self.get_distances()
+
+    for line in self.field_lines_idfs:
+      if line == 'M':
+        continue
+      if self.distance_lines[line] <= 0.2:
+        if line == "L1":
+          run_straight =True
+          self.dest = Vector(self.my_position.x, self.my_position.y - 0.3)
+        if line == "L2":
+          run_straight =True
+          self.dest = Vector(self.my_position.x, self.my_position.y + 0.3)
+        if line == "LL":
+          run_straight =True
+          self.dest = Vector(self.my_position.x + 0.3, self.my_position.y)
+        if line == "LR":
+          run_straight =True
+          self.dest = Vector(self.my_position.x - 0.3, self.my_position.y)
+
+
+
+
+    if self.run_straight:
+      vec = Vector(0,0)
+      vec.x = self.my_position.x / self.dest.x
+      vec.y = self.my_position.y / self.dest.y
+      if vec.x <= 1.1 and vec.x >= 0.9 and vec.y <= 1.1 and vec.y >= 0.9:
+        self.dest = None
+        self.run_straight = False
+      else:
+        return (('run', self.dest.x,self.dest.y),('stand_up',False),('kick',False),('say',False), ('head',False))
+
+
 
 
 
@@ -193,7 +197,7 @@ class TacticsMain:
     run_tuple = ('run',False)
     kick_tuple = ('kick',False)
     if result_list[0]:
-      if self.distance_ball[0][1] <= 0.15:
+      if self.distance_ball[0][1] <= 0.15 :
         kick_tuple = ('kick',1)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
@@ -201,7 +205,9 @@ class TacticsMain:
     elif result_list[1]:
         tup = self.flocking_behavior()
         if tup is False :
-          tup = (self.world.get_entity_position(self.distance_ball[0][0]).x,self.world.get_entity_position(self.distance_ball[0][0]).y)
+          tup = (self.world.get_entity_position(self.distance_ball[0][0]).x-1.3,self.world.get_entity_position(self.distance_ball[0][0]).y-1.3)
+        else:
+          self.dest = Vector(tup[0],tup[1])
         run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
       pass

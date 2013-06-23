@@ -25,8 +25,8 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-        print destination[0]
-        print destination[1]
+       # print destination[0]
+        #print destination[1]
         if self.fresh:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
