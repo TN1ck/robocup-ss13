@@ -133,21 +133,21 @@ class TacticsMain:
       y_dist = -y_dist
     if x_dist < y_dist:
       if pos.x < self.my_position.x:
-        return (self.my_position.x +0.5,self.my_position.y)
+        return (self.my_position.x + 0.7,self.my_position.y)
       else:
-        return (self.my_position.x -0.5,self.my_position.y)
+        return (self.my_position.x - 0.7,self.my_position.y)
     else:
       if pos.y < self.my_position.y:
-        return (self.my_position.x ,self.my_position.y + 0.5)
+        return (self.my_position.x ,self.my_position.y + 0.7)
       else:
-        return (self.my_position.x ,self.my_position.y - 0.5)
+        return (self.my_position.x ,self.my_position.y - 0.7)
          
 
   def run_tactics(self,hearObj):
     #if self.nao.lies_on_front():
      # return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
     #if self.nao.lies_on_back():
-     # return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
+      #return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
 
     self.clear_distances()
     self.set_own_position()
@@ -210,7 +210,11 @@ class TacticsMain:
           self.dest = Vector(tup[0],tup[1])
         run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
-      pass
+      tup = self.flocking_behavior()
+      if tup is False :
+        tup = (-10,0)
+      else:
+        pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
 
 
