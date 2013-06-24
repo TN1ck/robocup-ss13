@@ -1,5 +1,4 @@
 import Keyframes as kf
-import Keyframes.kick_strong as kick_strong
 import math
 
 class Keyframe_Engine:
@@ -48,7 +47,7 @@ class Keyframe_Engine:
         self.working = True
         
     def kick_strong(self):
-        self.last_frame = kick_strong
+        self.last_frame = kf.kick_strong
         self.working = True
 
     def fall_on_front(self):
