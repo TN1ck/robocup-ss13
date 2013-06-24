@@ -4,9 +4,10 @@ import math
 import world
 import drawing
 import logging
+import collections
 import numpy
 import copy
-from math import log
+from math import log, atan2
 
 def lower_confidence(c):
     return log(c+1)
@@ -16,6 +17,7 @@ class Perception:
 
     location_diff = 0
     location_diff_counter = 0
+    last_positions = collections.deque([world.Vector(0,0), world.Vector(0,0), world.Vector(0,0), world.Vector(0,0)])  # queue that will keep the last positions of the nao
 
     PERCEPTOR_HEIGHT = 0.5 + 1.0 / 30.0 # calculated w/ simspark - should be really veeeery accurate
 
@@ -54,7 +56,7 @@ class Perception:
         #gyro = self.get_parser_part('GYR', parser_output)
         gyro = parser_gyro[1:]
         # gyro is like: [['n', 'torso'], ['rt', '0.01', '0.07', '0.46']]
-        
+
         nao.set_gyro_rate(map(float, gyro[1][1:]))
     def process_accelerometer(self, parser_acc, nao):
         """Takes the parser output and updates the nao with the perceived process_accelerometer data."""
@@ -183,11 +185,8 @@ class Perception:
 
         # give up, if there're less than 2 static entities:
         if len(static_entities) < 2:
-            d = drawing.Drawing(0,0)
-           # logging.warning("localization failed. static entities: " + str(len(static_entities)))
-            if len(static_entities) == 0:
-               # logging.debug("i can't see anything, please help me")
-                return
+            last_pos = self.last_positions[0][0]
+            last_see = self.last_positions[0][1]
             # Process lines, aren't used at the moment
             # F1L --L1-- F1R
             # |     |    |
@@ -208,8 +207,19 @@ class Perception:
                 # Filter out the penalty lines
                 lines = filter(lambda x: not(x[1][1] + 0.5 > static_entities[0][1][0] or x[2][1] + 0.5 > static_entities[0][1][0]), lines)
                 lines[0][0], lines[1][0] = left_right(lines, corners[static_entities[0][0]])
-                d.drawStandardAnnotation(w.get_entity_position(lines[0][0]), [0,0,0], lines[0][0], 'line1') # does not work :(
-               # logging.debug("I'm looking at the corner of %s, I found the lines %s %s" % (static_entities[0][0], lines[0][0], lines[1][0]))
+                # logging.debug("I'm looking at the corner of %s, I found the lines %s %s" % (static_entities[0][0], lines[0][0], lines[1][0]))
+            # Sees only one line and no static entities
+            elif len(static_entities) == 0 and len(lines) == 1:
+                # guess position with last known position, not perfet but close enough
+                # in which direction is the nao looiking? north = (0,1,0) south = (0,-1,0), west = (-1,0,0), east = (0,1,0)
+                directions = {0: 'L1', 1: 'LR', 2: 'L2', 3: 'LL'}  # L1 = north, LR = east, L2 = south, LL = west
+                see_angle = atan2(last_see[1], last_see[0])
+                main_direction = lambda a: directions[int((a + math.pi/4)/math.pi/2)]
+                lines[0][0] = main_direction(see_angle)
+                logging.debug("I'm looking at the line, I don't see anything else %s") % lines[0][0]
+            # two lines, no static entities
+            elif len(static_entities) == 0 and len(lines) == 1:
+                pass
             return
 
 
@@ -299,7 +309,10 @@ class Perception:
             else:
                 # seen line is (very very likely) the whole line
                 pass
-
+        # enqueue the current position and see vector
+        self.last_positions.appendleft([pos, see])
+        # delete the last one
+        self.last_positions.pop()
         return pos, see
 
     def add_pol_to_vector(self, vector, pol):
