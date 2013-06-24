@@ -185,6 +185,7 @@ class Perception:
 
         # give up, if there're less than 2 static entities:
         if len(static_entities) < 2:
+            return # not used atm
             last_pos = self.last_positions[0][0]
             last_see = self.last_positions[0][1]
             # Process lines, aren't used at the moment
@@ -216,11 +217,10 @@ class Perception:
                 see_angle = atan2(last_see[1], last_see[0])
                 main_direction = lambda a: directions[int((a + math.pi/4)/math.pi/2)]
                 lines[0][0] = main_direction(see_angle)
-                logging.debug("I'm looking at the line, I don't see anything else %s") % lines[0][0]
+                # logging.debug("I'm looking at the line, I don't see anything else %s") % lines[0][0]
             # two lines, no static entities
             elif len(static_entities) == 0 and len(lines) == 1:
                 pass
-            return
 
 
 
