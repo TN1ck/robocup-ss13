@@ -142,13 +142,13 @@ class MobileEntity(WorldEntity):
 
 class Player(MobileEntity):
     """A player/robot/bot/NAO.
-    It has a team, a looking direction (seeVector) and MobileEntity's attributes.
+    It has a team, a looking direction (see_vector) and MobileEntity's attributes.
     Will be storing tactical information in the future (currentJob)."""
 
     def __init__(self, identifier, team):
         MobileEntity.__init__(self, identifier)
         self.team = team
-        self._see_vector = Vector(0.0, 0.0)
+        self._see_vector = numpy.array([0.0, 0.0, 0.0])
 
     def get_see_vector(self):
         return copy.deepcopy(self._see_vector)
