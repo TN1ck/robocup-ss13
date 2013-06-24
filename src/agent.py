@@ -16,7 +16,8 @@ import sys
 from sys import argv
 import drawing
 import __builtin__
-import cProfile
+import copy
+import collections
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -35,6 +36,7 @@ class Agent:
         self.drawer = drawing.Drawing(0, 0)
 
         self.world = world.World(11, 30, 20)
+        self.world_history = collections.deque()        # double ended queue
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
@@ -47,8 +49,8 @@ class Agent:
             self.monitorSocket.start()
             self.agentSocket.start()
 
-            offset_for_player = -9 + (3*self.player_nr)
-            self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
+            offset_for_player = -9 + (3 * self.player_nr)
+            self.agentSocket.enqueue(" ( beam -10 " + str(offset_for_player) + " 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
             
@@ -69,14 +71,17 @@ class Agent:
                         self.drawer.drawArrow(player.get_position(), player.get_position() + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
                         self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [200, 200, 200], "all." + player_id + ".ballpos")
                         self.drawer.showDrawingsNamed("all." + player_id)
+                        # ok, vision is parsed and processed, we've got our final world model for this cycle.
+                        # save it:
+                        self.world_history.append(copy.deepcopy(self.world))
+                        if len(self.world_history) > 100:
+                            self.world_history.pop()
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
-                        self.perception.process_accelerometer(current_preceptor, self.nao)
-                        #logging.debug(str(current_preceptor))
                         # when ĺying on back, it's like ['ACC', ['n', 'torso'], ['a', 0, 9.62, -1.82]]
                         # when ĺying on front, it's like ['ACC', ['n', 'torso'], ['a', 0, -9.76, -0.96]]
-                        pass
+                        self.perception.process_accelerometer(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'hear':
                         self.hearObj = self.communication.hear(current_preceptor)
                     elif current_preceptor[0] == 'GS':
@@ -174,7 +179,7 @@ def goto_startposition(self):
 
 def signal_handler(signal, frame):
     print("Received SIGINT")
-    print("Closing sockets and and terminating...")
+    print("Closing sockets and terminating...")
     a.agentSocket.close()
     a.monitorSocket.close()
     sys.exit()
