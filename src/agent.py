@@ -34,7 +34,7 @@ class Agent:
 
         self.drawer = drawing.Drawing(0, 0)
 
-        self.world = world.World(6, 30, 20)
+        self.world = world.World(11, 30, 20)
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
@@ -53,7 +53,6 @@ class Agent:
             self.agentSocket.flush()
 
 
-            i = 0
             while True:
                 msg = self.agentSocket.receive()
                 parsed_msg = parser.parse_sexp(msg)
@@ -80,46 +79,66 @@ class Agent:
                         pass
                     elif current_preceptor[0] == 'hear':
                         self.hearObj = self.communication.hear(current_preceptor)
-
-                if not self.keyFrameEngine.working:
-                    actions =  self.tactics.run_tactics(self.hearObj)
-                    # for ACC testing:
-                    #self.keyFrameEngine.fall_on_front()
-                    #actions = []
-                    if i > 10:
-                        for item in actions:
-                            if item[0] == 'stand_up':
-                                if item[1] == 'front':
-                                    self.keyFrameEngine.stand_up_from_front()
-                                    break
-                                if item[1] == 'back':
-                                    self.keyFrameEngine.stand_up_from_back()
-                                    break
-                            if item[0] == 'kick':
-                                if item[1] == 1:
-                                    self.keyFrameEngine.kick1()
-                                elif item[1] == 2:
-                                    self.keyFrameEngine.strong_kick()
-                            if item[0] == 'run':
-                                if item[1] is False:
-                                    self.movement.stop()
+                    elif current_preceptor[0] == 'GS':
+                        for i in current_preceptor:
+                            if i[0] == 'pm':
+                                self.gs = i[1]
+                            if i[0] == 'team':
+                                if i[1] == 'left':
+                                    self.on_left = True
                                 else:
-                                    self.movement.run(item[1],item[2])
-                            if item[0] == 'say':
-                                pass
-                            if item[0] == 'head':
-                                if item[1] is True:
-                                    self.keyFrameEngine.head_lookAround()
-                                elif item[1] != False:
-                                    self.keyFrameEngine.head_move(item[1])
+                                    self.on_left = False
+
+                if(self.gs == 'BeforeKickOff'):
+                    goto_startposition(self)
+                if(self.gs == 'KickOff_Left'):
+                    if not self.keyFrameEngine.working:
+                        actions =  self.tactics.run_tactics(self.hearObj)
+                        # for ACC testing:
+                        #self.keyFrameEngine.fall_on_front()
+                        #actions = []
+                        if actions != None:
+                            for item in actions:
+                                if item[0] == 'stand_up':
+                                    if item[1] == 'front':
+                                        self.keyFrameEngine.stand_up_from_front()
+                                        break
+                                    if item[1] == 'back':
+                                        self.keyFrameEngine.stand_up_from_back()
+                                        break
+                                if item[0] == 'kick':
+                                    if item[1] == 1:
+                                        self.keyFrameEngine.kick1()
+                                    elif item[1] == 2:
+                                        self.keyFrameEngine.strong_kick()
+                                if item[0] == 'run':
+                                    if item[1] is False:
+                                        self.movement.stop()
+                                    else:
+                                        self.movement.run(item[1],item[2])
+                                if item[0] == 'say':
+                                    pass
+                                if item[0] == 'head':
+                                    if item[1] is True:
+                                        self.keyFrameEngine.head_lookAround()
+                                    elif item[1] != False:
+                                        self.keyFrameEngine.head_move(item[1])
                 #a = raw_input('press enter:')
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
 
-                i += 1
-
-
+def goto_startposition(self):
+    if self.player_nr == 1:
+        self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
+    if (self.player_nr > 1) and (self.player_nr < 6):
+        self.agentSocket.enqueue(" ( beam -10 "+str((5-((self.player_nr-2)*3)))+" 0 ) ")
+    if (self.player_nr > 5) and (self.player_nr < 10):
+        self.agentSocket.enqueue(" ( beam -5 "+str((5-(((self.player_nr-2)-4)*3)))+" 0 ) ")
+    if self.player_nr == 10:
+        self.agentSocket.enqueue(" ( beam -3 2 0 ) ")
+    if self.player_nr == 11:
+        self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def signal_handler(signal, frame):
     print("Received SIGINT")
