@@ -51,7 +51,7 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 "+ str(offset_for_player) +" 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
-
+            
 
             while True:
                 msg = self.agentSocket.receive()
@@ -91,9 +91,10 @@ class Agent:
 
                 if(self.gs == 'BeforeKickOff'):
                     goto_startposition(self)
-                if(self.gs == 'KickOff_Left'):
+                elif(self.gs == 'KickOff_Left'):
                     if not self.keyFrameEngine.working:
                         actions =  self.tactics.run_tactics(self.hearObj)
+                        print str(actions)
                         # for ACC testing:
                         #self.keyFrameEngine.fall_on_front()
                         #actions = []
@@ -124,6 +125,37 @@ class Agent:
                                     elif item[1] != False:
                                         self.keyFrameEngine.head_move(item[1])
                 #a = raw_input('press enter:')
+                elif(self.gs == 'KickOff_Right'):
+                    pass
+                elif(self.gs == 'PlayOn'):
+                    print "PLAYON!!"
+                    pass
+                elif(self.gs == 'KickIn_Left'):
+                    pass
+                elif(self.gs == 'KickIn_Right'):
+                    pass
+                elif(self.gs == 'corner_kick_left'):
+                    pass
+                elif(self.gs == 'corner_kick_right'):
+                    pass
+                elif(self.gs == 'goal_kick_left'):
+                    pass
+                elif(self.gs == 'goal_kick_right'):
+                    pass
+                elif(self.gs == 'offside_left'):
+                    pass
+                elif(self.gs == 'offside_right'):
+                    pass
+                elif(self.gs == 'GameOver'):
+                    pass
+                elif(self.gs == 'Goal_Left'):
+                    pass
+                elif(self.gs == 'Goal_Right'):
+                    pass
+                elif(self.gs == 'free_kick_left'):
+                    pass
+                elif(self.gs == 'free_kick_right'):
+                    pass
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
@@ -131,13 +163,13 @@ class Agent:
 def goto_startposition(self):
     if self.player_nr == 1:
         self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
-    if (self.player_nr > 1) and (self.player_nr < 6):
-        self.agentSocket.enqueue(" ( beam -10 "+str((5-((self.player_nr-2)*3)))+" 0 ) ")
-    if (self.player_nr > 5) and (self.player_nr < 10):
-        self.agentSocket.enqueue(" ( beam -5 "+str((5-(((self.player_nr-2)-4)*3)))+" 0 ) ")
-    if self.player_nr == 10:
+    elif (self.player_nr > 1) and (self.player_nr < 6):
+        self.agentSocket.enqueue(" ( beam -10 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
+    elif (self.player_nr > 5) and (self.player_nr < 10):
+        self.agentSocket.enqueue(" ( beam -5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
+    elif self.player_nr == 10:
         self.agentSocket.enqueue(" ( beam -3 2 0 ) ")
-    if self.player_nr == 11:
+    elif self.player_nr == 11:
         self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def signal_handler(signal, frame):
