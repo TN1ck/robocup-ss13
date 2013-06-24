@@ -75,7 +75,7 @@ class Agent:
                         # save it:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
-                            self.world_history.pop()
+                            self.world_history.popleft()
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
