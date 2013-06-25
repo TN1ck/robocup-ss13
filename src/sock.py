@@ -35,7 +35,7 @@ class Sock:
         """Sends a packet with all enqueued messages. The message is prefixed with
         the length of the payload message. The length prefix is a 32 bit
         unsigned integer in network order."""
-        self.enqueue(msg)
+        self.enqueue(msg + '( syn )')
         #logging.debug('time: ' + str(time.time()))
         #logging.debug('last_flush_time: ' + str(self._last_flush_time))
         #logging.debug('MIN_FLUSH_INTERVAL: ' + str(self.MIN_FLUSH_INTERVAL))
