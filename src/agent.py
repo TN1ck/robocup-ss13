@@ -53,7 +53,7 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 " + str(offset_for_player) + " 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
-            
+
 
             while True:
                 msg = self.agentSocket.receive()
@@ -96,6 +96,8 @@ class Agent:
 
                 if(self.gs == 'BeforeKickOff'):
                     goto_startposition(self)
+                    self.keyFrameEngine.stand()
+                    self.keyFrameEngine.work()
                 elif(self.gs == 'KickOff_Left'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions =  self.tactics.run_tactics(self.hearObj)

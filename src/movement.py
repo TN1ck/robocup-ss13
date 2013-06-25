@@ -70,7 +70,7 @@ class Movement:
         if self.fresh:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.38", angle, ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384", angle, ")")
         
     def run_to_shoot_position(self, *destination):
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
