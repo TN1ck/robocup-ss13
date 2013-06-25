@@ -87,6 +87,20 @@ class Movement:
     def stop(self):
         self.stopped = True
 
+    def move_keeper(self):
+        if self.fresh:
+            self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
+            self.fresh = False
+        ballposition = self.world.ball.get_position()
+        self.target = ballposition.y/10
+        self.rotation = atan2(ballposition.x-self.beampos.x, ballposition.y-self.beampos.y)
+        if(abs(self.target - self.beampos.y) > 0.1):
+            if(self.target > self.beampos.y):
+               self.beampos.y = self.beampos.y + 0.01
+            else:
+               self.beampos.y = self.beampos.y - 0.01
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.38",(-1 * degrees(self.rotation) ), ")")
+
     def turn_head(self, horizontal, vertical, speed):
         self.turn_head_horizontal(horizontal, speed)
         self.turn_head_vertical(vertical, speed)

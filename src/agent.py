@@ -97,7 +97,7 @@ class Agent:
                 if(self.gs == 'BeforeKickOff'):
                     goto_startposition(self)
                 elif(self.gs == 'KickOff_Left'):
-                    if not self.keyFrameEngine.working:
+                    if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions =  self.tactics.run_tactics(self.hearObj)
                         print str(actions)
                         # for ACC testing:
@@ -129,6 +129,9 @@ class Agent:
                                         self.keyFrameEngine.head_lookAround()
                                     elif item[1] != False:
                                         self.keyFrameEngine.head_move(item[1])
+                    else: 
+                        self.movement.move_keeper()
+                       
                 #a = raw_input('press enter:')
                 elif(self.gs == 'KickOff_Right'):
                     pass
