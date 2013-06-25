@@ -26,7 +26,7 @@ class Keyframe_Engine:
 
     def work(self):
         '''
-        Runs the actuall keyframes, has to be called at end of tactics!
+        Runs the actual keyframes, has to be called at end of tactics!
         '''
         if self.working:
             keyframe = self.last_frame.keyframe
@@ -41,11 +41,11 @@ class Keyframe_Engine:
     def parry_right(self):
         self.last_frame = kf.parry_right_1
         self.working = True
-        
+
     def parry_left(self):
         self.last_frame = kf.parry_left_1
         self.working = True
-        
+
     def kick_strong(self):
         self.last_frame = kf.kick_strong
         self.working = True
