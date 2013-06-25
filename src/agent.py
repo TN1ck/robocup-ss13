@@ -98,7 +98,7 @@ class Agent:
                     goto_startposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
-                elif(self.gs == 'KickOff_Left'):
+                elif(self.gs == 'KickOff_Left' or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions =  self.tactics.run_tactics(self.hearObj)
                         print str(actions)
