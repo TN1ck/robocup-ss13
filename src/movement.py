@@ -61,7 +61,7 @@ class Movement:
         #else:
         #    self.beampos.y = self.position.y + dy
 
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.38",(-1 * degrees(self.rotation) ), ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",(-1 * degrees(self.rotation) ), ")")
         #self.socket.flush()
         #self.socket.receive()
         #self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
@@ -99,7 +99,7 @@ class Movement:
                self.beampos.y = self.beampos.y + 0.01
             else:
                self.beampos.y = self.beampos.y - 0.01
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.38",(-1 * degrees(self.rotation) ), ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",(-1 * degrees(self.rotation) ), ")")
 
     def turn_head(self, horizontal, vertical, speed):
         self.turn_head_horizontal(horizontal, speed)
