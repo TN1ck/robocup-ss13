@@ -64,13 +64,13 @@ class Decoder(object):
 
     def reMapping(self, mz):
         if(mz==126):
-            return 57
+            return 24
         elif(mz==125):
-            return 41
+            return 8
         elif(mz==124):
-            return 40
+            return 7
         elif(mz==123):
-            return 34
+            return 1
         else:
             return mz-33
 
