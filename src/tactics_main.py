@@ -25,7 +25,7 @@ class TacticsMain:
     # self.left_penalty_ifds  = ["LG1L","LG2L","LGL"]            #left penalty area
     self.right_goal_idfs    = ["G1R","G2R"]                    #right goal
     self.left_goal_idfs     = ["G1L","G2R"]                    #left goal
-    self.player_t1_idfs     = ["P_1_1","P_1_2","P_1_3","P_1_4","P_1_5","P_1_6"]  #team 1
+    self.player_t1_idfs     = ["P_1_1","P_1_2","P_1_3","P_1_4","P_1_5","P_1_6","P_1_7","P_1_8","P_1_9","P_1_10","P_1_11"]  #team 1
     self.player_t2_idfs     = ["P_2_1","P_2_2","P_2_3","P_2_4","P_2_5","P_2_6"]#team 2
 
     self.distance_team1 = []
@@ -160,23 +160,25 @@ class TacticsMain:
         continue
       if self.distance_lines[line] <= 0.2:
         if line == "L1":
-          run_straight =True
+          self.run_straight =True
           self.dest = Vector(self.my_position.x, self.my_position.y - 0.3)
         if line == "L2":
-          run_straight =True
+          self.run_straight =True
           self.dest = Vector(self.my_position.x, self.my_position.y + 0.3)
         if line == "LL":
-          run_straight =True
+          self.run_straight =True
           self.dest = Vector(self.my_position.x + 0.3, self.my_position.y)
         if line == "LR":
-          run_straight =True
+          self.run_straight =True
           self.dest = Vector(self.my_position.x - 0.3, self.my_position.y)
 
 
 
 
     if self.run_straight:
-      vec = Vector(0,0)
+      if self.my_position ==None  or self.dest == None:
+        print "MyPosition = " +  str(self.my_position) + " dist " +str(self.dest)
+      vec = Vector(0,0) 
       vec.x = self.my_position.x / self.dest.x
       vec.y = self.my_position.y / self.dest.y
       if vec.x <= 1.1 and vec.x >= 0.9 and vec.y <= 1.1 and vec.y >= 0.9:
@@ -197,7 +199,7 @@ class TacticsMain:
     run_tuple = ('run',False)
     kick_tuple = ('kick',False)
     if result_list[0]:
-      if self.distance_ball[0][1] <= 0.15 :
+      if self.distance_ball[0][1] <= 0.2:
         kick_tuple = ('kick',1)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
@@ -210,10 +212,6 @@ class TacticsMain:
           self.dest = Vector(tup[0],tup[1])
         run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
-      tup = self.flocking_behavior()
-      if tup is False :
-        tup = (-10,0)
-      else:
         pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
 
