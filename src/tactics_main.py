@@ -12,7 +12,7 @@ import copy
 class TacticsMain:
 
   def __init__(self, world, movement, nao):
-    self.DISTANCE = 2
+    self.MIN_DISTANCE = 2
     self.world = world
     self.mov = movement
     self.index  = -1
@@ -113,27 +113,28 @@ class TacticsMain:
   def flocking_behavior(self):
     too_near = []
     for player in self.distance_team1:
-      if player[1] <= self.DISTANCE and player[0] != 'P_1_'+str(self.nao.player_nr):
+      if player[1] <= self.MIN_DISTANCE and player[0] != 'P_1_'+str(self.nao.player_nr):
         too_near.append(player)
     if len(too_near) == 0:
       return False
     too_near = sorted(too_near, key = lambda dist: dist[1])
     self.run_straight = True
-    pos = self.world.get_entity_position(too_near[0][0])
-    x_dist = abs(pos.x - self.my_position.x)
-    y_dist = abs(pos.y - self.my_position.y)
 
-    if x_dist < y_dist:
-      if pos.x < self.my_position.x:
-        return (self.my_position.x + 0.7,self.my_position.y)
-      else:
-        return (self.my_position.x - 0.7,self.my_position.y)
-    else:
-      if pos.y < self.my_position.y:
-        return (self.my_position.x ,self.my_position.y + 0.7)
-      else:
-        return (self.my_position.x ,self.my_position.y - 0.7)
+    new_tuples = []
+    for i in too_near:
+      pos = self.world.get_entity_position(i[0])
+      x_dist = self.my_position.x - pos.x
+      y_dist = self.my_position.y - pos.y
 
+      new_tuples.append(self.my_position.x + (self.MIN_DISTANCE - x_dist),
+                   self.my_position.y + (self.MIN_DISTANCE - y_dist))
+
+    average_tuple = (0, 0)
+    for i in new_tuples:
+      average_tuple[0] += i[0]
+      average_tuple[1] += i[1]
+
+    return (average_tuple[0]/len(too_near), average_tuple[1]/len(too_near))
 
   def run_tactics(self,hearObj):
     #if self.nao.lies_on_front():
