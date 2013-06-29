@@ -134,7 +134,7 @@ class TacticsMain:
       average_list[0] += i[0]
       average_list[1] += i[1]
 
-    return (average_tuple[0]/len(too_near), average_tuple[1]/len(too_near))
+    return (average_list[0]/len(too_near), average_list[1]/len(too_near))
 
   def run_tactics(self,hearObj):
     #if self.nao.lies_on_front():
