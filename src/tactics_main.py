@@ -12,7 +12,7 @@ import copy
 class TacticsMain:
 
   def __init__(self, world, movement, nao):
-    self.MIN_DISTANCE = 2
+    self.MIN_DISTANCE = 1
     self.world = world
     self.mov = movement
     self.index  = -1
@@ -107,7 +107,7 @@ class TacticsMain:
     for i in range( len(self.distances_ball)):
       if self.distances_ball[i][0] == 'P_1_' + str(self.nao.player_nr):
         return True
-      if i == 3:
+      if i == 5:
         return False
 
   def flocking_behavior(self):
@@ -120,13 +120,25 @@ class TacticsMain:
     too_near = sorted(too_near, key = lambda dist: dist[1])
     self.run_straight = True
 
-    print(too_near)
-
     new_tuples = []
     for i in too_near:
       pos = self.world.get_entity_position(i[0])
+
       x_dist = self.my_position.x - pos.x
       y_dist = self.my_position.y - pos.y
+
+      if x_dist == -0.0:
+        x_dist = -0.1
+      elif x_dist == +0.0:
+        x_dist = 0.1
+
+      if y_dist == -0.0:
+        y_dist = -0.1
+      elif y_dist == +0.0:
+        y_dist = 0.1
+
+      x_dist = min(2, max(-2, 1/x_dist))
+      y_dist = min(2, max(-2, 1/y_dist))
 
       new_tuples.append((self.my_position.x + x_dist,
                    self.my_position.y + y_dist))
@@ -210,5 +222,3 @@ class TacticsMain:
     elif result_list[2]:
         pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
-
-
