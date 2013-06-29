@@ -18,6 +18,7 @@ import drawing
 import __builtin__
 import copy
 import collections
+import math
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -44,7 +45,8 @@ class Agent:
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
-
+        self.old_ball_pos = None #one tick before
+        self.t = None #variable for the keeper
     def start(self):
             self.monitorSocket.start()
             self.agentSocket.start()
@@ -128,7 +130,29 @@ class Agent:
                                     elif item[1] != False:
                                         self.keyFrameEngine.head_move(item[1])
                     else:
-                        self.movement.move_keeper()
+
+                        if(self.old_ball_pos != None):
+                            self.direction = self.world.ball.get_position() - self.old_ball_pos
+                            self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
+                            self.increase = (self.direction.y / self.direction.x)
+                            self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
+                            self.goal_intercept = (-15)*self.increase + self.y_intercept
+                            self.g_point =  world.Vector(-15,self.goal_intercept)
+                           
+                            if (self.betrag > 1):
+                                #print ('old_pos.x: '+str(self.old_ball_pos.x) +' old_pos.y: '+str(self.old_ball_pos.y))
+                                #print ('pos.x: '+str(self.world.ball.get_position().x) +' pos.y: '+str(self.world.ball.get_position().y))
+                                #print ('dir.x: '+str(self.direction.x)+' dir.y: '+str(self.direction.y))
+                                #print ('steigung: '+str(self.increase))
+                                self.t_vec = (self.g_point - self.world.ball.get_position())/self.betrag
+                                self.t = math.sqrt(self.t_vec.x**2 + self.t_vec.y**2)
+                                print ('estimated t cycles until the ball is in the goal: '+str(self.t))
+                                #print self.goal_intercept
+                        if(self.t > 1):
+                            self.movement.move_keeper()
+                        else:
+                            pass #use keyeginge
+                        self.old_ball_pos = self.world.ball.get_position()
 
                 #a = raw_input('press enter:')
                 elif(self.gs == 'KickOff_Right'):
