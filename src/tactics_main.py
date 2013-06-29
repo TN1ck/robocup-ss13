@@ -126,8 +126,8 @@ class TacticsMain:
       x_dist = self.my_position.x - pos.x
       y_dist = self.my_position.y - pos.y
 
-      new_tuples.append(self.my_position.x + (self.MIN_DISTANCE - x_dist),
-                   self.my_position.y + (self.MIN_DISTANCE - y_dist))
+      new_tuples.append((self.my_position.x + (self.MIN_DISTANCE - x_dist),
+                   self.my_position.y + (self.MIN_DISTANCE - y_dist)))
 
     average_tuple = (0, 0)
     for i in new_tuples:
