@@ -100,11 +100,7 @@ class Agent:
                     self.keyFrameEngine.work()
                 elif(self.gs == 'KickOff_Left' or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
-                        actions =  self.tactics.run_tactics(self.hearObj)
-                        print str(actions)
-                        # for ACC testing:
-                        #self.keyFrameEngine.fall_on_front()
-                        #actions = []
+                        actions = self.tactics.run_tactics(self.hearObj)
                         if actions != None:
                             for item in actions:
                                 if item[0] == 'stand_up':
@@ -131,9 +127,9 @@ class Agent:
                                         self.keyFrameEngine.head_lookAround()
                                     elif item[1] != False:
                                         self.keyFrameEngine.head_move(item[1])
-                    else: 
+                    else:
                         self.movement.move_keeper()
-                       
+
                 #a = raw_input('press enter:')
                 elif(self.gs == 'KickOff_Right'):
                     pass
@@ -187,7 +183,7 @@ def signal_handler(signal, frame):
     print("Closing sockets and terminating...")
     a.agentSocket.close()
     a.monitorSocket.close()
-    sys.exit()
+    sys.exit(0)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
