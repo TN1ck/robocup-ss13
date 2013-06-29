@@ -129,10 +129,10 @@ class TacticsMain:
       new_tuples.append((self.my_position.x + (self.MIN_DISTANCE - x_dist),
                    self.my_position.y + (self.MIN_DISTANCE - y_dist)))
 
-    average_tuple = (0, 0)
+    average_list = [0, 0]
     for i in new_tuples:
-      average_tuple[0] += i[0]
-      average_tuple[1] += i[1]
+      average_list[0] += i[0]
+      average_list[1] += i[1]
 
     return (average_tuple[0]/len(too_near), average_tuple[1]/len(too_near))
 
