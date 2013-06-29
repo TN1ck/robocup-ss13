@@ -120,20 +120,23 @@ class TacticsMain:
     too_near = sorted(too_near, key = lambda dist: dist[1])
     self.run_straight = True
 
+    print(too_near)
+
     new_tuples = []
     for i in too_near:
       pos = self.world.get_entity_position(i[0])
       x_dist = self.my_position.x - pos.x
       y_dist = self.my_position.y - pos.y
 
-      new_tuples.append((self.my_position.x + (self.MIN_DISTANCE - x_dist),
-                   self.my_position.y + (self.MIN_DISTANCE - y_dist)))
+      new_tuples.append((self.my_position.x + x_dist,
+                   self.my_position.y + y_dist))
 
     average_list = [0, 0]
     for i in new_tuples:
       average_list[0] += i[0]
       average_list[1] += i[1]
 
+    print str(self.nao.player_nr)+ " "+str((average_list[0]/len(too_near), average_list[1]/len(too_near)))
     return (average_list[0]/len(too_near), average_list[1]/len(too_near))
 
   def run_tactics(self,hearObj):
