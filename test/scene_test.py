@@ -30,11 +30,12 @@ class Scenegraph_Test(unittest.TestCase):
                                                      # smnNode1 
                                                      ['nd', 'SMN', ['setVisible', 1], ['load', 'StdUnitBox'], ['sSc', 50.98, 1, 1], ['sMat', 'matGrey']]]],
                                 # trfNode3
-                                ['nd', 'TRF', ['SLT', -1, -8.74228e-08, -3.82137e-15, 0, 0, -4.37114e-08, 1, 0, -8.74228e-08, 1, 4.37114e-08, 0, 0, 0, 0, 1], 
+                                ['nd', 'TRF', ['SLT', -1, -8.74228e-08, -3.82137e-15, 0, 0, -4.37114e-08, 1, 0, -8.74228e-08, 1, 4.37114e-08, 0, 5, 6, 0, 1], 
                                              # staticMesh1
                                              ['nd', 'StaticMesh', ['setVisible', 1], ['load', 'models/naosoccerfield.obj'], ['sSc', 2.5, 1, 2.5], ['resetMaterials', 'None_rcs-naofield.png']],
                                              # staticMesh2
-                                             ['nd', 'StaticMesh', ['setVisible', 1], ['load', 'models/rshank.obj'], ['sSc', 0.08, 0.08, 0.08], ['resetMaterials', 'matTeam', 'naoblack', 'naowhite']]]]]
+                                             ['nd', 'StaticMesh', ['setVisible', 1], ['load', 'models/rshank.obj'], ['sSc', 0.08, 0.08, 0.08], ['resetMaterials', 'matTeam', 'naoblack', 'naowhite']],
+                                             ['nd', 'StaticMesh', ['load', 'models/naobody.obj'], ['sSc', 0.1, 0.1, 0.1], ['resetMaterials', 'matNum1', 'matLeft' ,'naoblack' ,'naowhite']]]]]
        
 
         self.message_update1 = [[['time', 0]], 
@@ -50,6 +51,7 @@ class Scenegraph_Test(unittest.TestCase):
                                                      ['nd', 'SMN']]],
                                 # trfNode3_update
                                 ['nd', 'TRF', ['SLT', 1000, 99, 0, 0, 0, 1, 0, 300, 0, 0, 1, 2, 100, -10, 10, 1],
+                                             ['nd', 'StaticMesh'],
                                              ['nd', 'StaticMesh'],
                                              ['nd', 'StaticMesh']]]]
 
@@ -74,7 +76,7 @@ class Scenegraph_Test(unittest.TestCase):
         self.smnNode1_sSc = [50.98, 1, 1]
         self.smnNode1_sMat = 'matGrey'
         # trfNode3
-        self.trfNode3_matrix = (((-1,0,-8.74228e-08,0),(-8.74228e-08,-4.37114e-08,1,0),(-3.82137e-15,1,4.37114e-08,0),(0,0,0,1)))
+        self.trfNode3_matrix = (((-1,0,-8.74228e-08,5),(-8.74228e-08,-4.37114e-08,1,6),(-3.82137e-15,1,4.37114e-08,0),(0,0,0,1)))
         # staticMesh1
         self.staticMesh1_load = 'models/naosoccerfield.obj'
         self.staticMesh1_sSc = [2.5, 1, 2.5]
@@ -145,6 +147,10 @@ class Scenegraph_Test(unittest.TestCase):
         self.assertTrue(numpy.array_equal(self.trfNode2_1_update_matrix, scene.find_node(4).get_matrix()))
         # trfNode3_update
         self.assertTrue(numpy.array_equal(self.trfNode3_update_matrix, scene.find_node(7).get_matrix()))
+    def testScene_get_nao_position(self):
+        scene = Scene.Instance()
+        scene.create_scene(self.message_example1)
+        self.assertEqual(scene.get_position_xy('left',1),[5,6])
 
 if __name__ == '__main__':
   unittest.main()
