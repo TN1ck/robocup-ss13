@@ -157,7 +157,7 @@ class Keyframe_Engine:
 
         if self.last == 0:
             self.get_new_joint_postion(keyframe[self.keyframe_line], name)
-            if self.keyframe_line >= len(keyframe): # alt: 6
+            if self.keyframe_line >= len(keyframe):
                 self.keyframe_line = 0
                 self.last = 1
         i = 0
