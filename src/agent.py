@@ -19,6 +19,10 @@ import __builtin__
 import copy
 import collections
 import math
+import scene
+import statistics
+import numpy
+import interpol
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -37,16 +41,21 @@ class Agent:
         self.drawer = drawing.Drawing(0, 0)
 
         self.world = world.World(11, 30, 20)
-        self.world_history = collections.deque()        # double ended queue
+        self.world_history = collections.deque()        # smoothed world (double ended queue)
+        self.world_history_raw = collections.deque()    # raw world, as perceived
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
+        self.interpol = interpol.Interpol(self.player_nr, self.world, self.world_history, self.world_history_raw)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
+        self.statistic = statistics.Statistics()
+        self.scene = scene.Scene.Instance()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
+
     def start(self):
             self.monitorSocket.start()
             self.agentSocket.start()
@@ -78,6 +87,15 @@ class Agent:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
                             self.world_history.popleft()
+
+                        #perception statistics
+                        #scene graph auslesen
+                        #self.scene.run_cycle()
+                        #ps = self.scene.get_position_xy( 'left', self.player_nr)
+                        #pw = self.nao.get_position()
+                        #if ps != None :
+                        #    self.statistic.abweichung.append(numpy.array([pw.x - ps[0] ,pw.y - ps[1]]))
+
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
@@ -205,6 +223,8 @@ def goto_startposition(self):
         self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def signal_handler(signal, frame):
+    #print("Here some statistics:")
+    #a.statistic.print_results()
     print("Received SIGINT")
     print("Closing sockets and terminating...")
     a.agentSocket.close()

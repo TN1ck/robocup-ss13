@@ -83,16 +83,16 @@ class Nao:
         return copy.deepcopy(self._accelerometer)
 
     def lies_on_front(self):
-        if self.get_accelerometer()[1] < -5: 
+        if self._accelerometer[1] < -9:
             return 1
         else:
             return 0
 
     def lies_on_back(self):
-        if self.get_accelerometer()[1] > 5: 
+        if self._accelerometer[1] > 9:
             return 1
         else:
-            return 0    
+            return 0
     """
     def update_joint_positions(self, parsed):
         '''Updates all currently perceived joints of the nao.'''
