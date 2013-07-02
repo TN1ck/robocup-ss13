@@ -19,6 +19,9 @@ import __builtin__
 import copy
 import collections
 import math
+import scene
+import statistics
+import numpy
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -45,6 +48,8 @@ class Agent:
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
+        self.statistic = statistics.Statistics()
+        self.scene = scene.Scene.Instance()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
     def start(self):
@@ -78,6 +83,15 @@ class Agent:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
                             self.world_history.popleft()
+
+                        #perception statistics
+                        #scene graph auslesen
+                        self.scene.run_cycle()
+                        ps = self.scene.get_position_xy( 'left', self.player_nr)
+                        pw = self.nao.get_position()
+                        if ps != None :
+                            self.statistic.abweichung.append(numpy.array([pw.x - ps[0] ,pw.y - ps[1]]))
+
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
@@ -205,6 +219,8 @@ def goto_startposition(self):
         self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def signal_handler(signal, frame):
+    print("Here some statistics:")
+    a.statistic.print_results()
     print("Received SIGINT")
     print("Closing sockets and terminating...")
     a.agentSocket.close()
