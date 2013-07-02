@@ -86,11 +86,11 @@ class Agent:
 
                         #perception statistics
                         #scene graph auslesen
-                        self.scene.run_cycle()
-                        ps = self.scene.get_position_xy( 'left', self.player_nr)
-                        pw = self.nao.get_position()
-                        if ps != None :
-                            self.statistic.abweichung.append(numpy.array([pw.x - ps[0] ,pw.y - ps[1]]))
+                        #self.scene.run_cycle()
+                        #ps = self.scene.get_position_xy( 'left', self.player_nr)
+                        #pw = self.nao.get_position()
+                        #if ps != None :
+                        #    self.statistic.abweichung.append(numpy.array([pw.x - ps[0] ,pw.y - ps[1]]))
 
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
@@ -219,8 +219,8 @@ def goto_startposition(self):
         self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def signal_handler(signal, frame):
-    print("Here some statistics:")
-    a.statistic.print_results()
+    #print("Here some statistics:")
+    #a.statistic.print_results()
     print("Received SIGINT")
     print("Closing sockets and terminating...")
     a.agentSocket.close()
