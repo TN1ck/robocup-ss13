@@ -242,10 +242,14 @@ class World:
         self.ball = Ball(0.04, 26)
 
         # universal mobile entity list:
-        self.mobile_entities = self.players + [self.ball]
+        # self.mobile_entities = self.players + [self.ball]
+        # player list is dynamic and this list does not update. use mobile_entities() instead.
 
         # add everything to identifier dictionary:
         self.create_entity_dict()
+
+    def mobile_entities(self):
+        return self.players + [self.ball]
 
     def create_entity_dict(self):
         """Creates the entity_from_identifier dictionary."""
