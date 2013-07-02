@@ -132,13 +132,15 @@ class Agent:
                     else:
 
                         if(self.old_ball_pos != None):
+                            # print (self.world.ball.get_position())
                             self.direction = self.world.ball.get_position() - self.old_ball_pos
                             self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
+                            # What do you do when you have self.direction.x == 0? :o -- Max
                             self.increase = (self.direction.y / self.direction.x)
                             self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
                             self.goal_intercept = (-15)*self.increase + self.y_intercept
                             self.g_point =  world.Vector(-15,self.goal_intercept)
-                           
+
                             if (self.betrag > 1):
                                 #print ('old_pos.x: '+str(self.old_ball_pos.x) +' old_pos.y: '+str(self.old_ball_pos.y))
                                 #print ('pos.x: '+str(self.world.ball.get_position().x) +' pos.y: '+str(self.world.ball.get_position().y))

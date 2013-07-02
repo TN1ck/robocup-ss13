@@ -54,10 +54,11 @@ class TacticsMain:
           val = self.calc_point_distance(self.world.get_entity_position(self.player_t1_idfs[i]), self.my_position)
           self.distance_team1.append((self.player_t1_idfs[i], val))
 
-      for i in range(len(self.player_t2_idfs)):
-        if self.world.entity_from_identifier[self.player_t2_idfs[i]].confidence > 0.5:
-          val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
-          self.distance_team2.append((self.player_t2_idfs[i], val))
+      # for i in range(len(self.player_t2_idfs)):
+      #   try:
+      #     if self.world.entity_from_identifier[self.player_t2_idfs[i]].confidence > 0.5:
+      #       val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
+      #       self.distance_team2.append((self.player_t2_idfs[i], val))
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
@@ -124,8 +125,6 @@ class TacticsMain:
       return False
     too_near = sorted(too_near, key = lambda dist: dist[1])
     self.run_straight = True
-
-    print(too_near)
 
     new_tuples = []
     for i in too_near:
