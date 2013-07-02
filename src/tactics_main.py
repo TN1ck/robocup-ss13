@@ -246,7 +246,7 @@ class TacticsMain:
         tup = (self.world.get_entity_position(self.distances_ball[0][0]).x-1.3,self.world.get_entity_position(self.distances_ball[0][0]).y-1.3)
       else:
         self.dest = Vector(tup[0],tup[1])
-        run_tuple = ('run',tup[0],tup[1])
+      run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
         pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
