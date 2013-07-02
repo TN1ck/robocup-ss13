@@ -22,6 +22,7 @@ import math
 import scene
 import statistics
 import numpy
+import interpol
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -40,9 +41,11 @@ class Agent:
         self.drawer = drawing.Drawing(0, 0)
 
         self.world = world.World(11, 30, 20)
-        self.world_history = collections.deque()        # double ended queue
+        self.world_history = collections.deque()        # smoothed world (double ended queue)
+        self.world_history_raw = collections.deque()    # raw world, as perceived
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
+        self.interpol = interpol.Interpol(self.player_nr, self.world, self.world_history, self.world_history_raw)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
@@ -52,6 +55,7 @@ class Agent:
         self.scene = scene.Scene.Instance()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
+
     def start(self):
             self.monitorSocket.start()
             self.agentSocket.start()
