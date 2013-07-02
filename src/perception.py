@@ -117,7 +117,7 @@ class Perception:
         writes this info into the given world."""
 
         # reset confidence in world model:
-        for me in w.mobile_entities:
+        for me in w.mobile_entities():
             if me.get_identifier() != self.player_id:
                 me.confidence = lower_confidence(me.confidence)
 
