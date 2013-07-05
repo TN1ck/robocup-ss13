@@ -19,7 +19,8 @@ class Communication(object):
             return None
         else:
             t = translator.Translator(h[2])
-            return t.translate(h[3])
+            msg = (str) (h[3])
+            return t.translate(msg)
 
     # <x,y> x:= type; y:= character length
     # mt (int)

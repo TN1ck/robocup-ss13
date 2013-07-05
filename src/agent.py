@@ -19,6 +19,11 @@ import __builtin__
 import copy
 import collections
 import math
+import scene
+import statistics
+import numpy
+import interpol
+from multiprocessing import Process, Manager, Value
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -37,16 +42,23 @@ class Agent:
         self.drawer = drawing.Drawing(0, 0)
 
         self.world = world.World(11, 30, 20)
-        self.world_history = collections.deque()        # double ended queue
+        self.world_history = collections.deque()        # smoothed world (double ended queue)
+        self.world_history_raw = collections.deque()    # raw world, as perceived
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
+        self.interpol = interpol.Interpol(self.player_nr, self.world, self.world_history, self.world_history_raw)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
        	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
+        self.statistic = statistics.Statistics()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
+        self.scene = scene.Scene()
+        self.scene_updated = False #variable for handling the scenegraph
+        self.position = None #variable that holds the agent's own position (read from the scenegraph)
+
     def start(self):
             self.monitorSocket.start()
             self.agentSocket.start()
@@ -55,10 +67,24 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 " + str(offset_for_player) + " 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
+            
+             #stuff to handle the second thread that receives via monitor protocol: 
+            manager = Manager()
+            shared_list = manager.list()
+            shared_value = Value('b', 0)
+            # start second thread:
+            Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
 
 
             while True:
                 msg = self.agentSocket.receive()
+                
+                if(shared_value.value == 1):
+                    shared_value.value = 0
+                    self.scene.run_cycle(shared_list)
+                    self.scene_updated = True
+                    del shared_list[:]
+                  
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:
                     current_preceptor = parsed_msg.pop()
@@ -78,6 +104,15 @@ class Agent:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
                             self.world_history.popleft()
+
+                        #perception statistics
+                        #scene graph auslesen
+                        #self.scene.run_cycle()
+                        #ps = self.scene.get_position_xy( 'left', self.player_nr)
+                        #pw = self.nao.get_position()
+                        #if ps != None :
+                        #    self.statistic.abweichung.append(numpy.array([pw.x - ps[0] ,pw.y - ps[1]]))
+
                     elif current_preceptor[0] == 'GYR':
                         self.perception.process_gyros(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'ACC':
@@ -95,12 +130,22 @@ class Agent:
                                     self.on_left = True
                                 else:
                                     self.on_left = False
+                if self.on_left:
+                  self.us   = "Left"
+                  self.them = "Right"
+                else:
+                  self.us   = "Right"
+                  self.them = "Left"
 
-                if(self.gs == 'BeforeKickOff'):
+                if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
-                elif(self.gs == 'KickOff_Left' or self.gs == 'PlayOn'):
+                elif(self.gs == 'KickIn_'+self.them or self.gs == 'corner_kick_'+self.them.lower() or self.gs == 'goal_kick_'+self.them.lower() or self.gs =='free_kick_'+self.them.lower()):
+                    goto_waitposition(self)
+                    self.keyFrameEngine.stand()
+                    self.keyFrameEngine.work()
+                elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions = self.tactics.run_tactics(self.hearObj)
                         if actions != None:
@@ -120,6 +165,8 @@ class Agent:
                                 if item[0] == 'run':
                                     if item[1] is False:
                                         self.movement.stop()
+                                    elif item[1] == 'shoot':
+                                        self.movement.run_to_shoot_position(item[2],item[3])
                                     else:
                                         self.movement.run(item[1],item[2])
                                 if item[0] == 'say':
@@ -132,13 +179,15 @@ class Agent:
                     else:
 
                         if(self.old_ball_pos != None):
+                            # print (self.world.ball.get_position())
                             self.direction = self.world.ball.get_position() - self.old_ball_pos
                             self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
+                            # What do you do when you have self.direction.x == 0? :o -- Max
                             self.increase = (self.direction.y / self.direction.x)
                             self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
                             self.goal_intercept = (-15)*self.increase + self.y_intercept
                             self.g_point =  world.Vector(-15,self.goal_intercept)
-                           
+
                             if (self.betrag > 1):
                                 #print ('old_pos.x: '+str(self.old_ball_pos.x) +' old_pos.y: '+str(self.old_ball_pos.y))
                                 #print ('pos.x: '+str(self.world.ball.get_position().x) +' pos.y: '+str(self.world.ball.get_position().y))
@@ -162,47 +211,84 @@ class Agent:
                     pass
                 elif(self.gs == 'KickIn_Left'):
                     pass
-                elif(self.gs == 'KickIn_Right'):
-                    pass
                 elif(self.gs == 'corner_kick_left'):
-                    pass
-                elif(self.gs == 'corner_kick_right'):
                     pass
                 elif(self.gs == 'goal_kick_left'):
                     pass
-                elif(self.gs == 'goal_kick_right'):
-                    pass
-                elif(self.gs == 'offside_left'):
-                    pass
-                elif(self.gs == 'offside_right'):
-                    pass
+                #elif(self.gs == 'offside_left'):
+                #    pass
+                #elif(self.gs == 'offside_right'):
+                #    pass
                 elif(self.gs == 'GameOver'):
-                    pass
-                elif(self.gs == 'Goal_Left'):
-                    pass
-                elif(self.gs == 'Goal_Right'):
-                    pass
+                    raise SystemExit(0)
                 elif(self.gs == 'free_kick_left'):
-                    pass
-                elif(self.gs == 'free_kick_right'):
                     pass
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
+                
+# updates the agent's position
+def get_position(self):
+    if (self.scene_updated):
+        if(self.on_left):
+            self.position = self.scene.get_position_xy("left", self.player_nr)
+        else:
+            self.position = self.scene.get_position_xy("right", self.player_nr)
+    self.scene_updated = False
+    return self.position
+
+def relx(self, x):
+    return -x if self.on_left else x
 
 def goto_startposition(self):
     if self.player_nr == 1:
-        self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 14))+" 0 0 ) ")
     elif (self.player_nr > 1) and (self.player_nr < 6):
-        self.agentSocket.enqueue(" ( beam -10 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 10))+" "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
     elif (self.player_nr > 5) and (self.player_nr < 10):
-        self.agentSocket.enqueue(" ( beam -5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 5))+" "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
     elif self.player_nr == 10:
-        self.agentSocket.enqueue(" ( beam -3 2 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 3))+" 2 0 ) ")
     elif self.player_nr == 11:
-        self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 2))+" -2 0 ) ")
+
+def goto_waitposition(self):
+    if self.player_nr == 1:
+        #self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
+        #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -14 0 0.384 0 )")
+        self.movement.run(relx(self, 14), 0)
+    elif (self.player_nr > 1) and (self.player_nr < 6):
+        #self.agentSocket.enqueue(" ( beam -5 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
+        #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -5 "+str((6-((self.player_nr-2)*4)))+" 0.38 0 )")
+        self.movement.run(relx(self, 5), (6-((self.player_nr-2)*4)))
+    elif (self.player_nr > 5) and (self.player_nr < 10):
+        #self.agentSocket.enqueue(" ( beam 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
+        #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0.38 0 )")
+        self.movement.run(relx(self, -5), (6-(((self.player_nr-2)-4)*4)))
+    elif self.player_nr == 10:
+        #self.agentSocket.enqueue(" ( beam 10 2 0 ) ")
+        #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 10 2 0.38 0 )")
+        self.movement.run(relx(self, -10), 2)
+    elif self.player_nr == 11:
+        #self.agentSocket.enqueue(" ( beam 11 -2 0 ) ")
+        #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 11 -2 0.38 0 )")
+        self.movement.run(relx(self, -11), -2)
+
+
+# method that receives via monitor protocol
+def receive_monitor_data(list, val):
+        socket = sock.Sock("localhost", 3200, None, None)
+        socket.start()
+        while True:
+            msg = socket.receive()
+            data = parser.parse_sexp(msg)
+            if not list:
+                list.extend(data)
+                val.value = 1
 
 def signal_handler(signal, frame):
+    #print("Here some statistics:")
+    #a.statistic.print_results()
     print("Received SIGINT")
     print("Closing sockets and terminating...")
     a.agentSocket.close()

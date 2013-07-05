@@ -54,6 +54,12 @@ class TacticsMain:
           val = self.calc_point_distance(self.world.get_entity_position(self.player_t1_idfs[i]), self.my_position)
           self.distance_team1.append((self.player_t1_idfs[i], val))
 
+      # for i in range(len(self.player_t2_idfs)):
+      #   try:
+      #     if self.world.entity_from_identifier[self.player_t2_idfs[i]].confidence > 0.5:
+      #       val = self.calc_point_distance(self.world.get_entity_position(self.player_t2_idfs[i]), self.my_position)
+      #       self.distance_team2.append((self.player_t2_idfs[i], val))
+
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
       if True or not self.world.entity_from_identifier['B'].confidence < 0.5:
@@ -110,6 +116,32 @@ class TacticsMain:
       if i == 5:
         return False
 
+  def enemy_circumvention_behavior(self):
+    too_near = []
+    for player in self.distance_team1:
+      if player[1] <= self.MIN_DISTANCE and player[0] != 'P_1_'+str(self.nao.player_nr):
+        too_near.append(player)
+    if len(too_near) == 0:
+      return False
+    too_near = sorted(too_near, key = lambda dist: dist[1])
+    self.run_straight = True
+
+    new_tuples = []
+    for i in too_near:
+      pos = self.world.get_entity_position(i[0])
+      x_dist = self.my_position.x - pos.x
+      y_dist = self.my_position.y - pos.y
+
+      new_tuples.append((self.my_position.x + x_dist,
+                   self.my_position.y + y_dist))
+
+    average_list = [0, 0]
+    for i in new_tuples:
+      average_list[0] += i[0]
+      average_list[1] += i[1]
+
+    return (average_list[0]/len(too_near), average_list[1]/len(too_near))
+
   def flocking_behavior(self):
     too_near = []
     for player in self.distance_team1:
@@ -148,7 +180,6 @@ class TacticsMain:
       average_list[0] += i[0]
       average_list[1] += i[1]
 
-    print str(self.nao.player_nr)+ " "+str((average_list[0]/len(too_near), average_list[1]/len(too_near)))
     return (average_list[0]/len(too_near), average_list[1]/len(too_near))
 
   def run_tactics(self,hearObj):
@@ -168,23 +199,22 @@ class TacticsMain:
         continue
       if self.distance_lines[line] <= 0.2:
         if line == "L1":
-          self.run_straight =True
+          self.run_straight = True
           self.dest = Vector(self.my_position.x, self.my_position.y - 0.3)
         if line == "L2":
-          self.run_straight =True
+          self.run_straight = True
           self.dest = Vector(self.my_position.x, self.my_position.y + 0.3)
         if line == "LL":
-          self.run_straight =True
+          self.run_straight = True
           self.dest = Vector(self.my_position.x + 0.3, self.my_position.y)
         if line == "LR":
-          self.run_straight =True
+          self.run_straight = True
           self.dest = Vector(self.my_position.x - 0.3, self.my_position.y)
 
 
 
-
     if self.run_straight:
-      if self.my_position ==None  or self.dest == None:
+      if self.my_position == None or self.dest == None:
         print "MyPosition = " +  str(self.my_position) + " dist " +str(self.dest)
       vec = Vector(0,0)
       vec.x = self.my_position.x / self.dest.x
@@ -197,28 +227,29 @@ class TacticsMain:
 
 
 
-
-
     ball = self.i_own_ball()
     offence = self.offence_Player()
     defence = not ball and not offence
 
     result_list = [ball,offence,defence]
-    run_tuple = ('run',False)
-    kick_tuple = ('kick',False)
+    run_tuple = ('run', False)
+    kick_tuple = ('kick', False)
     if result_list[0]:
-      if self.distances_ball[0][1] <= 0.2:
-        kick_tuple = ('kick',1)
+      if self.distances_ball[0][1] <= 0.5:
+        if self.mov.reached_position :
+          kick_tuple = ('kick', 1)
+        else:
+          run_tuple = ('run','shoot',15,0)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
         run_tuple = ('run',tup.x,tup.y)
     elif result_list[1]:
-        tup = self.flocking_behavior()
-        if tup is False :
-          tup = (self.world.get_entity_position(self.distances_ball[0][0]).x-1.3,self.world.get_entity_position(self.distances_ball[0][0]).y-1.3)
-        else:
-          self.dest = Vector(tup[0],tup[1])
-        run_tuple = ('run',tup[0],tup[1])
+      tup = self.flocking_behavior()
+      if tup is False :
+        tup = (self.world.get_entity_position(self.distances_ball[0][0]).x-1.3,self.world.get_entity_position(self.distances_ball[0][0]).y-1.3)
+      else:
+        self.dest = Vector(tup[0],tup[1])
+      run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
         pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
