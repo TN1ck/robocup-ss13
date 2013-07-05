@@ -113,16 +113,22 @@ class Agent:
                                     self.on_left = True
                                 else:
                                     self.on_left = False
+                if self.on_left:
+                  self.us   = "Left"
+                  self.them = "Right"
+                else:
+                  self.us   = "Right"
+                  self.them = "Left"
 
-                if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right' or self.gs == 'KickOff_Right'):
+                if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
-                elif(self.gs == 'KickIn_Right' or 'corner_kick_right' or 'goal_kick_right' or 'free_kick_right'):
+                elif(self.gs == 'KickIn_'+self.them or self.gs == 'corner_kick_'+self.them.lower() or self.gs == 'goal_kick_'+self.them.lower() or self.gs =='free_kick_'+self.them.lower()):
                     goto_waitposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
-                elif(self.gs == 'KickOff_Left' or self.gs == 'PlayOn'):
+                elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions = self.tactics.run_tactics(self.hearObj)
                         if actions != None:
@@ -202,39 +208,42 @@ class Agent:
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
 
+def relx(self, x):
+    return -x if self.on_left else x
+
 def goto_startposition(self):
     if self.player_nr == 1:
-        self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 14))+" 0 0 ) ")
     elif (self.player_nr > 1) and (self.player_nr < 6):
-        self.agentSocket.enqueue(" ( beam -10 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 10))+" "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
     elif (self.player_nr > 5) and (self.player_nr < 10):
-        self.agentSocket.enqueue(" ( beam -5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 5))+" "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
     elif self.player_nr == 10:
-        self.agentSocket.enqueue(" ( beam -3 2 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 3))+" 2 0 ) ")
     elif self.player_nr == 11:
-        self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
+        self.agentSocket.enqueue(" ( beam "+str(relx(self, 2))+" -2 0 ) ")
 
 def goto_waitposition(self):
     if self.player_nr == 1:
         #self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -14 0 0.384 0 )")
-        self.movement.run(-14, 0)
+        self.movement.run(relx(self, 14), 0)
     elif (self.player_nr > 1) and (self.player_nr < 6):
         #self.agentSocket.enqueue(" ( beam -5 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -5 "+str((6-((self.player_nr-2)*4)))+" 0.38 0 )")
-        self.movement.run(-5, (6-((self.player_nr-2)*4)))
+        self.movement.run(relx(self, 5), (6-((self.player_nr-2)*4)))
     elif (self.player_nr > 5) and (self.player_nr < 10):
         #self.agentSocket.enqueue(" ( beam 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0.38 0 )")
-        self.movement.run(5, (6-(((self.player_nr-2)-4)*4)))
+        self.movement.run(relx(self, -5), (6-(((self.player_nr-2)-4)*4)))
     elif self.player_nr == 10:
         #self.agentSocket.enqueue(" ( beam 10 2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 10 2 0.38 0 )")
-        self.movement.run(10, 2)
+        self.movement.run(relx(self, -10), 2)
     elif self.player_nr == 11:
         #self.agentSocket.enqueue(" ( beam 11 -2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 11 -2 0.38 0 )")
-        self.movement.run(11, -2)
+        self.movement.run(relx(self, -11), -2)
 
 def signal_handler(signal, frame):
     #print("Here some statistics:")
