@@ -235,8 +235,11 @@ class TacticsMain:
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     if result_list[0]:
-      if self.distances_ball[0][1] <= 0.2:
-        kick_tuple = ('kick', 1)
+      if self.distances_ball[0][1] <= 0.5:
+        if self.mov.reached_position :
+          kick_tuple = ('kick', 1)
+        else:
+          run_tuple = ('run','shoot',15,0)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
         run_tuple = ('run',tup.x,tup.y)

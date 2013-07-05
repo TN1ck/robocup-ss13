@@ -17,6 +17,7 @@ class Movement:
         self.shoot_distance = hypot(-0.2, 0.05)
         self.shoot_angle_offset = atan2(-0.2, 0.05)
         self.fresh = True
+        self.reached_position = False
 
     def get_world(self):
         return self.world
@@ -73,12 +74,15 @@ class Movement:
         self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384", angle, ")")
         
     def run_to_shoot_position(self, *destination):
+        print "lol2"
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
         ballposition = self.world.ball.get_position()
         a = atan2(destination[0] - ballposition.x, destination[1] - ballposition.y)
         if (hypot(ballposition.x - self.position.x, ballposition.y - self.position.y) > self.divergence):
+            self.reached_position = False
             self.run(ballposition.x + (sin(a + self.shoot_angle_offset) * self.shoot_distance), ballposition.y + (cos(a + self.shoot_angle_offset) * self.shoot_distance))
         else:
+            self.reached_position = True
             self.turn(degrees(a) - 80)
         return
 

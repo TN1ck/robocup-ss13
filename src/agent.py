@@ -148,6 +148,8 @@ class Agent:
                                 if item[0] == 'run':
                                     if item[1] is False:
                                         self.movement.stop()
+                                    elif item[1] == 'shoot':
+                                        self.movement.run_to_shoot_position(item[2],item[3])
                                     else:
                                         self.movement.run(item[1],item[2])
                                 if item[0] == 'say':
