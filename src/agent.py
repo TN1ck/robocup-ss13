@@ -215,7 +215,6 @@ def goto_startposition(self):
         self.agentSocket.enqueue(" ( beam -2 -2 0 ) ")
 
 def goto_waitposition(self):
-    print "lol"
     if self.player_nr == 1:
         #self.agentSocket.enqueue(" ( beam -14 0 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -14 0 0.384 0 )")
