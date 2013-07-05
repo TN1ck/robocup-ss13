@@ -100,7 +100,7 @@ class Scenegraph_Test(unittest.TestCase):
 
 
     def testScene1(self):
-        scene = Scene.Instance()
+        scene = Scene()
         scene.create_scene(self.message_example1)
         # trfNode1
         self.assertTrue(numpy.array_equal(self.trfNode1_matrix, scene.find_node(1).get_matrix()))
@@ -136,7 +136,7 @@ class Scenegraph_Test(unittest.TestCase):
 
 
     def testScene_update1(self):
-        scene = Scene.Instance()
+        scene = Scene()
         scene.create_scene(self.message_example1)
         scene.update_scene(self.message_update1)
         # trfNode1_update

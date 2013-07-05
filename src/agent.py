@@ -23,6 +23,7 @@ import scene
 import statistics
 import numpy
 import interpol
+from multiprocessing import Process, Manager, Value
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -52,9 +53,11 @@ class Agent:
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
         self.statistic = statistics.Statistics()
-        self.scene = scene.Scene.Instance()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
+        self.scene = scene.Scene()
+        self.scene_updated = False #variable for handling the scenegraph
+        self.position = None #variable that holds the agent's own position (read from the scenegraph)
 
     def start(self):
             self.monitorSocket.start()
@@ -64,10 +67,24 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 " + str(offset_for_player) + " 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
+            
+             #stuff to handle the second thread that receives via monitor protocol: 
+            manager = Manager()
+            shared_list = manager.list()
+            shared_value = Value('b', 0)
+            # start second thread:
+            Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
 
 
             while True:
                 msg = self.agentSocket.receive()
+                
+                if(shared_value.value == 1):
+                    shared_value.value = 0
+                    self.scene.run_cycle(shared_list)
+                    self.scene_updated = True
+                    del shared_list[:]
+                  
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:
                     current_preceptor = parsed_msg.pop()
@@ -209,6 +226,16 @@ class Agent:
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
+                
+# updates the agent's position
+def get_position(self):
+    if (self.scene_updated):
+        if(self.on_left):
+            self.position = self.scene.get_position_xy("left", self.player_nr)
+        else:
+            self.position = self.scene.get_position_xy("right", self.player_nr)
+    self.scene_updated = False
+    return self.position
 
 def relx(self, x):
     return -x if self.on_left else x
@@ -246,6 +273,18 @@ def goto_waitposition(self):
         #self.agentSocket.enqueue(" ( beam 11 -2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 11 -2 0.38 0 )")
         self.movement.run(relx(self, -11), -2)
+
+
+# method that receives via monitor protocol
+def receive_monitor_data(list, val):
+        socket = sock.Sock("localhost", 3200, None, None)
+        socket.start()
+        while True:
+            msg = socket.receive()
+            data = parser.parse_sexp(msg)
+            if not list:
+                list.extend(data)
+                val.value = 1
 
 def signal_handler(signal, frame):
     #print("Here some statistics:")
