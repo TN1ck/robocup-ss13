@@ -79,7 +79,7 @@ class Nao:
         return copy.deepcopy(self._gyro_state)
 
     def get_accelerometer(self):
-        """Returns the absolute gyro orientation."""
+        """Returns the accelerometer as a 3-component numpy array."""
         return copy.deepcopy(self._accelerometer)
 
     def lies_on_front(self):

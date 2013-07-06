@@ -27,7 +27,7 @@ import interpol
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
 __builtin__.our_team_number = 1
-__builtin__.number_of_players_per_team = 6
+__builtin__.number_of_players_per_team = 11
 
 
 
@@ -40,7 +40,7 @@ class Agent:
 
         self.drawer = drawing.Drawing(0, 0)
 
-        self.world = world.World(11, 30, 20)
+        self.world = world.World()
         self.world_history = collections.deque()        # smoothed world (double ended queue)
         self.world_history_raw = collections.deque()    # raw world, as perceived
         self.nao = nao.Nao(self.world, self.player_nr)
@@ -75,18 +75,18 @@ class Agent:
                         self.perception.process_joint_positions(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'See':
                         self.perception.process_vision(current_preceptor, self.world)
-                        # drawing some position as stored in world model:
-                        player_id = 'P_1_' + str(self.player_nr)
-                        player = self.world.entity_from_identifier[player_id]
-                        self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
-                        self.drawer.drawArrow(player.get_position(), player.get_position() + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
-                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [200, 200, 200], "all." + player_id + ".ballpos")
-                        self.drawer.showDrawingsNamed("all." + player_id)
-                        # ok, vision is parsed and processed, we've got our final world model for this cycle.
-                        # save it:
+                        # ok, vision is parsed and processed. save the raw world model for further use:
+                        self.world_history_raw.append(copy.deepcopy(self.world))
+                        if len(self.world_history_raw) > 100:
+                            self.world_history_raw.popleft()
+                        # smoothing:
+                        #self.interpol.smooth_mobile_entity_positions()
+                        # world is smooth now. final version. add to smooth world queue:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
                             self.world_history.popleft()
+                        # drawing some position as stored in world model:
+                        self.debug_draws()
 
                         #perception statistics
                         #scene graph auslesen
@@ -209,6 +209,25 @@ class Agent:
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
+
+    def debug_draws(self):
+        # some helperz:
+        player_id = 'P_1_' + str(self.player_nr)
+        player = self.world.entity_from_identifier[player_id]
+        player_pos = player.get_position()
+        # draw player pos & see vector:
+        self.drawer.drawCircle(player_pos, 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
+        self.drawer.drawArrow(player_pos, player_pos + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
+        # draw mobilez:
+        for me in self.world.mobile_entities():
+            if isinstance(me, world.Ball):
+                color = [200, 200, 200]
+            else:   # is instace of player
+                color = [255, 0, 0] if me.get_identifier()[2:3] == '2' else [0, 255, 0]
+            self.drawer.drawLine(player_pos, me.get_position(), 1, color, "all." + player_id + ".mobile_entity_line")
+            self.drawer.drawCircle(me.get_position(), 0.2, 3, color, "all." + player_id + ".mobile_entity_circle")
+        self.drawer.showDrawingsNamed("all." + player_id)
+
 
 def goto_startposition(self):
     if self.player_nr == 1:
