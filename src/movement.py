@@ -17,6 +17,7 @@ class Movement:
         self.shoot_distance = hypot(-0.2, 0.05)
         self.shoot_angle_offset = atan2(-0.2, 0.05)
         self.fresh = True
+        self.reached_position = False
 
     def get_world(self):
         return self.world
@@ -75,13 +76,13 @@ class Movement:
     def run_to_shoot_position(self, *destination):
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
         ballposition = self.world.ball.get_position()
-        ballposition.x = 0
-        ballposition.y = 0
-        a = atan2(destination[0] - ballposition.x, destination[1] - ballposition.y)
+        a = atan2(destination[1] - ballposition.y, destination[0] - ballposition.x)
         if (hypot(ballposition.x - self.position.x, ballposition.y - self.position.y) > self.divergence):
             self.run(ballposition.x + (sin(a + self.shoot_angle_offset) * self.shoot_distance), ballposition.y + (cos(a + self.shoot_angle_offset) * self.shoot_distance))
+            self.reached_position = False
         else:
             self.turn(degrees(a) - 80)
+            self.reached_position = True
         return
 
     def stop(self):

@@ -39,23 +39,59 @@ class Keyframe_Engine:
             self.next_head_step(keyframe, name)
 
     def parry_right(self):
+        '''
+        Goalie Parry to the right
+        '''
         self.last_frame = kf.parry_right_1
         self.working = True
 
     def parry_left(self):
+        '''
+        Goalie Parry to the left
+        '''
         self.last_frame = kf.parry_left_1
         self.working = True
 
     def parry_straight(self):
+        '''
+        Straight Goalie Parry, safer version (for holding ball, not for a real NAO)
+        '''
         self.last_frame = kf.parry_straight
         self.working = True
         
     def parry_straight1(self):
+        '''
+        Straight Goalie Parry, unsafe version, only stylish-ish
+        '''
         self.last_frame = kf.parry_straight1
         self.working = True
 
-    def kick_strong(self):
-        self.last_frame = kf.kick_strong
+#     def kick(self):
+#         '''
+#         hyper-kick, very unfinished
+#         '''
+#         self.last_frame = kf.kick_bossmode
+#         self.working = True
+
+    def kick_strong_left(self):
+        '''
+        Left-Footed strong kick.
+        '''
+        self.last_frame = kf.kick_strong_l
+        self.working = True
+
+    def kick_strong_right(self):
+        '''
+        Right-Footed strong kick.
+        '''
+        self.last_frame = kf.kick_strong_r
+        self.working = True
+            
+    def kick_right(self):
+        '''
+        right-footed dribbling kick.
+        '''
+        self.last_frame = kf.kick1_r
         self.working = True
 
     def fall_on_front(self):
@@ -104,12 +140,12 @@ class Keyframe_Engine:
         self.head_frame = kf.lookAround.keyframe
         self.head_working = True
 
-    def kick1(self):
+    def kick_left(self):
         '''
         first kick-function
         the ball has to lay in front of the nao
         '''
-        self.last_frame = kf.kick1
+        self.last_frame = kf.kick1_l
         self.working = True
 
     def test_frame(self):

@@ -235,8 +235,11 @@ class TacticsMain:
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     if result_list[0]:
-      if self.distances_ball[0][1] <= 0.2:
-        kick_tuple = ('kick', 1)
+      if self.distances_ball[0][1] <= 0.5:
+        if self.mov.reached_position :
+          kick_tuple = ('kick', 1)
+        else:
+          run_tuple = ('run','shoot',15,0)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
         run_tuple = ('run',tup.x,tup.y)
@@ -246,7 +249,7 @@ class TacticsMain:
         tup = (self.world.get_entity_position(self.distances_ball[0][0]).x-1.3,self.world.get_entity_position(self.distances_ball[0][0]).y-1.3)
       else:
         self.dest = Vector(tup[0],tup[1])
-        run_tuple = ('run',tup[0],tup[1])
+      run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
         pass
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
