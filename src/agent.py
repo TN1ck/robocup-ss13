@@ -97,7 +97,7 @@ class Agent:
                         if len(self.world_history_raw) > 100:
                             self.world_history_raw.popleft()
                         # smoothing:
-                        #self.interpol.smooth_mobile_entity_positions()
+                        self.interpol.smooth_mobile_entity_positions()
                         # world is smooth now. final version. add to smooth world queue:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
@@ -227,19 +227,6 @@ class Agent:
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
                 
-# updates the agent's position
-def get_position(self):
-    if (self.scene_updated):
-        if(self.on_left):
-            self.position = self.scene.get_position_xy("left", self.player_nr)
-        else:
-            self.position = self.scene.get_position_xy("right", self.player_nr)
-    self.scene_updated = False
-    return self.position
-
-def relx(self, x):
-    return -x if self.on_left else x
-
     def debug_draws(self):
         # some helperz:
         player_id = 'P_1_' + str(self.player_nr)
@@ -258,6 +245,18 @@ def relx(self, x):
             self.drawer.drawCircle(me.get_position(), 0.2, 3, color, "all." + player_id + ".mobile_entity_circle")
         self.drawer.showDrawingsNamed("all." + player_id)
 
+# updates the agent's position
+def get_position(self):
+    if (self.scene_updated):
+        if(self.on_left):
+            self.position = self.scene.get_position_xy("left", self.player_nr)
+        else:
+            self.position = self.scene.get_position_xy("right", self.player_nr)
+    self.scene_updated = False
+    return self.position
+
+def relx(self, x):
+    return -x if self.on_left else x
 
 def goto_startposition(self):
     if self.player_nr == 1:
