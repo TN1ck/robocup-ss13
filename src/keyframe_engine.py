@@ -66,12 +66,12 @@ class Keyframe_Engine:
         self.last_frame = kf.parry_straight1
         self.working = True
 
-    def kick(self):
-        '''
-        hyper-kick, very unfinished
-        '''
-        self.last_frame = kf.kick_bossmode
-        self.working = True
+#     def kick(self):
+#         '''
+#         hyper-kick, very unfinished
+#         '''
+#         self.last_frame = kf.kick_bossmode
+#         self.working = True
 
     def kick_strong_left(self):
         '''

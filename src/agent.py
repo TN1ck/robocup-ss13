@@ -48,7 +48,7 @@ class Agent:
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
         self.interpol = interpol.Interpol(self.player_nr, self.world, self.world_history, self.world_history_raw)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
-       	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
+        self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
@@ -68,7 +68,7 @@ class Agent:
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
             
-             #stuff to handle the second thread that receives via monitor protocol: 
+            #stuff to handle the second thread that receives via monitor protocol: 
             manager = Manager()
             shared_list = manager.list()
             shared_value = Value('b', 0)
@@ -131,11 +131,11 @@ class Agent:
                                 else:
                                     self.on_left = False
                 if self.on_left:
-                  self.us   = "Left"
-                  self.them = "Right"
+                    self.us   = "Left"
+                    self.them = "Right"
                 else:
-                  self.us   = "Right"
-                  self.them = "Left"
+                    self.us   = "Right"
+                    self.them = "Left"
 
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
@@ -159,9 +159,9 @@ class Agent:
                                         break
                                 if item[0] == 'kick':
                                     if item[1] == 1:
-                                        self.keyFrameEngine.kick1()
+                                        self.keyFrameEngine.kick_right()
                                     elif item[1] == 2:
-                                        self.keyFrameEngine.strong_kick()
+                                        self.keyFrameEngine.kick_strong_right()
                                 if item[0] == 'run':
                                     if item[1] is False:
                                         self.movement.stop()
