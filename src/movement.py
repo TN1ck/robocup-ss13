@@ -7,7 +7,7 @@ class Movement:
         self.player_nr = player_nr
         #self.team = team
         self.velocity = 0.02
-        self.divergence = 0.27
+        self.divergence = 0.05
         self.stopped = True
         self.destination = None
         self.angular_precision = 0.1;
@@ -81,8 +81,10 @@ class Movement:
         #ballposition.x = 0
         #ballposition.y = 0
         a = atan2(destination[1] - ballposition.y, destination[0] - ballposition.x)
-        if (hypot(ballposition.x - self.position.x, ballposition.y - self.position.y) > self.divergence):
-            self.run(ballposition.x + (cos(a + self.shoot_angle_offset) * self.shoot_distance), ballposition.y + (sin(a + self.shoot_angle_offset) * self.shoot_distance))
+        self.destx = ballposition.x + (cos(a + self.shoot_angle_offset) * self.shoot_distance)
+        self.desty = ballposition.y + (sin(a + self.shoot_angle_offset) * self.shoot_distance)
+        if (hypot(self.destx - self.position.x, self.desty - self.position.y) > self.divergence):
+            self.run(self.destx, self.desty)
             self.reached_position = False
         else:
             self.turn(degrees(a) - 80)
