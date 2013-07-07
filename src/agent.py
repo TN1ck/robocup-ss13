@@ -147,7 +147,7 @@ class Agent:
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions = self.tactics.run_tactics(self.hearObj)
-                        #print actions
+                        self.hearObj = None
                         if actions != None:
                             for item in actions:
                                 if item[0] == 'stand_up':
@@ -172,7 +172,8 @@ class Agent:
                                     else:
                                         self.movement.run(item[1],item[2])
                                 if item[0] == 'say':
-                                    pass
+                                    if item[1] is not False:
+                                      self.communication.sayMessageType5(item[1],item[2], item[3],item[4],item[5])
                                 if item[0] == 'head':
                                     if item[1] is True:
                                         self.keyFrameEngine.head_lookAround()
