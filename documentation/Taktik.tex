@@ -1,0 +1,64 @@
+% This file was converted from HTML to LaTeX with
+% gnuhtml2latex program
+% (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
+% (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
+% Version : 0.4.
+\section*{Taktik}
+\section*{Generelle KI-Struktur}
+Wir haben uns innerhalb der Taktik Gruppe für ein Schwarmverhalten entschieden.\\
+Das heißt das jeder Nao einem spezifischen Set von simplen 
+Verhaltensregeln folgt, die in ihrer Gesamtheit das komplexe Verhalten 
+der Gruppe konstituieren.
+
+\section*{Beispiel}
+Beispielsweise kann eine gleichmäßige Verteilung der Nao's auf dem Spielfeld durch Selbstorganisation
+erreicht werden.\\
+Jedem Agenten wird dabei vorgegeben innerhalb eines bestimmten 
+Abstands zu seinen Mitspielern zu bleiben. Da alle Mitpsieler bestrebt 
+sind diesen Abstand zu erreichen ergibt sich im laufe der Zeit eine 
+gleichmäßige Verteilung der Spieler.\\
+Dies passiert konkret in einer reaktiven Agentenstruktur durch Bewertungen des Nutzens (Utility) von bestimmten Handlungen.\\
+In unserem Beispiel erhalten die Agenten 2 Algortihmen:
+
+\begin{itemize}
+\item Der erste Algorithmus,run\_to\_friend, gibt einen Utility Wert 
+(Float) aus, der steigt wenn sich der Nao von seinem Mitspielern 
+entfernt.
+\item Der zweite Algorithmus,run\_away\_from\_friend, gibt einen Utility
+ Wert aus, der steigt wenn sich der Nao seinem Mitspielern annährt.
+\end{itemize}
+Es wird immer die Handlung mit dem aktuell höchsten Utility Wert ausgeführt.\\
+Entfernt sich nun der Nao zu weit von einem bestimmten Mitspilern
+ in seiner Umgebung steigt der Nutzen der Handlung run\_to\_friend. 
+Kommt er ihm zu nahe steigt der Nutzen von run\_away\_from\_friend.
+Sind beide Utilities gleichgroß befindet sich der Nao im Gleichgewicht: 
+der angestrebte Abstand zum anderen Mitspieler wurde erreicht.\\
+Dies ist also eine Form von negativer Rückkopplung.\\
+(Ein weiteres Beispiel für Selbstorganisation)
+
+\section*{Taktik-Utilities}
+\begin{itemize}
+\item  enemy\_owns\_ball()
+\item  player\_owns\_ball(x)
+\end{itemize}
+\section*{Taktik-Grundfunktionen}
+\begin{itemize}
+\item  run\_to\_ball()
+\item  run\_to\_enemy\_goal()
+\item  run\_to\_own\_goal()
+\end{itemize}
+\begin{itemize}
+\item  run\_to\_enemy(x)
+\item  run\_away\_from\_enemy(x)
+\end{itemize}
+\begin{itemize}
+\item  stay()
+\end{itemize}
+\begin{itemize}
+\item  run\_to\_friend(x)
+\item  run\_away\_from\_friend(x)
+\end{itemize}
+\begin{itemize}
+\item  run\_away\_from\_l1()
+\item  run\_away\_from\_r2()
+\end{itemize}
