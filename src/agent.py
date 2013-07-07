@@ -127,14 +127,12 @@ class Agent:
                             if i[0] == 'team':
                                 if i[1] == 'left':
                                     self.on_left = True
+                                    self.us = "Left"
+                                    self.them = "Right"
                                 else:
                                     self.on_left = False
-                if self.on_left:
-                    self.us   = "Left"
-                    self.them = "Right"
-                else:
-                    self.us   = "Right"
-                    self.them = "Left"
+                                    self.us = "Right"
+                                    self.them = "Left"
 
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
