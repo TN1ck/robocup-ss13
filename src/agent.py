@@ -78,7 +78,6 @@ class Agent:
 
             while True:
                 msg = self.agentSocket.receive()
-                
                 if(shared_value.value == 1):
                     shared_value.value = 0
                     self.scene.run_cycle(shared_list)
@@ -148,6 +147,7 @@ class Agent:
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions = self.tactics.run_tactics(self.hearObj)
+                        #print actions
                         if actions != None:
                             for item in actions:
                                 if item[0] == 'stand_up':
@@ -167,6 +167,8 @@ class Agent:
                                         self.movement.stop()
                                     elif item[1] == 'shoot':
                                         self.movement.run_to_shoot_position(item[2],item[3])
+                                    elif item[1] == 'turn':
+                                        self.movement.turn(item[2])
                                     else:
                                         self.movement.run(item[1],item[2])
                                 if item[0] == 'say':
