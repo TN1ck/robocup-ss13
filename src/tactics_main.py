@@ -251,6 +251,7 @@ class TacticsMain:
     say_tuple = ('say',False)
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
+    stop_run_to_shoot = False
 
 
     if self.nao.lies_on_front():
@@ -272,7 +273,13 @@ class TacticsMain:
         b.confidence = 0.8
     
     self.get_distances()
-    
+
+    if isinstance(hearObj,hearObject.GoToBall):
+      d = self.calc_point_distance(self.my_position,Vector(hearObj.hearObject.x,hearObj.hearObject.y))
+      if self.distances_ball != []: 
+        stop_run_to_shoot = (self.distances_ball[0][0] == ('P_1_' + str(self.nao.player_nr)) and d < 0.8)
+      print stop_run_to_shoot
+      
     say_tuple = self.ball_info()
     
     self.check_lines()
@@ -290,16 +297,20 @@ class TacticsMain:
     defence = not ball and not offence
 
     if ball:
-      self.offence_member = True
-      if self.distances_ball[0][1] <= 0.5:
-        if self.mov.reached_position :
-          self.mov.reached_position = False
-          kick_tuple = ('kick', 2)
+      if stop_run_to_shoot:
+        run_tuple = (self.my_position.x - 0.5 , self.my_position.y - 0.5 )
+      else:  
+        self.offence_member = True
+        if self.distances_ball[0][1] <= 0.5:
+          say_tuple = ('say',1,self.nao.player_nr,0,self.my_position.x,self.my_position.y)
+          if self.mov.reached_position :
+            self.mov.reached_position = False
+            kick_tuple = ('kick', 2)
+          else:
+            run_tuple = ('run','shoot',15,0)
         else:
-          run_tuple = ('run','shoot',15,0)
-      else:
-        tup = self.world.entity_from_identifier['B'].get_position()
-        run_tuple = ('run',tup.x,tup.y)
+          tup = self.world.entity_from_identifier['B'].get_position()
+          run_tuple = ('run',tup.x,tup.y)
     elif offence:
       self.offence_member = True
       tup = self.flocking_behavior()
