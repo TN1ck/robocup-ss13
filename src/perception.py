@@ -154,8 +154,6 @@ class Perception:
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
                     w.entity_from_identifier[player_key].confidence = 1.0
-                    self.drawer.drawLine(player.get_position(), world.Vector(pos[0], pos[1]), 1, [255, 0, 0] if team == 2 else [0, 255, 0], "all." + self.player_id + ".other_player_line")
-                    self.drawer.drawCircle(world.Vector(pos[0], pos[1]), 0.2, 3, [255, 0, 0] if team == 2 else [0, 255, 0], "all." + self.player_id + ".other_player_circle")
             elif me[0] == 'B':                          # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
@@ -163,7 +161,6 @@ class Perception:
                 pos = cam_pos + vector_to_ball
                 w.entity_from_identifier['B'].set_position(pos[0], pos[1])
                 w.entity_from_identifier['B'].confidence = 1.0
-                self.drawer.drawLine(player.get_position(), world.Vector(pos[0], pos[1]), 1, [200, 200, 200], "all." + self.player_id + ".debug.ball_line")
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
 
