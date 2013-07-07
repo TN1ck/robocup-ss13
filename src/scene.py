@@ -47,18 +47,22 @@ class Singleton:
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
 
-@Singleton
+#@Singleton
 class Scene:
     
-    #initializes the root of the sceneGraph, an empty dictionary for the Naos and a socket that connects to the server
-    def __init__(self):
+    #initializes the root of the sceneGraph, empty dictionariies for the Naos and a socket that connects to the server    
+    def __init__(self, socket = None):
+        if (socket == None):
+            self.__socket = Sock("localhost", 3200, None, None)
+            self.__socket.start()
+        else:
+            self.__socket = socket
         self.__root = tree_node.Tree_Node(0)
         self.__naos_left = {}
         self.__naos_right = {}
-        self.__socket = Sock("localhost", 3200, None, None)
-        self.__socket.start()
-        self.__idcount = 1;
+        self.__idcount = 1
         self.__nodes = [self.__root]
+        self.__ball_node = None
         
     #creates and maintains the scenegraph in a loop. Not to be used by the agent, just on stand alone usage (eg. for analyzing)   
     def start(self):
@@ -74,9 +78,10 @@ class Scene:
         
     #should be called by the agent before it calls get_position.
     #receives one scene graph message and either creates a new scene graph or updates an existing one.
-    def run_cycle(self):
-        msg = self.__socket.receive()
-        data = parser.parse_sexp(msg)
+    def run_cycle(self, data = None):
+        if (data == None):
+            msg = self.__socket.receive()
+            data = parser.parse_sexp(msg)
         header = data[1]
         if (header[0] == "RSG"):
             self.__root = tree_node.Tree_Node(0)
@@ -84,8 +89,10 @@ class Scene:
             self.__naos_right = {}
             self.__idcount = 1
             self.__nodes = [self.__root]
+            self.__ball_node = None
             self.create_scene(data)
         if (header[0] == "RDS"):
+            #print("monitor:" + str(data[0][0][1]))
             self.update_scene(data)
     
     #creates a completely new sceneGraph. Should be called if the server sends (RSG 0 1)
@@ -204,6 +211,8 @@ class Scene:
                 self.__naos_left[reset[0]] = node
             if(reset[1] == "matRight"):
                 self.__naos_right[reset[0]] = node
+        if(load == "models/soccerball.obj"):
+            self.__ball_node = node
         return node
     
     # updates the sceneGraph. Should be called if the server sends (RDS 0 1)
@@ -258,7 +267,35 @@ class Scene:
                 return None
         else:
             return None
-        parent = nao.get_parent()
+        result = self.calc_position(nao)
+        return result
+    
+    
+    # returns a list containing the position and orientation of the nao with id naoID of one team.
+    # team needs to be either "left" or "right"
+    # NaoID needs to be the number of the nao (the one that is printed on his back)
+    def get_position_xy(self, team, naoID):
+        result = self.get_position(team, naoID)
+        if(result != None):
+            return [result[0][3],result[1][3]]
+        else:
+            return None
+    
+    # returns the xy-coordinates of the current position of the ball on the pitch    
+    def get_ball_position(self):
+        if (self.__ball_node):
+            result = self.calc_position(self.__ball_node)
+        else:
+            return None
+        return [result[0][3],result[1][3]]
+        
+        
+    # IS CALLED BY get_position methods, YOU DON'T NEED to call it on your own!
+    # Use get_position(team, player_id) or get_position_xy(team, player_id) to get a nao's position
+    # and get_ball_position() to get the ball's position instead
+    # calculates the position of a mobile entity by multiplying the transformation matrixes from the root down to the given node   
+    def calc_position(self, node):
+        parent = node.get_parent()
         matrices = []
         while (parent != self.__root):
             matrices.append(parent.get_matrix())
@@ -269,55 +306,32 @@ class Scene:
         return result
     
     
-    # returns a list containing the position and orientation of the nao with id naoID of one team.
-    # team needs to be either "left" or "right"
-    # NaoID needs to be the number of the nao (the one that is printed on his back)
-    # calculates the position by multiplying the transformation matrixes from the root down to the nao
-    def get_position_xy(self, team, naoID):
-        key = "matNum" + str(naoID)
-        if(team == "left"):
-            if (self.__naos_left.has_key(key)):
-                nao = self.__naos_left[key]
-            else:
-                return None
-        elif(team == "right"):
-            if (self.__naos_right.has_key(key)):
-                nao = self.__naos_right[key]
-            else:
-                return None
-        else:
-            return None
-        parent = nao.get_parent()
-        matrices = []
-        while (parent != self.__root):
-            matrices.append(parent.get_matrix())
-            parent = parent.get_parent()
-        result = matrices.pop()
-        while (len(matrices) > 0):
-            result = numpy.dot(result, matrices.pop())
-        return [result[0][3],result[1][3]]
-    
-    
     # returns the dictionary containing the nao id : node id pairs of the left team
     def get_naos_left(self):
-        return self.__naos_left;
+        return self.__naos_left
     
     # returns the dictionary containing the nao id : node id pairs of the right team
     def get_naos_right(self):
-        return self.__naos_right;
+        return self.__naos_right
 
     # find node with id
     def find_node(self, node_id):
-        for node in self.__nodes:
-            if node.get_id() == node_id:
-                return node
+        #for node in self.__nodes:
+        #    if node.get_id() == node_id:
+        if(self.__nodes[node_id]):
+                return self.__nodes[node_id]
         print 'Node not found'
-
+    
+    # returns the socket that is used to receive data
+    def get_socket(self):
+        return self.__socket
 
 # at the moment just used for testing purposes        
 if __name__ == "__main__":
-    scene = Scene.Instance();
+    scene = Scene();
     scene.run_cycle();
-    print(scene.get_position("left", 1));
+    scene.run_cycle();
+    print(scene.get_position("left", 1))
     print(scene.get_position_xy("left",1))
+    print(scene.get_ball_position())
     

@@ -6,7 +6,7 @@ from random import shuffle
 from logging import *
 import math
 import copy
-
+from math import atan2, degrees
 
 
 class TacticsMain:
@@ -38,6 +38,9 @@ class TacticsMain:
     self.headAngle = 0
     self.run_straight =False
     self.dest = None
+    self.ball_owner = False
+    self.ball_search_mode = 0
+    self.turn_counter = 0
 
 
 
@@ -62,9 +65,9 @@ class TacticsMain:
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      if True or not self.world.entity_from_identifier['B'].confidence < 0.5:
+      if not self.world.entity_from_identifier['B'].confidence < 0.3:
         for i in range(len(self.player_t1_idfs)):
-          if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.5:
+          if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.2:
             dist =  self.calc_point_distance(self.world.get_entity_position('B'), self.world.get_entity_position(self.player_t1_idfs[i]))
             self.distances_ball.append((self.player_t1_idfs[i],dist))
         self.distances_ball = sorted(self.distances_ball, key = lambda dist : dist[1] )
@@ -182,11 +185,36 @@ class TacticsMain:
 
     return (average_list[0]/len(too_near), average_list[1]/len(too_near))
 
+  def search_ball(self):
+    print "searching ball"
+    if self.ball_owner:
+      print 'ball_owner '
+      if self.ball_search_mode == 0:
+        self.run_straight = True
+        self.dest= Vector(self.my_position.x - 0.3,self.my_position.y - 0.3)
+        self.ball_search_mode = 1
+        return (('run', self.my_position.x - 0.3,self.my_position.y - 0.3),('stand_up',False),('kick',False),('say',False), ('head',False))
+      if self.ball_search_mode == 1:
+        print "turn"
+        if self.turn_counter == 10:
+          self.turn_counter = 0
+          self.ball_search_mode = 0
+        self.turn_counter += 1
+        ball = self.world.get_entity_position('B')
+        ball.x -= self.my_position.x
+        ball.y -= self.my_position.y
+        turn = atan2(ball.y,ball.x)
+        if turn < 0:
+          turn += 3.14
+        return (('run', 'turn',turn),('stand_up',False),('kick',False),('say',False), ('head',False))
+
+
+  
   def run_tactics(self,hearObj):
-    #if self.nao.lies_on_front():
-     # return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
-    #if self.nao.lies_on_back():
-      #return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
+    if self.nao.lies_on_front():
+      return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
+    if self.nao.lies_on_back():
+      return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
 
     self.clear_distances()
     self.set_own_position()
@@ -212,7 +240,6 @@ class TacticsMain:
           self.dest = Vector(self.my_position.x - 0.3, self.my_position.y)
 
 
-
     if self.run_straight:
       if self.my_position == None or self.dest == None:
         print "MyPosition = " +  str(self.my_position) + " dist " +str(self.dest)
@@ -225,7 +252,8 @@ class TacticsMain:
       else:
         return (('run', self.dest.x,self.dest.y),('stand_up',False),('kick',False),('say',False), ('head',False))
 
-
+    if self.distances_ball == []:
+      return self.search_ball()
 
     ball = self.i_own_ball()
     offence = self.offence_Player()
@@ -235,8 +263,13 @@ class TacticsMain:
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     if result_list[0]:
-      if self.distances_ball[0][1] <= 0.2:
-        kick_tuple = ('kick', 1)
+      self.ball_owner = True
+      if self.distances_ball[0][1] <= 0.5:
+        if self.mov.reached_position :
+          self.mov.reached_position = False
+          kick_tuple = ('kick', 2)
+        else:
+          run_tuple = ('run','shoot',15,0)
       else:
         tup = self.world.entity_from_identifier['B'].get_position()
         run_tuple = ('run',tup.x,tup.y)
@@ -248,5 +281,5 @@ class TacticsMain:
         self.dest = Vector(tup[0],tup[1])
       run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
-        pass
+        self.ball_owner = False
     return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))

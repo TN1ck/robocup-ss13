@@ -23,11 +23,12 @@ import scene
 import statistics
 import numpy
 import interpol
+from multiprocessing import Process, Manager, Value
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
 __builtin__.our_team_number = 1
-__builtin__.number_of_players_per_team = 6
+__builtin__.number_of_players_per_team = 11
 
 
 
@@ -40,21 +41,23 @@ class Agent:
 
         self.drawer = drawing.Drawing(0, 0)
 
-        self.world = world.World(11, 30, 20)
+        self.world = world.World()
         self.world_history = collections.deque()        # smoothed world (double ended queue)
         self.world_history_raw = collections.deque()    # raw world, as perceived
         self.nao = nao.Nao(self.world, self.player_nr)
         self.perception = perception.Perception(self.player_nr, our_team, self.drawer)
         self.interpol = interpol.Interpol(self.player_nr, self.world, self.world_history, self.world_history_raw)
         self.movement = movement.Movement(self.world, self.monitorSocket,self.player_nr)
-       	self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
+        self.keyFrameEngine = keyframe_engine.Keyframe_Engine(self.nao,self.agentSocket)
         self.communication = communication.Communication(self.agentSocket)
         self.tactics = tactics_main.TacticsMain(self.world,self.movement,self.nao)
         self.hearObj = None
         self.statistic = statistics.Statistics()
-        self.scene = scene.Scene.Instance()
         self.old_ball_pos = None #one tick before
         self.t = None #variable for the keeper
+        self.scene = scene.Scene()
+        self.scene_updated = False #variable for handling the scenegraph
+        self.position = None #variable that holds the agent's own position (read from the scenegraph)
 
     def start(self):
             self.monitorSocket.start()
@@ -64,10 +67,23 @@ class Agent:
             self.agentSocket.enqueue(" ( beam -10 " + str(offset_for_player) + " 0 ) ")
             #self.agentSocket.enqueue(" ( beam -0.5 0 0 ) ")
             self.agentSocket.flush()
+            
+            #stuff to handle the second thread that receives via monitor protocol: 
+            manager = Manager()
+            shared_list = manager.list()
+            shared_value = Value('b', 0)
+            # start second thread:
+            # Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
 
 
             while True:
                 msg = self.agentSocket.receive()
+                if(shared_value.value == 1):
+                    shared_value.value = 0
+                    self.scene.run_cycle(shared_list)
+                    self.scene_updated = True
+                    del shared_list[:]
+                  
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:
                     current_preceptor = parsed_msg.pop()
@@ -75,18 +91,18 @@ class Agent:
                         self.perception.process_joint_positions(current_preceptor, self.nao)
                     elif current_preceptor[0] == 'See':
                         self.perception.process_vision(current_preceptor, self.world)
-                        # drawing some position as stored in world model:
-                        player_id = 'P_1_' + str(self.player_nr)
-                        player = self.world.entity_from_identifier[player_id]
-                        self.drawer.drawCircle(player.get_position(), 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
-                        self.drawer.drawArrow(player.get_position(), player.get_position() + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
-                        self.drawer.drawCircle(self.world.get_entity_position('B'), 0.2, 3, [200, 200, 200], "all." + player_id + ".ballpos")
-                        self.drawer.showDrawingsNamed("all." + player_id)
-                        # ok, vision is parsed and processed, we've got our final world model for this cycle.
-                        # save it:
+                        # ok, vision is parsed and processed. save the raw world model for further use:
+                        self.world_history_raw.append(copy.deepcopy(self.world))
+                        if len(self.world_history_raw) > 100:
+                            self.world_history_raw.popleft()
+                        # smoothing:
+                        self.interpol.smooth_mobile_entity_positions()
+                        # world is smooth now. final version. add to smooth world queue:
                         self.world_history.append(copy.deepcopy(self.world))
                         if len(self.world_history) > 100:
                             self.world_history.popleft()
+                        # drawing some position as stored in world model:
+                        self.debug_draws()
 
                         #perception statistics
                         #scene graph auslesen
@@ -114,11 +130,11 @@ class Agent:
                                 else:
                                     self.on_left = False
                 if self.on_left:
-                  self.us   = "Left"
-                  self.them = "Right"
+                    self.us   = "Left"
+                    self.them = "Right"
                 else:
-                  self.us   = "Right"
-                  self.them = "Left"
+                    self.us   = "Right"
+                    self.them = "Left"
 
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
@@ -131,6 +147,7 @@ class Agent:
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
                     if not self.keyFrameEngine.working and self.player_nr > 1:
                         actions = self.tactics.run_tactics(self.hearObj)
+                        #print actions
                         if actions != None:
                             for item in actions:
                                 if item[0] == 'stand_up':
@@ -142,12 +159,16 @@ class Agent:
                                         break
                                 if item[0] == 'kick':
                                     if item[1] == 1:
-                                        self.keyFrameEngine.kick1()
+                                        self.keyFrameEngine.kick_right()
                                     elif item[1] == 2:
-                                        self.keyFrameEngine.strong_kick()
+                                        self.keyFrameEngine.kick_strong_right()
                                 if item[0] == 'run':
                                     if item[1] is False:
                                         self.movement.stop()
+                                    elif item[1] == 'shoot':
+                                        self.movement.run_to_shoot_position(item[2],item[3])
+                                    elif item[1] == 'turn':
+                                        self.movement.turn(item[2])
                                     else:
                                         self.movement.run(item[1],item[2])
                                 if item[0] == 'say':
@@ -204,6 +225,34 @@ class Agent:
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
+                
+    def debug_draws(self):
+        # some helperz:
+        player_id = 'P_1_' + str(self.player_nr)
+        player = self.world.entity_from_identifier[player_id]
+        player_pos = player.get_position()
+        # draw player pos & see vector:
+        self.drawer.drawCircle(player_pos, 0.2, 3, [200, 155, 100], "all." + player_id + ".ownpos")
+        self.drawer.drawArrow(player_pos, player_pos + world.Vector(player._see_vector[0] * 2, player._see_vector[1] * 2), 3, [255, 150, 0], "all." + player_id + ".see")
+        # draw mobilez:
+        for me in self.world.mobile_entities():
+            if isinstance(me, world.Ball):
+                color = [200, 200, 200]
+            else:   # is instace of player
+                color = [255, 0, 0] if me.get_identifier()[2:3] == '2' else [0, 255, 0]
+            self.drawer.drawLine(player_pos, me.get_position(), 1, color, "all." + player_id + ".mobile_entity_line")
+            self.drawer.drawCircle(me.get_position(), 0.2, 3, color, "all." + player_id + ".mobile_entity_circle")
+        self.drawer.showDrawingsNamed("all." + player_id)
+
+# updates the agent's position
+def get_position(self):
+    if (self.scene_updated):
+        if(self.on_left):
+            self.position = self.scene.get_position_xy("left", self.player_nr)
+        else:
+            self.position = self.scene.get_position_xy("right", self.player_nr)
+    self.scene_updated = False
+    return self.position
 
 def relx(self, x):
     return -x if self.on_left else x
@@ -241,6 +290,18 @@ def goto_waitposition(self):
         #self.agentSocket.enqueue(" ( beam 11 -2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 11 -2 0.38 0 )")
         self.movement.run(relx(self, -11), -2)
+
+
+# method that receives via monitor protocol
+def receive_monitor_data(list, val):
+        socket = sock.Sock("localhost", 3200, None, None)
+        socket.start()
+        while True:
+            msg = socket.receive()
+            data = parser.parse_sexp(msg)
+            if not list:
+                list.extend(data)
+                val.value = 1
 
 def signal_handler(signal, frame):
     #print("Here some statistics:")
