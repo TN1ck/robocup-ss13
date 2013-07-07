@@ -73,7 +73,7 @@ class Agent:
             shared_list = manager.list()
             shared_value = Value('b', 0)
             # start second thread:
-            Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
+            # Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
 
 
             while True:
