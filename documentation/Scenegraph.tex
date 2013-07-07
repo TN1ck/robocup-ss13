@@ -3,8 +3,8 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Scenegraph}
-\subsection*{Einleitung}
+\section{Scenegraph}
+\subsection{Einleitung}
 Über den TCP port 3200 kann eine Server/Monitor Verbindung aufgebaut 
 werden. Verbindet sich dann ein Monitor mit dem Server werden 
 Informationen in folgender Reihenfolge übermittelt:
@@ -18,7 +18,7 @@ Hinweis: Da für uns nur der Scene Graph Header und der Scene Graph an
  sich relevant sind, werden wir nicht näher auf 'EnviromentInformation' 
 und 'GameState' eingehen.
 
-\subsection*{Scene Graph Header}
+\subsection{Scene Graph Header}
 Der Scene Graph Header sieht folgt aus:\\
 \texttt{(Name Version Subversion)}
 
@@ -33,21 +33,21 @@ Der Scene Graph Header sieht folgt aus:\\
 \item  Version: Versions Nummer des Scene Graph.
 \item  Subversion: Die Subversion Nummer des Scene Graph.
 \end{itemize}
-\subsection*{Scene Graph}
+\subsection{Scene Graph}
 Der Scene Graph ist ein Baum, der aus verschiedenen Knoten besteht. 
 Der root Knoten ist als $<$0;0;0$>$ definiert und hat keine Rotation. 
 Die Position und Rotation eines jeden Kindes kann durch die 
 Multplikation des root Knotens bis zum Kind herausgefunden werden.\\
 Es werden aber keine spezifischen Objekte gespeichert, sondern nur Texturen der Objekte.
 
-\subsubsection*{Base Knoten}
+\subsubsection{Base Knoten}
 Jeder Knoten, der kein Transform Knoten, ein Static Mesh Knoten oder 
 ein Light Knoten ist, ist ein Basis Knoten (inklusive des Root Knotens).
  Da er für uns irrelevant ist, gehen wir nicht näher auf den Knoten ein.
 
 \begin{verbatim}(nd BN <contents>)
 \end{verbatim}
-\subsubsection*{Transform Knoten}
+\subsubsection{Transform Knoten}
 Transform Knoten sind 4x4 Transformationsmatrizen vom Aufbau:
 
 \begin{verbatim}
@@ -67,10 +67,10 @@ Beispielnachricht:
 
 \begin{verbatim}(nd TRF (SLT nx ny nz 0 ox oy oz 0 ax ay az 0 Px Py Pz 1 ))
 \end{verbatim}
-\subsubsection*{Geometry Nodes}
+\subsubsection{Geometry Nodes}
 Die folgenden zwei Knoten definieren die Objekt Form. Sie spezifizieren ihre Maße und Texturen. Sie sind immer Blätter.
 
-\paragraph*{StaticMesh}
+\paragraph{StaticMesh}
 Defniert die Textur, die aus der .obj Datei geladen wird:
 
 \begin{verbatim}(nd StaticMesh (load <model>) (sSc <x> <y> <z>)
@@ -92,7 +92,7 @@ Beispielnachricht:
 (nd StaticMesh (load models/naohead.obj) 
 (sSc 0.1 0.1 0.1)(resetMaterials matLeft naoblack naogrey naowhite))
 \end{verbatim}
-\paragraph*{SMN}
+\paragraph{SMN}
 \begin{verbatim}(nd SMN (load <type> <params>) (sSc <x> <y> <z>)
   (setVisible 1)
   (setTransparent)
@@ -117,7 +117,7 @@ Beispielnachricht:
 \begin{verbatim}(nd SMN (load StdUnitBox) (sSc 1 31 1) (sMat matGrey))
 (nd SMN (load StdUnitCylinder 0.015 0.08) (sSc 1 1 1) (sMat matDarkGrey))
 \end{verbatim}
-\subsubsection*{Light Node}
+\subsubsection{Light Node}
 Ein Light Knoten zeigt an, wie Licht ein bestimmtes Objekt beeinflusst.
 
 \begin{verbatim}(nd Light (setDiffuse x y z w) (setAmbient x y z w) (setSpecular x y z w))
@@ -127,7 +127,7 @@ setDiffuse: Reflektion von unebenen Flächen.\\
 setAmbient: Licht, das Objekte oder Szenerien umgibt.\\
 setSpecular: Reflektion von glatten Oberflächen.
 
-\subsection*{Beispielnachricht und Aufbau}
+\subsection{Beispielnachricht und Aufbau}
 \begin{figure}[h]
 \begin{center}
 \includegraphics[scale=0.6]{Scene}
@@ -177,11 +177,11 @@ Der Vollständigkeit halber hier eine (partielle) Beispielnachricht eines aktual
 ...
 ]
 \end{verbatim}
-\subsection*{Implementierung}
-\subsubsection*{Datenstrukturen}
+\subsection{Implementierung}
+\subsubsection{Datenstrukturen}
 Um alle Knoten zu speichern, haben wir für jeden Knoten eine Datenstruktur angelegt.
 
-\subsubsection*{Wichtigsten Methoden}
+\subsubsection{Wichtigsten Methoden}
 def run\_cycle(self): Wird vom Agenten aufgerufen, um dann seine 
 Position zu bestimmen. Hier wird der Header überprüft und es wird 
 entweder ein komplett neuer Graph eingelesen oder ein vorhandener wird 

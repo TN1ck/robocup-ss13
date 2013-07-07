@@ -3,8 +3,8 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Datenstrukturen}
-\subsection*{To Do}
+\section{Datenstrukturen}
+\subsection{To Do}
 \begin{itemize}
 \item  zu Linien:
 \begin{itemize}
@@ -20,7 +20,7 @@ zwei Möglichkeiten:
 \end{itemize}
 \item Gewichtung
 \end{itemize}
-\subsection*{Weltenmodell }
+\subsection{Weltenmodell }
 Umgesetzt in der world.py\\
 Ziel ist es das Spielfeld intern darzustellen und mit möglichst 
 vielen und genauen Daten zu füllen die dem Agenten später als Grundlage 
@@ -50,13 +50,13 @@ neu berechnet werden müssen. Dazu erhalten wir alle 3 Zyklen von der
 "virtuellen Kamera" des Naos was dieser gerade sieht. Die Daten werden 
 von der \textit{perception.py} verarbeitet und von ihr in die world bzw. die nao Klasse geschrieben.
 
-\subsection*{Nao}
+\subsection{Nao}
 Umgesetzt in der nao.py\\
 Die nao.py hat das Ziel alle Agenten spezifischen Daten zu 
 sammeln. Dazu gehören die eigenen Gelenkstellungen, die momentane 
 Aufgabe, die Aktuelle Lage (also aufrecht, auf dem Rücken ect.)
 
-\subsection*{Klassenmodell des Gegenstandsbereiches}
+\subsection{Klassenmodell des Gegenstandsbereiches}
 (Stand 09.06)\\
 \begin{figure}[h]
 \begin{center}
@@ -66,10 +66,10 @@ Aufgabe, die Aktuelle Lage (also aufrecht, auf dem Rücken ect.)
 \end{figure}
 
 
-\subsection*{Perception}
+\subsection{Perception}
 Umgesetzt in perception.py -Hier passiert die  ganze Magie~:D
 
-\subsubsection*{Distanzberechnung: 3D-Kugelkoordinaten zu 2D kartesischen}
+\subsubsection{Distanzberechnung: 3D-Kugelkoordinaten zu 2D kartesischen}
 \begin{figure}[h]
 \begin{center}
 \includegraphics[scale=0.6]{Distanz_3D_Kugelkoordinaten_zu_2D_kartesisch}
@@ -88,7 +88,7 @@ aber nur minimal:
 \item $\sqrt{(Distanz)^2 - (\texttt{Objekthoehe} - \texttt{Nao-Augenhoehe})^2}$
 \item \textbf{WICHTIG! Deshalb sollte man die Positionsbestimmung abschalten wenn man merkt das man umgefallen ist!}
 \end{itemize}
-\subsubsection*{Eigene Position bestimmen}
+\subsubsection{Eigene Position bestimmen}
 \begin{figure}[h]
 \begin{center}
 \includegraphics[scale=0.6]{Positionsbestimmung}
@@ -146,7 +146,7 @@ Schnittkreise haben.)
 	\end{itemize}
 \end{itemize}
 \end{itemize}
-\subsubsection*{Mobile Entitäten lokalisieren}
+\subsubsection{Mobile Entitäten lokalisieren}
 \begin{itemize}
 \item  Gesucht: absolute, kartesische Positionskoordinaten einer beweglichen Entität (\texttt{MobileEntity}, also \texttt{Ball} oder \texttt{Player})
 \item  Gegeben:
@@ -171,7 +171,7 @@ Schnittkreise haben.)
 	\item  Da isse, die mobile Entität.
 	\end{itemize}
 \end{itemize}
-\subsubsection*{Umgang mit Rauschen}
+\subsubsection{Umgang mit Rauschen}
 \begin{figure}[h]
 \begin{center}
 \includegraphics[scale=0.6]{MPGI3-RC-13S_Wahrscheinlichkeit2}
@@ -193,7 +193,7 @@ Position angibt. Diese lässt sich als Radius einer Kugel / eines Kreises
  (wenn wir auf 3D verzichten) interpretieren. (obere Abbildung)\\
 Tatsächlich sieht die Verteilung aber eher so aus wie in der unteren Abbildung.
 
-\paragraph*{Einfache Positionsbetimmung über Schnittpunkte von Kreisen}
+\paragraph{Einfache Positionsbetimmung über Schnittpunkte von Kreisen}
 - Wird im Moment nicht verwendet! Sollte iegentlich zur 
 Positionsbestimmung genutzt werden, wurde aber durch einen besseren 
 Ansatz verdrängt.

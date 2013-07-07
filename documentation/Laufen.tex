@@ -3,13 +3,13 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Laufen}
+\section{Laufen}
 Auf dieser Seite wird die Movementklasse beschrieben, die dafür 
 verantwortlich ist, dass der Nao sich zu einem Ziel bewegen kann. Wir 
 haben beschlossen, die Laufbewegungen zu abstrahieren und verwenden 
 stattdessen von der Simulation zur Verfügung gestellte Beam-Befehle.
 
-\section*{Aktueller Zustand}
+\section{Aktueller Zustand}
 In der aktuellen Implementation wird der Beam-Befehl für die 
 Agentschnittstelle genutzt. Das heißt, es kann nach dem Anstoß nicht mehr genutzt werden. Außerdem steht uns die echte Position nicht zur 
 Verfügung, die aber gebraucht wird, um sich realitätsnah zu bewegen. Zu 
@@ -21,12 +21,12 @@ Obwohl sich der Nao langsam zu seinem Ziel drehen sollte, bevor er
 verfügbar ist, da die vielen Workarounds die Funktion ohnehin schon 
 Fehleranfällig machen. 
 
-\section*{Nutzung}
+\section{Nutzung}
 run(x,y)~: Rufe diese Funktion der Movementklasse auf, um einen 
 Schritt in die Richtung des angegeben Zieles zu machen. x und y sind die
  Zielkoordinaten.
 
-\section*{Ansatz und Schnittstellen}
+\section{Ansatz und Schnittstellen}
 Es gibt zwei verschiedene Arten von Beam-Befehlen: \\
 Über die Agent-Schnittstelle gibt es einen Beam-Befehl, um die 
 Naos vor dem Anstoß zu positionieren. Nach dem Anstoß wird diese 
@@ -41,7 +41,7 @@ wir unsere echte Position, um den nächsten Schritt (der natürlich
 mithilfe der Wahrnehmung berechnet werden soll) relativ zu unserer 
 Position ausgeführt werden kann.
 
-\section*{Berechnungen}
+\section{Berechnungen}
 Um uns dem Ziel zu nähern, berechnen wir den Winkel in dem das Ziel von 
 der aktuellen Position aus liegt und bewegen uns einen Schritt in diese 
 Richtung. \\   
@@ -73,7 +73,7 @@ konvertiert, negiert und um $90^\circ$ $(n/2)$ erhöht werden damit er mit den,
 von simspark erwarteten Werten, übereinstimmt.\\
 Danach wird die neue Position, sowie der berechnete Winkel in einem Beam-Befehl übergeben.
 
-\section*{Protokoll}
+\section{Protokoll}
 Der Beam-Befehl über die Agenten-Schnittstelle nimmt die folgende Form an:
 
 \begin{verbatim}(beam <x> <y> <rot>)
