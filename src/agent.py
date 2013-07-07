@@ -185,16 +185,13 @@ class Agent:
                         self.old_ball_pos = self.world.ball.get_position()
 
                 #a = raw_input('press enter:')
-                elif(self.gs == 'KickOff_Right'):
+                elif(self.gs == 'KickOff_'+self.them):
                     pass
-                elif(self.gs == 'PlayOn'):
-                    print "PLAYON!!"
+                elif(self.gs == 'KickIn_'+self.us):
                     pass
-                elif(self.gs == 'KickIn_Left'):
+                elif(self.gs == 'corner_kick_'+self.us.lower()):
                     pass
-                elif(self.gs == 'corner_kick_left'):
-                    pass
-                elif(self.gs == 'goal_kick_left'):
+                elif(self.gs == 'goal_kick_'+self.us.lower()):
                     pass
                 #elif(self.gs == 'offside_left'):
                 #    pass
@@ -202,7 +199,7 @@ class Agent:
                 #    pass
                 elif(self.gs == 'GameOver'):
                     raise SystemExit(0)
-                elif(self.gs == 'free_kick_left'):
+                elif(self.gs == 'free_kick_'+self.us.lower()):
                     pass
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
