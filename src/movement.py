@@ -15,7 +15,7 @@ class Movement:
         self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
         self.shoot_distance = hypot(-0.2, 0.05)
-        self.shoot_angle_offset = atan2(-0.2, 0.05)
+        self.shoot_angle_offset = atan2(0.05, -0.2)
         self.fresh = True
         self.reached_position = False
 
@@ -26,13 +26,15 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-       # print destination[0]
+        #print destination[0]
         #print destination[1]
         if self.fresh:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
         #print self.position.x
 	#print self.position.y
+        #self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
+        self.position = self.beampos
         self.stopped = False
         if destination: self.destination = destination
         # Destination parameters are present in parameters
@@ -44,7 +46,7 @@ class Movement:
         #    self.stopped = True
         #    return
 
-        self.rotation = atan2(self.destination[0] - self.beampos.x, self.destination[1] - self.beampos.y)
+        self.rotation = atan2(self.destination[0] - self.position.x, self.destination[1] - self.position.y)
         #print self.rotation
         #print degrees(self.rotation)
         #print sin(self.rotation)
@@ -76,9 +78,11 @@ class Movement:
     def run_to_shoot_position(self, *destination):
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
         ballposition = self.world.ball.get_position()
+        #ballposition.x = 0
+        #ballposition.y = 0
         a = atan2(destination[1] - ballposition.y, destination[0] - ballposition.x)
         if (hypot(ballposition.x - self.position.x, ballposition.y - self.position.y) > self.divergence):
-            self.run(ballposition.x + (sin(a + self.shoot_angle_offset) * self.shoot_distance), ballposition.y + (cos(a + self.shoot_angle_offset) * self.shoot_distance))
+            self.run(ballposition.x + (cos(a + self.shoot_angle_offset) * self.shoot_distance), ballposition.y + (sin(a + self.shoot_angle_offset) * self.shoot_distance))
             self.reached_position = False
         else:
             self.turn(degrees(a) - 80)
