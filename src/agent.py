@@ -78,11 +78,13 @@ class Agent:
 
             while True:
                 msg = self.agentSocket.receive()
+                '''
                 if(shared_value.value == 1):
                     shared_value.value = 0
                     self.scene.run_cycle(shared_list)
                     self.scene_updated = True
                     del shared_list[:]
+                    '''
                   
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:
@@ -127,14 +129,12 @@ class Agent:
                             if i[0] == 'team':
                                 if i[1] == 'left':
                                     self.on_left = True
+                                    self.us = "Left"
+                                    self.them = "Right"
                                 else:
                                     self.on_left = False
-                if self.on_left:
-                    self.us   = "Left"
-                    self.them = "Right"
-                else:
-                    self.us   = "Right"
-                    self.them = "Left"
+                                    self.us = "Right"
+                                    self.them = "Left"
 
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
@@ -206,16 +206,13 @@ class Agent:
                         self.old_ball_pos = self.world.ball.get_position()
 
                 #a = raw_input('press enter:')
-                elif(self.gs == 'KickOff_Right'):
+                elif(self.gs == 'KickOff_'+self.them):
                     pass
-                elif(self.gs == 'PlayOn'):
-                    print "PLAYON!!"
+                elif(self.gs == 'KickIn_'+self.us):
                     pass
-                elif(self.gs == 'KickIn_Left'):
+                elif(self.gs == 'corner_kick_'+self.us.lower()):
                     pass
-                elif(self.gs == 'corner_kick_left'):
-                    pass
-                elif(self.gs == 'goal_kick_left'):
+                elif(self.gs == 'goal_kick_'+self.us.lower()):
                     pass
                 #elif(self.gs == 'offside_left'):
                 #    pass
@@ -223,7 +220,7 @@ class Agent:
                 #    pass
                 elif(self.gs == 'GameOver'):
                     raise SystemExit(0)
-                elif(self.gs == 'free_kick_left'):
+                elif(self.gs == 'free_kick_'+self.us.lower()):
                     pass
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
