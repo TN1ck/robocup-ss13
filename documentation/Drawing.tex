@@ -3,11 +3,11 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Drawing}
+\section{Drawing}
 Diese Seite dokumentiert die Funktionen der beiden Klassen Drawing und DrawingAdvanced.
 Hintergrundinformationen zu den Zeichenfunktionen von roboviz finden sich auf der \href{https://sites.google.com/site/umroboviz/drawing-api}{Roboviz-Seite} .\textbf{Hinweis: Das Zeichnen funktioniert nur in roboviz und nicht im Monitor!}
 
-\subsection*{Drawing}
+\subsection{Drawing}
 Dies ist die Klasse die hauptsächlich zum Zeichnen benutzt werden sollte. Sie benutzt die Klasse Vector aus world.py für die Übergaben von Koordinaten und enthält in Zukunft auch einige komplexere Zeichenbefehle (zum Beispiel für das Zeichnen von Pfeilen). Es werden 
 nur 2D-Koordinaten unterstützt. Wenn ihr Dinge in die Luft malen müsst, 
 dann benötigt ihr die Klasse DrawingAdvanced.\\
@@ -21,7 +21,7 @@ Einige Dinge gelten bei den Übergaben an alle Funktionen:
 \end{itemize}
 Die einzelnen Funktionen mit kurzer Erklärung:
 
-\subsubsection*{showDrawingsNamed}
+\subsubsection{showDrawingsNamed}
 Header:
 
 \begin{verbatim}showDrawingsNamed(self, name)
@@ -37,35 +37,35 @@ Roboviz den Befehl alle gezeichneten Dinge anzuzeigen, die mit dem
 Zeigt alle Objekte an, die \grqq circles\grqq{} heißen, aber auch solche mit Namen wie \textit{\grqq circles\_are\_supercool\grqq{}} oder \textit{\grqq circles.team-left\grqq{}}.\\
 \textbf{Achtung:} Gleichzeitig werden alle Zeichnungen, die bereits sichtbar sind und einen passenden Namen haben ausgeblendet und \textbf{gelöscht}. showDrawingsNamed ist also eine der wichtigsten Funktionen. Wenn ihr die nicht am Ende aufruft seht ihr nämlich nix~:-) 
 
-\subsubsection*{drawCircle}
+\subsubsection{drawCircle}
 Header:
 
 \begin{verbatim}drawCircle(self, center, radius, thickness, color, name)
 \end{verbatim}
 Zeichnet einen Kreis um die Stelle \textit{center} (übergeben als Vector) mit Radius \textit{radius} und Strichdicke \textit{thickness}. \textit{thickness} wird in Pixeln angegeben, \textit{radius} in Metern.
 
-\subsubsection*{drawLine}
+\subsubsection{drawLine}
 Header:
 
 \begin{verbatim}drawLine(self, startPoint, endPoint, thickness, color, name)
 \end{verbatim}
 Eine schlichte Linie von startPoint nach endPoint.
 
-\subsubsection*{drawPoint}
+\subsubsection{drawPoint}
 Header:
 
 \begin{verbatim}drawPoint(self, position, size, color, name)
 \end{verbatim}
 Ein Punkt. \textit{size} ist eine Angabe in Pixeln, bei größeren Werten wird der Punkt zum Quadrat.
 
-\subsubsection*{drawSphere}
+\subsubsection{drawSphere}
 Header:
 
 \begin{verbatim}drawSphere(self, center, radius, color, name)
 \end{verbatim}
 Zeichnet eine ziemlich eckige Kugel an der Stelle \textit{center}. \textit{radius} wird in Metern angegeben. 
 
-\subsubsection*{drawPolygon}
+\subsubsection{drawPolygon}
 Header:
 
 \begin{verbatim}drawPolygon(self, vertices, color, name)
@@ -83,14 +83,14 @@ Für dreidimensionale Formen ist mir nicht ganz klar, wie das genaue
 Aussehen des Objekts entsteht, aber die Klasse Drawing unterstützt wie 
 oben erwähnt sowieso nur zweidimensionale Koordinaten.
 
-\subsubsection*{drawStandardAnnotation}
+\subsubsection{drawStandardAnnotation}
 Header:
 
 \begin{verbatim}drawStandardAnnotation(self, position, color, text, name)
 \end{verbatim}
 Schreibt \textit{text} an die Stelle \textit{position}.
 
-\subsubsection*{drawAgentAnnotation}
+\subsubsection{drawAgentAnnotation}
 Header:
 
 \begin{verbatim}drawAgentAnnotation(self, agentNum, teamNum, color, text)
@@ -100,7 +100,7 @@ Schreibt \textit{text} über den Kopf des Agenten mit der Nummer \textit{agentNu
 Diese Funktion hat keine Namensübergabe, weil der Text sofort erscheint und automatisch dem Agent folgt.
 Man entfernt ihn mit der Funktion removeAgentAnnotation
 
-\subsubsection*{removeAgentAnnotation}
+\subsubsection{removeAgentAnnotation}
 Header:
 
 \begin{verbatim}removeAgentAnnotation(self, agentNum, teamNum)
@@ -108,21 +108,21 @@ Header:
 Entfernt die Schrift über dem Kopf des Agenten mit der Numer \textit{agentNum} aus dem Team \textit{teamNum}.
 0 steht dabei für das linke, 1 für das rechte Team.
 
-\subsubsection*{drawGrid}
+\subsubsection{drawGrid}
 Header:
 
 \begin{verbatim}drawGrid(self, color, name)
 \end{verbatim}
 Zeichnet ein Gitter über das ganze Spielfeld, sodass man Positionen etwas besser vom Bildschirm ablesen kann.
 
-\subsubsection*{drawArrow}
+\subsubsection{drawArrow}
 Header:
 
 \begin{verbatim}drawArroW(self, startPoint, endPoint, thickness, color, name)
 \end{verbatim}
 Zeichnet eine Linie mit Pfeilspitze bei \textit{endPoint}.
 
-\subsection*{DrawingAdvanced}
+\subsection{DrawingAdvanced}
 DrawingAdvanced hält sich sehr viel näher an der Beschreibung der Commands auf der Roboviz-Seite und ist deshalb ein bisschen komplexer, kann dafür aber in 3D zeichnen.\\
 Unterschiede zu \textit{Drawing}
 
@@ -134,14 +134,14 @@ Unterschiede zu \textit{Drawing}
 \end{verbatim}
 Es werden nur Funktionen aufgeführt, die in Drawing nicht vorkommen, oder die sich bei den Übergaben deutlich unterscheiden.
 
-\subsubsection*{swapBuffers}
+\subsubsection{swapBuffers}
 Header:
 
 \begin{verbatim}swapBuffers(self, setName)
 \end{verbatim}
 Funktioniert genauso, wie showDrawingsNamed.
 
-\subsubsection*{drawAgentAnnotation}
+\subsubsection{drawAgentAnnotation}
 Header:
 
 \begin{verbatim}drawAgentAnnotation(self, agentTeam, red, green, blue, text)
@@ -158,7 +158,7 @@ else:
 \end{verbatim}
 Dabei ist zu beachten, dass agentNum nicht größer sein darf als 127.       
 
-\subsubsection*{removeAgentAnnotation}
+\subsubsection{removeAgentAnnotation}
 Header:
 
 \begin{verbatim}removeAgentAnnotation(self, agentTeam)
@@ -166,7 +166,7 @@ Header:
 Auch hier muss die Nummer des Agenten und sein Team in einem int 
 untergebracht werden. Die Berechnung funktioniert genauso, wie bei drawAgentAnnotaion
 
-\subsection*{Codebeispiel}
+\subsection{Codebeispiel}
 \begin{verbatim}import drawing
 import world
 

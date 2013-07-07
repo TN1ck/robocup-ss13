@@ -3,8 +3,8 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Kommunikation}
-\subsection*{Grundlegendes}
+\section{Kommunikation}
+\subsection{Grundlegendes}
 Für die Kommunikation zwischen den NAOs stellt der Server 2 
 Schnittstellen zur Verfügung, den Say-Effector sowie den Hear-Perceptor.
  Diese erlauben es uns, einen NAO etwas sagen zu lassen und zu hören, 
@@ -25,7 +25,7 @@ gehört. Der Sprecher hört jedoch immer seine eigene Nachricht. Die Teams
  sprechen versetzt, können sich also nicht blockieren.
 \end{itemize}
 
-\subsection*{Konzept}
+\subsection{Konzept}
 Die Nachrichten werden zurzeit nach dem folgenden Schema codiert und 
 übertragen:
 Zunächst wird eine Methode aufgerufen, welcher übergeben wird, was 
@@ -58,7 +58,7 @@ decodiert. Daraus wird nun ein HearObject erstellt, dessen Variablen mit
  den übergebenen Parametern übereinstimmen. Dieses HearObject wird nun 
 zurückgegeben, und kann jederzeit per eval() ausgewertet werden. 
 
-\subsection*{Commandcode - Tabelle}
+\subsection{Commandcode - Tabelle}
 
 \begin{tabular}{|c|c|c|}
 \hline 
