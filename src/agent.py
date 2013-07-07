@@ -78,11 +78,13 @@ class Agent:
 
             while True:
                 msg = self.agentSocket.receive()
+                '''
                 if(shared_value.value == 1):
                     shared_value.value = 0
                     self.scene.run_cycle(shared_list)
                     self.scene_updated = True
                     del shared_list[:]
+                    '''
                   
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:

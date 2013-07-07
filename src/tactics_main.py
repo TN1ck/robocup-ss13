@@ -7,6 +7,7 @@ from logging import *
 import math
 import copy
 from math import atan2, degrees
+import hearObject
 
 
 class TacticsMain:
@@ -41,7 +42,7 @@ class TacticsMain:
     self.ball_owner = False
     self.ball_search_mode = 0
     self.turn_counter = 0
-
+    self.offence = False
 
 
   def set_own_position(self):
@@ -186,16 +187,13 @@ class TacticsMain:
     return (average_list[0]/len(too_near), average_list[1]/len(too_near))
 
   def search_ball(self):
-    print "searching ball"
     if self.ball_owner:
-      print 'ball_owner '
       if self.ball_search_mode == 0:
         self.run_straight = True
         self.dest= Vector(self.my_position.x - 0.3,self.my_position.y - 0.3)
         self.ball_search_mode = 1
         return (('run', self.my_position.x - 0.3,self.my_position.y - 0.3),('stand_up',False),('kick',False),('say',False), ('head',False))
       if self.ball_search_mode == 1:
-        print "turn"
         if self.turn_counter == 10:
           self.turn_counter = 0
           self.ball_search_mode = 0
@@ -207,19 +205,28 @@ class TacticsMain:
         if turn < 0:
           turn += 3.14
         return (('run', 'turn',turn),('stand_up',False),('kick',False),('say',False), ('head',False))
-
+      elif self.offence:
+        vec = self.flocking_behavior()
+        if vec is False:
+          return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
+        else:
+          return (('run', vec[0],vec[1]),('stand_up',False),('kick',False),('say',False), ('head',False))  
 
   
   def run_tactics(self,hearObj):
+    say_tuple = ('say',False)
     if self.nao.lies_on_front():
-      return (('run', False),('stand_up','front'),('kick',False),('say',False), ('head',True))
+      return (('run', False),('stand_up','front'),('kick',False),say_tuple, ('head',True))
     if self.nao.lies_on_back():
-      return (('run', False),('stand_up','back'),('kick',False),('say',False), ('head',True))
+      return (('run', False),('stand_up','back'),('kick',False),say_tuple, ('head',True))
 
     self.clear_distances()
     self.set_own_position()
     if self.my_position == None:
-      return (('run', False),('stand_up',False),('kick',False),('say',False), ('head',True))
+      return (('run', False),('stand_up',False),('kick',False),say_tuple, ('head',True))
+
+    if isinstance(hearObj, hearObject.BallPosition):
+      pass
     self.get_distances()
 
     for line in self.field_lines_idfs:
@@ -250,7 +257,7 @@ class TacticsMain:
         self.dest = None
         self.run_straight = False
       else:
-        return (('run', self.dest.x,self.dest.y),('stand_up',False),('kick',False),('say',False), ('head',False))
+        return (('run', self.dest.x,self.dest.y),('stand_up',False),('kick',False),say_tuple, ('head',False))
 
     if self.distances_ball == []:
       return self.search_ball()
@@ -263,6 +270,7 @@ class TacticsMain:
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     if result_list[0]:
+      self.offence = False
       self.ball_owner = True
       if self.distances_ball[0][1] <= 0.5:
         if self.mov.reached_position :
@@ -274,6 +282,8 @@ class TacticsMain:
         tup = self.world.entity_from_identifier['B'].get_position()
         run_tuple = ('run',tup.x,tup.y)
     elif result_list[1]:
+      self.offence = True
+      self.ball_owner = True
       tup = self.flocking_behavior()
       if tup is False :
         tup = (self.world.get_entity_position(self.distances_ball[0][0]).x-1.3,self.world.get_entity_position(self.distances_ball[0][0]).y-1.3)
@@ -281,5 +291,6 @@ class TacticsMain:
         self.dest = Vector(tup[0],tup[1])
       run_tuple = ('run',tup[0],tup[1])
     elif result_list[2]:
+        self.offence = False
         self.ball_owner = False
-    return (run_tuple, ('stand_up',False), kick_tuple, ('say',False), ('head',False))
+    return (run_tuple, ('stand_up',False), kick_tuple, say_tuple, ('head',False))
