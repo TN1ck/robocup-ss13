@@ -171,40 +171,41 @@ class Agent:
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
-                    if not self.keyFrameEngine.working and self.player_nr > 1:
-                        actions = self.tactics.run_tactics(self.hearObj)
-                        self.hearObj = None
-                        if actions != None:
-                            for item in actions:
-                                if item[0] == 'stand_up':
-                                    if item[1] == 'front':
-                                        self.keyFrameEngine.stand_up_from_front()
-                                        break
-                                    if item[1] == 'back':
-                                        self.keyFrameEngine.stand_up_from_back()
-                                        break
-                                if item[0] == 'kick':
-                                    if item[1] == 1:
-                                        self.keyFrameEngine.kick_right()
-                                    elif item[1] == 2:
-                                        self.keyFrameEngine.kick_strong_right()
-                                if item[0] == 'run':
-                                    if item[1] is False:
-                                        self.movement.stop()
-                                    elif item[1] == 'shoot':
-                                        self.movement.run_to_shoot_position(item[2],item[3])
-                                    elif item[1] == 'turn':
-                                        self.movement.turn(item[2])
-                                    else:
-                                        self.movement.run(item[1],item[2])
-                                if item[0] == 'say':
-                                    if item[1] is not False:
-                                        self.communication.sayMessageType5(item[1],item[2], item[3],item[4],item[5])
-                                if item[0] == 'head':
-                                    if item[1] is True:
-                                        self.keyFrameEngine.head_lookAround()
-                                    elif item[1] != False:
-                                        self.keyFrameEngine.head_move(item[1])
+                    if self.player_nr > 1:
+                        if not self.keyFrameEngine.working:
+                            actions = self.tactics.run_tactics(self.hearObj)
+                            self.hearObj = None
+                            if actions != None:
+                                for item in actions:
+                                    if item[0] == 'stand_up':
+                                        if item[1] == 'front':
+                                            self.keyFrameEngine.stand_up_from_front()
+                                            break
+                                        if item[1] == 'back':
+                                            self.keyFrameEngine.stand_up_from_back()
+                                            break
+                                    if item[0] == 'kick':
+                                        if item[1] == 1:
+                                            self.keyFrameEngine.kick_right()
+                                        elif item[1] == 2:
+                                            self.keyFrameEngine.kick_strong_right()
+                                    if item[0] == 'run':
+                                        if item[1] is False:
+                                            self.movement.stop()
+                                        elif item[1] == 'shoot':
+                                            self.movement.run_to_shoot_position(item[2],item[3])
+                                        elif item[1] == 'turn':
+                                            self.movement.turn(item[2])
+                                        else:
+                                            self.movement.run(item[1],item[2])
+                                    if item[0] == 'say':
+                                        pass#if item[1] is not False:
+                                            #self.communication.sayMessageType5(item[1],item[2], item[3],item[4],item[5])
+                                    if item[0] == 'head':
+                                        if item[1] is True:
+                                            self.keyFrameEngine.head_lookAround()
+                                        elif item[1] != False:
+                                            self.keyFrameEngine.head_move(item[1])
                     else:
 
                         if(self.old_ball_pos != None):
