@@ -1,0 +1,84 @@
+\section*{Taktik}
+
+\subsection*{Einleitung}
+
+Schwarmverhalten war uprspünglich das Grundkonzept der Taktikt des \textit{DAI-Labor}-Teams. Da aber die Ansichten über die Taktik in der Gruppe auseinanderstrebten, wurde im Endeffekt das Modell auf ein hybrides Modell geändert, das sowohl Schwarmverhalten als auch starre Elemente benutzt. 
+
+Es gibt einen Tormann (Spieler mit der ID 1), Verteidiger und Stürmer/Mittelfeldspieler, was bei uns keine weitere Unterscheidung hat. Es gibt 5 Verteidiger und 5 offensive Spieler, also insgesamt 11 Spieler, wie in einem normalen Fußballteam
+
+\subsection*{Genauere Erläuterung}
+
+Die Klasse \texttt{TacticsMain} enthält sämtliche Logik. Im Konstruktor werden nur alle Variablen initialisiert, die wir brauchen.
+
+Die eigentlich entscheidende Methode ist \texttt{run\_tactics}, die extra in jedem Zyklus aufgerufen werden muss, damit die Taktik ihr Tupel mit der jeweiligen Entscheidung zurückgibt, das sogenannte \glqq Entscheidungstupel \grqq, das folgendermaßen aufgebaut ist: \texttt{(<run\_tuple>, <stand\_up\_tuple>, <kick\_tuple>, <say\_tuple>, <head\_tuple>)}. 
+
+Die anderen Funktionen sind Hilfsfunktionen, die von \texttt{run\_tactics} aufgerufen werden. 
+
+\subsection*{Funktion \texttt{run\_tactics}}
+Zuerst werden die Bestandteile des \glqq Entscheidungstupels \grqq mit Default-Werten initialisiert. 
+
+Dann wird überprüft, ob der Nao am Boden liegt, wenn ja, setzt er die Rückgabetupel so, dass er sich aufrichtet.
+
+Als nächstes werden mit \texttt{clear\_distances} alle gespeicherten Distanzen zu anderen Objekten gelöscht, dann wird die eigene Position bestimmt. Schlägt dies fehl, so drückt das \glqq Entscheidungstupel \grqq für diesen Zyklus aus, dass der Nao stillstehen soll und nur den Kopf bewegen soll.
+
+Im nächsten Schritt wird das Ergebnis der Kommunikationsgruppe ausgewertet und die aktuellen Distanzen zu allen anderen Objekten werden mit \texttt{get\_distances} ausgewertet. Außerdem evaluieren wir den Abstand zu den Randlinien, damit wir das Spielfeld nicht verlassen. Ferner wird noch der Standardwert für das Say-Tupel hier gesetzt. 
+
+Nun kommt der wichtigste Teil des Taktik:
+
+\begin{itemize}
+\item \textbf{Wenn der Nao den Ball hat: }
+Wenn wir aufgrund von \texttt{stop\_run\_to\_shott} schießen sollen, dann laufen wir zum Ball.
+
+Sonst versuchen wir einen Schuss, wenn wir nahe genug am Ball sind.
+\item \textbf{Wenn der Nao ein offensiver Spieler ist, aber gerade den Ball nicht hat: }
+Wir versuchen nun nicht in verbündete Spieler zu laufen und auch um gegnerische Spieler versuchen wir herumzulaufen, da wir sonst durch das Teleportieren einen unfairen Vorteil hätten. 
+\item \textbf{Wenn der Nao ein defensiver Spieler ist, aber gerade den Ball nicht hat: }
+Wir setzen nun nur \texttt{self.offence\_member = False}.
+\end{itemize}
+
+Am Ende gibt \texttt{run\_tactics} dann das \glqq Entscheidungstupel \grqq zurück.
+
+\subsection*{Kurzerläuterung aller Taktik-Funktionen}
+\textbf{\textsc{TODO: Write arguments, return values and what the specific function does.}}
+\begin{itemize}
+\item \texttt{set\_own\_position}
+\item \texttt{get\_distances}
+\item \texttt{calculate\_goal\_distances}
+\item \texttt{clear\_distances}
+\item \texttt{calc\_point\_distance}
+\item \texttt{calc\_line\_distance}
+\item \texttt{i\_own\_ball}
+\item \texttt{offence\_Player}
+\item \texttt{enemy\_circumvention\_behavior}
+\item \texttt{flocking\_behavior}
+\item \texttt{calc\_turn\_angle}
+\item \texttt{search\_ball}
+\item \texttt{ball\_info}
+\item \texttt{check\_lines}
+\item \texttt{run\_to\_xy}
+\item \texttt{set\_own\_position}
+\item \texttt{run\_tactics}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{itemize}
+
+
+

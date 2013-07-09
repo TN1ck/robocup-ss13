@@ -42,6 +42,8 @@ class TacticsMain:
     self.offence_member = False
     self.com_counter = 0
 
+  def get_distances_ball(self):
+    return self.distances_ball
 
   def set_own_position(self):
     if self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence >=0.5:

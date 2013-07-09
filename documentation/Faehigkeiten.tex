@@ -3,8 +3,8 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Fähigkeiten}
-\subsection*{Allgemeines}
+\section{Fähigkeiten}
+\subsection{Allgemeines}
 Bevor angefangen wurde, Bewegungen für die viertuellen NAOs zu 
 programmieren, wurde überlegt, welche Fähigkeiten in der 3d-Simulation 
 benötigt werden könnten. Die Bewegungn wurden im vorhinein sortiert, 
@@ -13,7 +13,7 @@ nicht. Auch wurde sich Gedanken darüber gemacht, was der Torwart für
 zusätzliche Bewegungen braucht. Im Folgen sind die wesentlichen 
 Bewegungen aufgezählt und kurz beschrieben.
 
-\subsubsection*{Relevante (allg.) Bewegungen}
+\subsubsection{Relevante (allg.) Bewegungen}
 
 \begin{tabular}{|c|p{12cm}|}
 \hline 
@@ -46,7 +46,7 @@ Drehen & Um sich umzusehen oder die Laufrichtung zu ändern sehr relevant. Soll 
 \hline 
 \end{tabular} 
 
-\subsubsection*{Torwartspezifische Bewegungen}
+\subsubsection{Torwartspezifische Bewegungen}
 
 \begin{tabular}{|c|p{11cm}|}
 \hline 
@@ -63,7 +63,7 @@ Ball zu gefährlich liegt und durch das Aufstehen ins Tor beförtert wird. \\
 \hline 
 \end{tabular} 
 
-\subsubsection*{Irrelevante Bewegungen}
+\subsubsection{Irrelevante Bewegungen}
 
 \begin{tabular}{|c|p{12cm}|}
 \hline 
@@ -77,7 +77,7 @@ Kopfball & Vermutlich aufgrund gewisser Reaktionszeiten nicht machbar. \\
 \hline 
 \end{tabular} 
 
-\subsubsection*{Bewegen der Gelenke}
+\subsubsection{Bewegen der Gelenke}
 Für die Kommunikation mit dem Server werden zwei verschiedene 
 Bezeichnung genutzt. Die Perceptor names sind die Namen, die der Server 
 sendet, damit der NAO weiß, wie seine Gelenke stehen. Die Effector names
@@ -141,7 +141,7 @@ No. & Desc. &  Perceptor name & Effector name \\
 \hline 
 \end{tabular} 
 
-\subsection*{Umsetzung}
+\subsection{Umsetzung}
 Nachdem die Bewegungen grob aufgelistet waren, wurde überlegt, welche
  Möglichkeit der Umsetzung es gibt. Für viele Bewegungen ist es möglich 
 einen Keyframe zu erzeugen und diese in einer Keyframe-Engine 
@@ -149,7 +149,7 @@ auszuwerten, da diese nicht von Parametern oder nicht direkt von äußeren
  Einwirkungen abhängen. Für andere müssen andere Algorithmen geschrieben
  werden.
 
-\subsubsection*{Keyframes}
+\subsubsection{Keyframes}
 Ein Keyframe ist bei uns eine Abfolge von Momentaufnahmen von den 
 Stellungen der Gelenke des NAOs. Der NAO hat 22 Gelenke, dessen 
 Auslenkungswinkel jeweils angegeben wird. Diese einzelnen Positionen der
@@ -177,7 +177,7 @@ Momentan stehen folgende Bewegungen durch Keyframes zur Verfügung:
 \item  stand\_up\_from\_front
 \item  kick1 (ein erster sanfter Schuss)
 \end{itemize}
-\subsubsection*{Berechnungen (Keyframe-Engine)}
+\subsubsection{Berechnungen (Keyframe-Engine)}
 Die Berechnunung findet in unserer Keyframe-Engine statt. Dort stehen die einzelnen Bewegungs-Methoden zur Verfügung.
 
 \begin{itemize}
@@ -218,63 +218,63 @@ Danach wird die abgelaufe Zeit um 20ms erhöht und wenn die Zeile
 des Keyframes abgearbeitet ist wird die Zeile um 1 erhöht. Ist die 
 Bewegung am Ende angekommen, wird die aktuelle Zeile aud 0 gesetzt.
 
-\subsubsection*{Einzelne Bewegungen}
+\subsubsection{Einzelne Bewegungen}
 Im Folgenden werden die einzelnen Bewegungen vorgestellt und dessen Umsetztung beschrieben.
 
-\paragraph*{Aufstehbewegungen}
+\paragraph{Aufstehbewegungen}
 Das Aufstehen ist besonders gut geeignet mit einem Keyframe umgesetzt
  zu werden, da hier keine Parameter nötig sind. Da es für den NAO einen 
 Unterschied macht, ob er auf dem Rücken liegt oder auf dem Bauch mussten
  zwei verschiedene Keyframes entwickelt werden.
 
-\subparagraph*{Aufstehen vom Rücken aus}
+\subparagraph{Aufstehen vom Rücken aus}
 Wurde als erstes voll funktionstüchtig implementiert. Sobald der NAO 
 auf dem Rücken liegt, steht er wieder auf und stellt sich nahezu 
 vollständig gerade wieder hin. Dieser Keyframe wurde von der \href{http://www.naoteamhumboldt.de/de/}{Humboldt Universität} benutzt und musste nur an einigen Stellen verändert werden.
 
-\subparagraph*{Aufstehen vom Bauch aus}
+\subparagraph{Aufstehen vom Bauch aus}
 Hier hatten wir einen Keyframe von der \href{http://www.naoteamhumboldt.de/de/}{Humboldt Universität} zur Verfügung, der unseren NAO jedoch nicht aufstehen lassen hat. Deshalb wurde er entwickelt. ...
 
-\paragraph*{Kopfbewegungen}
+\paragraph{Kopfbewegungen}
 Die Bewegung des Kopfes ist nicht nur wichtig, um sich umzusehen, 
 damit der NAO z.B. seine Position besser bestimmen kann oder den Ball 
 sehen kann, wenn er außerhalb des Sichtfeldes seines ist, sondern auch 
 zur Fixierung eines Punktes.
 
-\subparagraph*{Umsehen }
+\subparagraph{Umsehen }
 Dies ist eine feste Abfolge von Bewegungen. Es soll eine möglichst 
 großer Bereich gesehen werden. Dafür wird ein Keyframe geschrieben, da 
 hier keine Berechnungen gebraucht werden. Dazu wird der Kopf zuerst nach
  linkt, nach unten  und dann nach rechts bewegt.
 
-\subparagraph*{Auf eine Punkt gucken}
+\subparagraph{Auf eine Punkt gucken}
 Diese Bewegung benötigt eine Berechnung, die ausgehend von der 
 aktuellen Stellung der Kopfgelenke den Weg zum gewünschten Punkt 
 berechnet. Es ist noch nicht geklärt, mit welchen Daten die Berechnung 
 stattfinden sollen. Dazu ist eine Absprache vor allem mit der 
 Taktikgruppe nötig.
 
-\paragraph*{Schuss}
+\paragraph{Schuss}
 Für den Schuss sind bis jetzt Keyframes geplant. Dabei soll 
 unterschieden werden, ob der Schuss weit oder kurz sein soll (bis jetzt 2
  Keyframes). Schwierigkeiten, die wir dabei bekommen könnten, sind dass 
 der NAO ziemlich genau vor dem Ball stehen muss und dass er das 
 Gleichgewicht halten muss.
 
-\subsection*{Interfaces}
-\subsubsection*{Variablen}
+\subsection{Interfaces}
+\subsubsection{Variablen}
 \textbf{Working}
 Wenn diese Variable auf True gesetzt ist, ist ein Keyframe noch nicht 
 beendet. Daher darf kein Movement Befehl ausgeführt werden und nur 
 Keyframes gestartet werden, die den Kopf bewegen
 
-\subsubsection*{Funktionen}
+\subsubsection{Funktionen}
 \textbf{work}
 Diese Funktion muss in jedem Cycle aufgerufen werden. Sie überprüft ob 
 aktuell noch Keyframes auszuführen sind, ist dies der Fall werden die 
 Geschwindigkeiten für diesen Cycle berechnet.
 
-\subsubsection*{Keyframe Aufrufe}
+\subsubsection{Keyframe Aufrufe}
 Diese Funktionen werden einmal aufgerufen und bestimmen damit den 
 aktuell auszuführenden Keyframe. Die Bewegung des Naos erfolgt 
 ausschließlich über \textbf{work}.

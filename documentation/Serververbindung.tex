@@ -3,7 +3,7 @@
 % (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
 % (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
 % Version : 0.4.
-\section*{Serververbindung}
+\section{Serververbindung}
 Ein paar Informationen zur Serververbindung bzw. Sockets in Pyhton:\\
 Sockets in Python funktionieren ähnlich wie in Java. Per \grqq import socket\grqq{} stehen sie uns zur Verfügung. s = socket.socket(socket.AF\_INET, socket.SOCK\_STREAM) legt einen TCP Socket mit dem IPv4 Protokol an. Mittels s.connect(ip,port) verbindet man sich mit dem Server. Anschließend kann in einer while-Schleife auf Servernachrichten gewartet werden.\\
 \\
