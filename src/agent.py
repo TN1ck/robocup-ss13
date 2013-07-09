@@ -54,7 +54,6 @@ class Agent:
         self.hearObj = None
         self.statistic = statistics.Statistics()
         self.old_ball_pos = None #one tick before
-        self.t = None #variable for the keeper
         self.scene = scene.Scene()
         self.scene_updated = False #variable for handling the scenegraph
         self.position = None #variable that holds the agent's own position (read from the scenegraph)
@@ -146,68 +145,79 @@ class Agent:
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
-                    if not self.keyFrameEngine.working and self.player_nr > 1:
-                        actions = self.tactics.run_tactics(self.hearObj)
-                        if actions != None:
-                            for item in actions:
-                                if item[0] == 'stand_up':
-                                    if item[1] == 'front':
-                                        self.keyFrameEngine.stand_up_from_front()
-                                        break
-                                    if item[1] == 'back':
-                                        self.keyFrameEngine.stand_up_from_back()
-                                        break
-                                if item[0] == 'kick':
-                                    if item[1] == 1:
-                                        self.keyFrameEngine.kick_right()
-                                    elif item[1] == 2:
-                                        self.keyFrameEngine.kick_strong_right()
-                                if item[0] == 'run':
-                                    if item[1] is False:
-                                        self.movement.stop()
-                                    elif item[1] == 'shoot':
-                                        self.movement.run_to_shoot_position(item[2],item[3])
-                                    else:
-                                        self.movement.run(item[1],item[2])
-                                if item[0] == 'say':
-                                    pass
-                                if item[0] == 'head':
-                                    if item[1] is True:
-                                        self.keyFrameEngine.head_lookAround()
-                                    elif item[1] != False:
-                                        self.keyFrameEngine.head_move(item[1])
+                    if self.player_nr > 1:
+                        if not self.keyFrameEngine.working:
+                            actions = self.tactics.run_tactics(self.hearObj)
+                            if actions != None:
+                                for item in actions:
+                                    if item[0] == 'stand_up':
+                                        if item[1] == 'front':
+                                            self.keyFrameEngine.stand_up_from_front()
+                                            break
+                                        if item[1] == 'back':
+                                            self.keyFrameEngine.stand_up_from_back()
+                                            break
+                                    if item[0] == 'kick':
+                                        if item[1] == 1:
+                                            self.keyFrameEngine.kick_right()
+                                        elif item[1] == 2:
+                                            self.keyFrameEngine.kick_strong_right()
+                                    if item[0] == 'run':
+                                        if item[1] is False:
+                                            self.movement.stop()
+                                        elif item[1] == 'shoot':
+                                            self.movement.run_to_shoot_position(item[2],item[3])
+                                        else:
+                                            self.movement.run(item[1],item[2])
+                                    if item[0] == 'say':
+                                        pass
+                                    if item[0] == 'head':
+                                        if item[1] is True:
+                                            self.keyFrameEngine.head_lookAround()
+                                        elif item[1] != False:
+                                            self.keyFrameEngine.head_move(item[1])
                     else:
-
+                        self.est_p = self.world.ball.get_position()
                         if(self.old_ball_pos != None):
-                            # print (self.world.ball.get_position())
                             self.direction = self.world.ball.get_position() - self.old_ball_pos
                             self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
-                            # What do you do when you have self.direction.x == 0? :o -- Max
-                            self.increase = (self.direction.y / self.direction.x)
+                            if self.direction.x != 0:
+                                self.increase = (self.direction.y / self.direction.x)
+                            else:
+                                self.increase = self.direction.y
                             self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
                             self.goal_intercept = (-15)*self.increase + self.y_intercept
-                            self.g_point =  world.Vector(-15,self.goal_intercept)
 
-                            if (self.betrag > 1):
-                                #print ('old_pos.x: '+str(self.old_ball_pos.x) +' old_pos.y: '+str(self.old_ball_pos.y))
-                                #print ('pos.x: '+str(self.world.ball.get_position().x) +' pos.y: '+str(self.world.ball.get_position().y))
-                                #print ('dir.x: '+str(self.direction.x)+' dir.y: '+str(self.direction.y))
-                                #print ('steigung: '+str(self.increase))
-                                self.t_vec = (self.g_point - self.world.ball.get_position())/self.betrag
-                                self.t = math.sqrt(self.t_vec.x**2 + self.t_vec.y**2)
-                                print ('estimated t cycles until the ball is in the goal: '+str(self.t))
-                                #print self.goal_intercept
-                        if(self.t > 1):
-                            self.movement.move_keeper()
+                            if (self.betrag > 0.1 and -1 < self.goal_intercept < 1): 
+                                while(self.betrag > 0.01):
+                                    self.betrag = self.betrag*0.7
+                                    self.direction.x = self.direction.x*self.betrag
+                                    self.direction.y = self.direction.y*self.betrag
+                                    self.est_p.x = self.est_p.x+self.est_p.x*self.betrag
+                                    self.est_p.y = self.est_p.y+self.est_p.y*self.betrag
+                                #print ('#estimated point    : '+str(self.est_p))
+                                #self.drawer.drawCircle(self.est_p, 0.2, 3, [155, 155, 155], "all.keeper.est")
+                                #self.drawer.showDrawingsNamed("all.keeper")
+                                print self.goal_intercept
+                        if(self.est_p.x < -16):
+                            
+                            if (-0.3 < self.goal_intercept < 0.3):
+                                print "parry straight"
+                                self.keyFrameEngine.parry_straight()
+                            elif(-0.3 >= self.goal_intercept >= 1.0):
+                                print "parry right"
+                                self.keyFrameEngine.parry_right()
+                            elif(0.3 <= self.goal_intercept <= 1.0):
+                                print "parry left"
+                                self.keyFrameEngine.parry_left()
                         else:
-                            pass #use keyeginge
+                            if not self.keyFrameEngine.working:
+                                self.movement.move_keeper()                            
                         self.old_ball_pos = self.world.ball.get_position()
 
-                #a = raw_input('press enter:')
                 elif(self.gs == 'KickOff_Right'):
                     pass
                 elif(self.gs == 'PlayOn'):
-                    print "PLAYON!!"
                     pass
                 elif(self.gs == 'KickIn_Left'):
                     pass
