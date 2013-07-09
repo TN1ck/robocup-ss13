@@ -240,6 +240,7 @@ class Perception:
             for se2 in static_entities:
                 #if se1[0] != se2[0]:
                 if not se2[0] in processed:
+                    #logging.debug(str(se2[0]) + ' isn\'t in ' + str(processed))
                     # polar coords as list:
                     pol2 = self.get_pol_from_parser_entity(se2)
                     # 2d distance:
@@ -259,6 +260,9 @@ class Perception:
                             #    logging.debug('aus der reihe tanzer')
                     else:
                         logging.debug('trigonometry not called. d_s_o1: ' + str(d_s_o1) + ' d_s_o2: ' + str(d_s_o2) + ' a1: ' + str(a1) + ' a2: ' + str(a2))
+                else:
+                    #logging.debug(str(se2[0]) + ' is in ' + str(processed))
+                    pass
 
         # calculate arithmetic mean of all positions:
         pos = None
@@ -405,7 +409,10 @@ class Perception:
 
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
+
+        # debug draw "triangle":
         self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
+        self.drawer.drawLine(v2, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
 
         # abs(a1 - a2)
         # a
