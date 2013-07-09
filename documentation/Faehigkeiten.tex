@@ -1,0 +1,327 @@
+% This file was converted from HTML to LaTeX with
+% gnuhtml2latex program
+% (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
+% (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
+% Version : 0.4.
+\section{Fähigkeiten}
+\subsection{Allgemeines}
+Bevor angefangen wurde, Bewegungen für die viertuellen NAOs zu 
+programmieren, wurde überlegt, welche Fähigkeiten in der 3d-Simulation 
+benötigt werden könnten. Die Bewegungn wurden im vorhinein sortiert, 
+danach ob sie für uns im ersten Moment umsetzbar klangen oder eher 
+nicht. Auch wurde sich Gedanken darüber gemacht, was der Torwart für 
+zusätzliche Bewegungen braucht. Im Folgen sind die wesentlichen 
+Bewegungen aufgezählt und kurz beschrieben.
+
+\subsubsection{Relevante (allg.) Bewegungen}
+
+\begin{tabular}{|c|p{12cm}|}
+\hline 
+Bewegung & Kurzbeschreibung und Anwendung \\ 
+\hline 
+Laufen & Die Laufbewegung wird nicht implementiert, da der NAO auf Grund von sonst aufwändigen Algorithmen über das Feld gebeamt wird. \\ 
+\hline 
+Schuss & Soll per Tritt oder per "dagegen Beamen" realisiert werden, das wird 
+u.U. testen. Der Schuss ist relevant für den Angriff und für Elfmeter. \\ 
+\hline 
+Pass & Der Pass ist der gerichtete Schuss zu einem eigenen Mitspieler oder 
+zu einer bestimmten Position. Er wird vermutlich auch (größtenteils) für
+ "Einwurf", Anstoß, Abstoß, Ecke und Freistoß verwendet. \\ 
+\hline 
+Kopfbewegung & Der NAO muss sich umsehen, um seine Umgebung wahrnehmen zu können. 
+Die Kopfbewegung ist also dringend nötig. Es wird wahrscheinlich ein 
+Kopfbewegung zum rund um gucken und eine um an eine bestimmte Position 
+zu sehen geben. \\ 
+\hline 
+Armbewegung & Die Armbewegung ist u.U. relevant für die Kommunikation in gewissem Maße. Auch kann sie für den Torwart von nutzen sein. \\ 
+\hline 
+"Dribblen" & Soll eine Kombination aus Schießen (Passen) und Laufen sein. \\ 
+\hline 
+Aufstehen & Nach dem Hinfallen oder Umkippen muss der NAO wieder aufstehen 
+können. Dieses soll nicht durch einfaches Beamen realisiert werden, 
+falls das möglich sein sollte. (evtl. wird der NAO in der gleichen 
+Position gebeamt, was bedeutet er liegt immer noch) \\ 
+\hline 
+Drehen & Um sich umzusehen oder die Laufrichtung zu ändern sehr relevant. Soll auch durch Beamen passieren.\\ 
+\hline 
+\end{tabular} 
+
+\subsubsection{Torwartspezifische Bewegungen}
+
+\begin{tabular}{|c|p{11cm}|}
+\hline 
+Bewegung & Kurzbeschreibung und Anwendung \\ 
+\hline 
+Halten & Der Keeper soll versuchen den Ball nicht ins Tor zu lassen. Dafür 
+benötigt er gewisse Bewegungen, z.B. dem Ball entgegenlaufen, Arm 
+ausstrecken, Springen. \\ 
+\hline 
+Zum Ball springen & Bewegung des Keepers, die den Torwart möglichst viel verdecken lässt vom Tor, damit der Ball nicht hineingeschossen werden kann. \\ 
+\hline 
+Aufstehen & Evtl. ist es nötig eine extra Aufstehbewegung zu kreieren, falls der 
+Ball zu gefährlich liegt und durch das Aufstehen ins Tor beförtert wird. \\ 
+\hline 
+\end{tabular} 
+
+\subsubsection{Irrelevante Bewegungen}
+
+\begin{tabular}{|c|p{12cm}|}
+\hline 
+Bewegung & Kurzbeschreibung und Anwendung \\ 
+\hline 
+Fallrückzieher & Reaktionstechnisch (und möglicherweise auch durch die Technik des 
+NAO's) vermutlich nicht realisierbar. Definitiv aber erstmal unnötig für
+ uns. \\ 
+\hline 
+Kopfball & Vermutlich aufgrund gewisser Reaktionszeiten nicht machbar. \\ 
+\hline 
+\end{tabular} 
+
+\subsubsection{Bewegen der Gelenke}
+Für die Kommunikation mit dem Server werden zwei verschiedene 
+Bezeichnung genutzt. Die Perceptor names sind die Namen, die der Server 
+sendet, damit der NAO weiß, wie seine Gelenke stehen. Die Effector names
+ werden mit den zugehörigen Geschwindigkeitenan den Server geschickt. 
+Die Geschwindigkeiten geben an wie schnell sich die Gelenke ab dem 
+nächsten Zyklus bewegen sollen. Dabei ist zu beachten, dass die Gelenke 
+eine maximale Auslenkung besitzen.\\
+Die Gelenke werden prinzipiell durch den folgenden Befehl bewegt:\\
+\textbf{send(socket, message)}\\
+Die \textit{message} sieht dabei wie folgt aus:\\
+\textbf{message =} (EffectorName  AngularSpeed)\\
+Die Perceptor und Effector names sind in der folgenden \href{http://simspark.sourceforge.net/wiki/index.php/Models}{Tabelle} aufgeführt.
+
+\begin{tabular}{|c|c|c|c|}
+\hline 
+No. & Desc. &  Perceptor name & Effector name \\ 
+\hline 
+1 & Neck Yaw & hj1 & he1 \\ 
+\hline 
+2 & Neck Pitch & hj2 & he2 \\ 
+\hline 
+3 & Left Shoulder Ptch & laj1 & lae1 \\ 
+\hline 
+4 & Left Shoulder Yaw & laj2 & lae2\\ 
+\hline 
+5 & Left Arm Roll & laj3 & lae3 \\ 
+\hline 
+6 & Left Arm Yaw & laj4 & lae4 \\ 
+\hline 
+7 & Left Hip YawPitch & llj1 & lle1 \\ 
+\hline 
+8 & Left Hip Roll & llj2 & lle2 \\ 
+\hline 
+9 & Left Hip Pitch & llj3 & lle3 \\ 
+\hline 
+10 & Left Knee Pitch & llj4 & lle4 \\ 
+\hline 
+11 & Left Foot Pitch & llj5 & lle5 \\ 
+\hline 
+12 & Left Foot Roll & llj6 & lle6 \\ 
+\hline 
+13 & Right Hip YawPitch & rlj1 & rle1 \\ 
+\hline 
+14 & Right Hip Roll & rlj2 & rle2 \\ 
+\hline 
+15 & Right Hip Pitch & rlj3 & rle3 \\ 
+\hline 
+16 & Right Knee Pitch & rlj4 & rle4 \\ 
+\hline 
+17 & Right Foot Pitch & rlj5 & rle5 \\ 
+\hline 
+18 & Right Foot Roll & rlj6 & rle6 \\ 
+\hline 
+19 & Right Shoulder Pitch & raj1 & rae1 \\ 
+\hline 
+20 & Right Shoulder Yaw & raj2 & rae2 \\ 
+\hline 
+21 & Right Arm Roll & raj3 & rae3 \\ 
+\hline 
+22 & Right Arm Yaw & raj4 & rae4 \\ 
+\hline 
+\end{tabular} 
+
+\subsection{Umsetzung}
+Nachdem die Bewegungen grob aufgelistet waren, wurde überlegt, welche
+ Möglichkeit der Umsetzung es gibt. Für viele Bewegungen ist es möglich 
+einen Keyframe zu erzeugen und diese in einer Keyframe-Engine 
+auszuwerten, da diese nicht von Parametern oder nicht direkt von äußeren
+ Einwirkungen abhängen. Für andere müssen andere Algorithmen geschrieben
+ werden.
+
+\subsubsection{Keyframes}
+Ein Keyframe ist bei uns eine Abfolge von Momentaufnahmen von den 
+Stellungen der Gelenke des NAOs. Der NAO hat 22 Gelenke, dessen 
+Auslenkungswinkel jeweils angegeben wird. Diese einzelnen Positionen der
+ Gelenke speichern wir in einem mehrdimensionalen Array ([n][23], wobei n
+ die Anzahl der Frames für die jeweilige Bewegung ist). An den Stellen 
+[i][0] für 
+ steht die Zeit, wie lange der einzelne Frame dauern soll. Dann Folgen 
+die Gelenke, die so sortiert sind, wie die Reihenfolge im Array "name", 
+in dem die Namen der Gelenke stehen. Das war nötig, da wir verschiedene 
+Reihenfolgen der Gelenkbenennenung hatten und so eine Zuordnung möglich 
+ist.\\
+Die Keyframes erschaffen in unserem Projekt definierte 
+Bewegungen, die häufiger ausgeführt werden müssen.
+Damit wir nicht alle Keyframes selbst erzeugen müssen, wollten wir die 
+Aufstehbewegungen (vom Bauch und vom Rücken) der \href{http://www.naoteamhumboldt.de/de/}{Humboldt Universität}
+ benutzen, die uns diese zur Verfügung gestellt hat.
+Das Aufstehen vom Rücken konnten wir auch mit einigen veränderungen 
+benutzen, jedoch wollte unser NAO mit unserer Keyframe-Engine nicht aus 
+seiner Bauchlage aufstehen, weshalb wir diesen neu entwickelten.
+Momentan stehen folgende Bewegungen durch Keyframes zur Verfügung:
+
+\begin{itemize}
+\item  lookAround (umsehen)
+\item  stand\_up\_from\_back
+\item  stand\_up\_from\_front
+\item  kick1 (ein erster sanfter Schuss)
+\end{itemize}
+\subsubsection{Berechnungen (Keyframe-Engine)}
+Die Berechnunung findet in unserer Keyframe-Engine statt. Dort stehen die einzelnen Bewegungs-Methoden zur Verfügung.
+
+\begin{itemize}
+\item  lookAround()
+\item  stand\_up\_from\_back()
+\item  stand\_up\_from\_front()
+\item  kick1()
+\end{itemize}
+Alle diese Methoden holen sich als erstes das jeweilige 
+Keyframe-Array und die Reihenfolge der Gelenke mit dem Array name. Da 
+die Keyframe-Engine in jedem Zyklus aufgerufen wird, muss (der aktuelle 
+Keyframe,) die aktuelle Zeile und die vergangene Zeit des Frames 
+gespeichert werden. Zusätlich überprüfen wir auch, ob wir im letzten 
+Frame der Bewegung angekommen sind. Sind wir im letzten Frame, werden 
+alle Gelenkgeschwindigkeiten auf 0.0 gesetzt, damit sie sich nicht 
+weiter bewegen.
+Die eigentliche Berechnung, der nächsten Geschwindigkeiten findet
+ in der Methode get\_new\_joint\_postion(keyframe, name). Dort werden die 
+jeweiligen Gelenkepaare, bestehen aus aktueller Gelenkposition und der 
+Position, wo wir in dem aktuellen Frame hinwollen berechnet. Dabei 
+müssen auf mehrere Sachen geachtet werden:
+
+\begin{enumerate}
+\item  Die aktuelle Gelenkposition ist die vom Zyklus davor, d.h. wir haben einen Versatz von 20ms.
+\item  Wir wollen nicht im nächsten Zyklus die gesamte Bewegung ausführen, sondern nur die, die in den nächsten 20ms passieren soll.
+\item  Das Gelenk darf nicht über seine maximale Auslenkung gesteuert werden.
+\end{enumerate}
+Jede Gelenkgeschwindigkeit wird dann mit der folgenden Formel berechnet:
+\begin{equation}
+\texttt{Winkel} = \frac{20ms \cdot (\overbrace{keyframe\_ joint}^{\texttt{Winkel aus Keyframe}} - (\overbrace{hinge\_ joint}^{\texttt{akt. Gelenkstellung}} + \overbrace{last\_ joint\_ angle}^{\texttt{letzter berechneter Winkel}}))}{\underbrace{keyframe[0]}_{\texttt{Dauer akt. Frames}} - \underbrace{progressed\_ time}_{\texttt{vergangene Zeit akt. Frames}}}
+\end{equation}
+
+Dieser Winkel wird für den nächsten Zyklus gespeichert und in Rad/sec umgerechnet.
+\begin{equation}
+\texttt{Winkelgeschwindigkeit} = \frac{\overbrace{rad(Winkel)}^{\texttt{oben berechneter Winkel}}}{\underbrace{20 * 0,001}_{\texttt{20ms}}}
+\end{equation}
+Danach wird die abgelaufe Zeit um 20ms erhöht und wenn die Zeile 
+des Keyframes abgearbeitet ist wird die Zeile um 1 erhöht. Ist die 
+Bewegung am Ende angekommen, wird die aktuelle Zeile aud 0 gesetzt.
+
+\subsubsection{Einzelne Bewegungen}
+Im Folgenden werden die einzelnen Bewegungen vorgestellt und dessen Umsetztung beschrieben.
+
+\paragraph{Aufstehbewegungen}
+Das Aufstehen ist besonders gut geeignet mit einem Keyframe umgesetzt
+ zu werden, da hier keine Parameter nötig sind. Da es für den NAO einen 
+Unterschied macht, ob er auf dem Rücken liegt oder auf dem Bauch mussten
+ zwei verschiedene Keyframes entwickelt werden.
+
+\subparagraph{Aufstehen vom Rücken aus}
+Wurde als erstes voll funktionstüchtig implementiert. Sobald der NAO 
+auf dem Rücken liegt, steht er wieder auf und stellt sich nahezu 
+vollständig gerade wieder hin. Dieser Keyframe wurde von der \href{http://www.naoteamhumboldt.de/de/}{Humboldt Universität} benutzt und musste nur an einigen Stellen verändert werden.
+
+\subparagraph{Aufstehen vom Bauch aus}
+Hier hatten wir einen Keyframe von der \href{http://www.naoteamhumboldt.de/de/}{Humboldt Universität} zur Verfügung, der unseren NAO jedoch nicht aufstehen lassen hat. Deshalb wurde er entwickelt. ...
+
+\paragraph{Kopfbewegungen}
+Die Bewegung des Kopfes ist nicht nur wichtig, um sich umzusehen, 
+damit der NAO z.B. seine Position besser bestimmen kann oder den Ball 
+sehen kann, wenn er außerhalb des Sichtfeldes seines ist, sondern auch 
+zur Fixierung eines Punktes.
+
+\subparagraph{Umsehen }
+Dies ist eine feste Abfolge von Bewegungen. Es soll eine möglichst 
+großer Bereich gesehen werden. Dafür wird ein Keyframe geschrieben, da 
+hier keine Berechnungen gebraucht werden. Dazu wird der Kopf zuerst nach
+ linkt, nach unten  und dann nach rechts bewegt.
+
+\subparagraph{Auf eine Punkt gucken}
+Diese Bewegung benötigt eine Berechnung, die ausgehend von der 
+aktuellen Stellung der Kopfgelenke den Weg zum gewünschten Punkt 
+berechnet. Es ist noch nicht geklärt, mit welchen Daten die Berechnung 
+stattfinden sollen. Dazu ist eine Absprache vor allem mit der 
+Taktikgruppe nötig.
+
+\paragraph{Schuss}
+Für den Schuss sind bis jetzt Keyframes geplant. Dabei soll 
+unterschieden werden, ob der Schuss weit oder kurz sein soll (bis jetzt 2
+ Keyframes). Schwierigkeiten, die wir dabei bekommen könnten, sind dass 
+der NAO ziemlich genau vor dem Ball stehen muss und dass er das 
+Gleichgewicht halten muss.
+
+\subsection{Interfaces}
+\subsubsection{Variablen}
+\textbf{Working}
+Wenn diese Variable auf True gesetzt ist, ist ein Keyframe noch nicht 
+beendet. Daher darf kein Movement Befehl ausgeführt werden und nur 
+Keyframes gestartet werden, die den Kopf bewegen
+
+\subsubsection{Funktionen}
+\textbf{work}
+Diese Funktion muss in jedem Cycle aufgerufen werden. Sie überprüft ob 
+aktuell noch Keyframes auszuführen sind, ist dies der Fall werden die 
+Geschwindigkeiten für diesen Cycle berechnet.
+
+\subsubsection{Keyframe Aufrufe}
+Diese Funktionen werden einmal aufgerufen und bestimmen damit den 
+aktuell auszuführenden Keyframe. Die Bewegung des Naos erfolgt 
+ausschließlich über \textbf{work}.
+
+\begin{tabular}{|c|p{9cm}|}
+\hline 
+Name & Funktion \\ 
+\hline 
+stand() & Grundhaltung des Nao, die nach dem Hinzufügen eines Nao aufgerufen 
+werden sollte, um aus der vordefinierten Haltung in einen normalen Stand
+ zu kommen. \\ 
+\hline 
+stand\_up\_from\_back() & Diese Bewegung lässt den Nao aufstehen, wenn er auf dem Rücken liegt (modifizierte Humboldt-Version). \\ 
+\hline 
+stand\_up\_from\_front() & Diese Bewegung lässt den Nao aufstehen, wenn er auf dem Bauch liegt 
+(eigenständig geschriebener Keyframe der sich an der Aufstehbewegung der
+ zweitplatzierten Mannschaft, der Osaka Open 2011 orientiert). \\ 
+\hline 
+kick\_left() / kick\_right() & Dieser Tritt ist ein sehr kurzer, erster Versuch einen Tritt auszuführen. Er könnte in Zukunft zum Dribbling verwendet werden. \\ 
+\hline 
+kick\_strong\_left() / kick\_strong\_right() & Ein erster starker Tritt wird insbesondere für Torschüsse benötigt. 
+Er lässt den Nao regelmäßig umkippen, bei einem solchen Schuss lässt 
+sich damit aber arbeiten. \\ 
+\hline 
+head\_lookAround() & Wird eine vollständige Bewegung zum umschauen benötigt, so wird \textbf{head\_lookAround} verwendet. \\ 
+\hline 
+head\_move(angle) & Bewegt den Kopf horizontal um den angegebenen Winkel. Positive Werte 
+bewegen den Kopf, vom Nao aus gesehen, nach links; negative nach rechts.
+ Maximalwerte liegen bei 120 bzw -120 Grad. Die Bewegung wird vertikal 
+betrachtet auf der 0 Grad Ebene ausgeführt. \\ 
+\hline 
+head\_stop() & Stoppt die Kopfbewegung an der aktuellen Position. Aufgrund des 
+Delays stoppt der Kopf allerdings einen Schritt weiter als an der im 
+aktuellen Cycle von den Sensoren angegebene Position. \\ 
+\hline 
+head\_reset() &Setzt den Kopf auf 0 Grad horizontal und vertikal zurück. \\ 
+\hline 
+fall\_on\_front() & Diese Testfunktion lässt den Nao auf den Bauch fallen. \\ 
+\hline 
+fall\_on\_back() & Diese Testfunktion lässt den Nao auf den Rücken fallen. \\ 
+\hline 
+parry\_left() & Der Torwart führt eine Parade nach links aus und steht nach kurzer Zeit wieder auf. \\ 
+\hline 
+parry\_right() & Der Torwart führt eine Parade nach rechts aus und steht nach kurzer Zeit wieder auf. \\ 
+\hline 
+parry\_straight() & Der Torwart versucht möglichst viel Weg zu versperren wenn der Ball nahezu gerade auf ihn zukommt. \\ 
+\hline 
+parry\_straight1() & Der Torwart geht in die Hocke um den Ball abzufangen wenn der Ball exakt auf ihn zukommt. \\ 
+\hline 
+\end{tabular} 

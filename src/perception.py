@@ -103,9 +103,10 @@ class Perception:
                 #self.location_diff_counter += 1
                 #self.location_diff += (localization_result - world.Vector(-14, 9)).mag()
                 #logging.debug("location_diff: " + str(self.location_diff / self.location_diff_counter))
-                player._position = localization_result[0]
-                player._see_vector = localization_result[1]
-                player.confidence = 1.0
+                if localization_result[0] != None and localization_result[1] != None:
+                    player._position = localization_result[0]
+                    player._see_vector = localization_result[1]
+                    player.confidence = 1.0
 
                 # if self localization was successful, calculate positions of mobile enties:
                 self.mobile_entity_localization(mobile_entities, w)

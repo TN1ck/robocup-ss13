@@ -1,0 +1,20 @@
+% This file was converted from HTML to LaTeX with
+% gnuhtml2latex program
+% (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
+% (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
+% Version : 0.4.
+\section{Serververbindung}
+Ein paar Informationen zur Serververbindung bzw. Sockets in Pyhton:\\
+Sockets in Python funktionieren ähnlich wie in Java. Per \grqq import socket\grqq{} stehen sie uns zur Verfügung. s = socket.socket(socket.AF\_INET, socket.SOCK\_STREAM) legt einen TCP Socket mit dem IPv4 Protokol an. Mittels s.connect(ip,port) verbindet man sich mit dem Server. Anschließend kann in einer while-Schleife auf Servernachrichten gewartet werden.\\
+\\
+Agent und Server kommunizieren über das TCP Protokoll über den vordefinierten Standardport 3100. Bevor ein Agent am Spiel teilnehmen kann, muss er sich \grqq registrieren\grqq{}. Das geschieht über zwei Kommandos.\\
+CreateEffector message: (scene $<$filename$>$). Dieser Befehl legt die .rsg Datei fest welche der Server für diesen Agent nutzt (enthält physische Repräsentation und effectors/perceptors).\\
+InitEffector message: (init (unum $<$playernumber$>$)(teamname $<$yourteamname$>$)). Hier gibt der Agent an, zu welchem Team er gehört und welche Spielernummer er hat. Als Spielernummer ist auch 0 möglich - hier weist der Server dem Agent die nächste freie Nummer zu. Sofern wir keine festen Rollen verteilen, dürfte die Spielernummer aber irrelevant sein.\\
+Sofern ich nichts übersehen habe, gibt es keine Rückmeldung vom Server - es gibt also keine Rückmeldung für gesendete Kommandos.\\
+\\
+Die Frage wäre nun, wie Komplex das Serververbindungs-Modul sein darf/soll. Stupides Management der Verbindung (aufbauen, aufrechterhalten, senden, empfangen). Also reines Senden und Empfangen von Nachrichten ohne große Verifikationen (außer natürlich sicherzustellen, dass alles vollständig und fehlerfrei gesendet wird/ankommt). Oder darf es doch mehr wie z.B. das Registrieren mit dem Server übernehmen oder nach bestimmten Richtlinien Nachrichten validieren.\\
+\\
+Quellen:\\
+\url{http://simspark.sourceforge.net/wiki/index.php/Network\_Protocol}\\
+\url{http://simspark.sourceforge.net/wiki/index.php/Effectors}\\
+\url{http://openbook.galileocomputing.de/python/python\_kapitel\_20\_001.htm}\\

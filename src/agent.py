@@ -72,17 +72,18 @@ class Agent:
             shared_list = manager.list()
             shared_value = Value('b', 0)
             # start second thread:
-            Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
+            # Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
 
 
             while True:
                 msg = self.agentSocket.receive()
-                
+                '''
                 if(shared_value.value == 1):
                     shared_value.value = 0
                     self.scene.run_cycle(shared_list)
                     self.scene_updated = True
                     del shared_list[:]
+                    '''
                   
                 parsed_msg = parser.parse_sexp(msg)
                 while len(parsed_msg) != 0:
@@ -127,21 +128,45 @@ class Agent:
                             if i[0] == 'team':
                                 if i[1] == 'left':
                                     self.on_left = True
+                                    self.us = "Left"
+                                    self.them = "Right"
                                 else:
                                     self.on_left = False
-                if self.on_left:
-                    self.us   = "Left"
-                    self.them = "Right"
-                else:
-                    self.us   = "Right"
-                    self.them = "Left"
+                                    self.us = "Right"
+                                    self.them = "Left"
 
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
                 elif(self.gs == 'KickIn_'+self.them or self.gs == 'corner_kick_'+self.them.lower() or self.gs == 'goal_kick_'+self.them.lower() or self.gs =='free_kick_'+self.them.lower()):
-                    goto_waitposition(self)
+                    self.ball_posx = self.world.ball.get_position().x
+                    self.ball_posy = self.world.ball.get_position().y
+                    self.closest_to_ball = self.tactics.get_distances_ball()
+                    if self.ball_posx < 0:
+                        self.ball_posx = -self.ball_posx
+                    if self.gs == 'KickIn_'+self.them:
+                        for i in range(len(self.closest_to_ball)):
+                            if self.closest_to_ball[i][0] == 'P_1_'+str(self.nao.player_nr) and i < 2:
+                                if self.ball_posy < 0: 
+                                    self.movement.run(relx(self, self.ball_posx+i),self.ball_posy+1)
+                                else: 
+                                    self.movement.run(relx(self, self.ball_posx+i),self.ball_posy-1)
+                    elif self.gs == 'corner_kick_'+self.them.lower() and len(self.closest_to_ball) > 0:
+                        if self.closest_to_ball[0][0] == 'P_1_'+str(self.nao.player_nr):
+                            if self.ball_posy < 0: 
+                                self.movement.run(relx(self, self.ball_posx-0.75),self.ball_posy+1)
+                            else: 
+                                self.movement.run(relx(self, self.ball_posx-0.75),self.ball_posy-1)
+                    elif self.gs =='free_kick_'+self.them.lower():
+                        for i in range(len(self.closest_to_ball)):
+                            if self.closest_to_ball[i][0] == 'P_1_'+str(self.nao.player_nr) and i < 3:
+                                if self.ball_posy < 0: 
+                                    self.movement.run(relx(self, self.ball_posx+1.5),self.ball_posy+(i*0.5))
+                                else: 
+                                    self.movement.run(relx(self, self.ball_posx+1.5),self.ball_posy-(i*0.5))
+                    else:
+                        goto_waitposition(self)
                     self.keyFrameEngine.stand()
                     self.keyFrameEngine.work()
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'PlayOn'):
@@ -179,6 +204,7 @@ class Agent:
                     else:
                         self.est_p = self.world.ball.get_position()
                         if(self.old_ball_pos != None):
+                            # print (self.world.ball.get_position())
                             self.direction = self.world.ball.get_position() - self.old_ball_pos
                             self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
                             if self.direction.x != 0:
@@ -215,24 +241,17 @@ class Agent:
                                 self.movement.move_keeper()                            
                         self.old_ball_pos = self.world.ball.get_position()
 
-                elif(self.gs == 'KickOff_Right'):
-                    pass
-                elif(self.gs == 'PlayOn'):
-                    pass
-                elif(self.gs == 'KickIn_Left'):
-                    pass
-                elif(self.gs == 'corner_kick_left'):
-                    pass
-                elif(self.gs == 'goal_kick_left'):
-                    pass
-                #elif(self.gs == 'offside_left'):
-                #    pass
-                #elif(self.gs == 'offside_right'):
-                #    pass
+                #a = raw_input('press enter:')
+                elif(self.gs == 'KickOff_'+self.us or self.gs == 'KickIn_'+self.us or self.gs == 'corner_kick_left' or self.gs == 'goal_kick_'+self.us or self.gs == 'free_kick_'+self.us):
+                    self.ball_posx = self.world.ball.get_position().x
+                    self.ball_posy = self.world.ball.get_position().y
+                    self.closest_to_ball = self.tactics.get_distances_ball()
+                    if len(self.closest_to_ball) > 0:
+                        if self.closest_to_ball[0][0] == 'P_1_'+str(self.nao.player_nr):
+                            self.movement.run(self.ball_posx,self.ball_posy)
+
                 elif(self.gs == 'GameOver'):
                     raise SystemExit(0)
-                elif(self.gs == 'free_kick_left'):
-                    pass
                 self.keyFrameEngine.work()
                 self.agentSocket.flush()
                 self.monitorSocket.flush()
@@ -288,19 +307,19 @@ def goto_waitposition(self):
     elif (self.player_nr > 1) and (self.player_nr < 6):
         #self.agentSocket.enqueue(" ( beam -5 "+str((6-((self.player_nr-2)*4)))+" 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move -5 "+str((6-((self.player_nr-2)*4)))+" 0.38 0 )")
-        self.movement.run(relx(self, 5), (6-((self.player_nr-2)*4)))
+        self.movement.run(relx(self, 10), (6-((self.player_nr-2)*4)))
     elif (self.player_nr > 5) and (self.player_nr < 10):
         #self.agentSocket.enqueue(" ( beam 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 5 "+str((6-(((self.player_nr-2)-4)*4)))+" 0.38 0 )")
-        self.movement.run(relx(self, -5), (6-(((self.player_nr-2)-4)*4)))
+        self.movement.run(relx(self, 5), (6-(((self.player_nr-2)-4)*4)))
     elif self.player_nr == 10:
         #self.agentSocket.enqueue(" ( beam 10 2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 10 2 0.38 0 )")
-        self.movement.run(relx(self, -10), 2)
+        self.movement.run(relx(self, 3), 2)
     elif self.player_nr == 11:
         #self.agentSocket.enqueue(" ( beam 11 -2 0 ) ")
         #self.agentSocket.enqueue("agent (unum" + str(self.player_nr) + ") (team Left) (move 11 -2 0.38 0 )")
-        self.movement.run(relx(self, -11), -2)
+        self.movement.run(relx(self, 2), -2)
 
 
 # method that receives via monitor protocol

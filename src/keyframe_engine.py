@@ -39,59 +39,23 @@ class Keyframe_Engine:
             self.next_head_step(keyframe, name)
 
     def parry_right(self):
-        '''
-        Goalie Parry to the right
-        '''
         self.last_frame = kf.parry_right_1
         self.working = True
 
     def parry_left(self):
-        '''
-        Goalie Parry to the left
-        '''
         self.last_frame = kf.parry_left_1
         self.working = True
 
     def parry_straight(self):
-        '''
-        Straight Goalie Parry, safer version (for holding ball, not for a real NAO)
-        '''
         self.last_frame = kf.parry_straight
         self.working = True
         
     def parry_straight1(self):
-        '''
-        Straight Goalie Parry, unsafe version, only stylish-ish
-        '''
         self.last_frame = kf.parry_straight1
         self.working = True
 
-#     def kick(self):
-#         '''
-#         hyper-kick, very unfinished
-#         '''
-#         self.last_frame = kf.kick_bossmode
-#         self.working = True
-
-    def kick_strong_left(self):
-        '''
-        Left-Footed strong kick.
-        '''
-        self.last_frame = kf.kick_strong_l
-        self.working = True
-
-    def kick_strong_right(self):
-        '''
-        Right-Footed strong kick.
-        '''
-        self.last_frame = kf.kick_strong_r
-        self.working = True
-            
-    def kick_right(self):
-        '''
-        right-footed dribbling kick.
-        '''
-        self.last_frame = kf.kick1_r
+    def kick_strong(self):
+        self.last_frame = kf.kick_strong
         self.working = True
 
     def fall_on_front(self):
@@ -140,12 +104,12 @@ class Keyframe_Engine:
         self.head_frame = kf.lookAround.keyframe
         self.head_working = True
 
-    def kick_left(self):
+    def kick1(self):
         '''
         first kick-function
         the ball has to lay in front of the nao
         '''
-        self.last_frame = kf.kick1_l
+        self.last_frame = kf.kick1
         self.working = True
 
     def test_frame(self):
@@ -162,6 +126,13 @@ class Keyframe_Engine:
         self.head_frame = [[math.fabs(angle)*10, 0.0, angle]]
         if angle == 0:
             self.head_frame = [[400, 0.0, angle]]
+        self.head_working = True
+        
+    def head_down(self):
+        '''
+        Function to move the head horizontal to the given angle.
+        '''
+        self.head_frame = [[200, -40, 0]]
         self.head_working = True
 
     def stop_head(self):

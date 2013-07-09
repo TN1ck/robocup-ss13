@@ -1,0 +1,84 @@
+% This file was converted from HTML to LaTeX with
+% gnuhtml2latex program
+% (c) Tomasz Wegrzanowski <maniek@beer.com> 1999
+% (c) Gunnar Wolf <gwolf@gwolf.org> 2005-2010
+% Version : 0.4.
+\section{Kommunikation}
+\subsection{Grundlegendes}
+Für die Kommunikation zwischen den NAOs stellt der Server 2 
+Schnittstellen zur Verfügung, den Say-Effector sowie den Hear-Perceptor.
+ Diese erlauben es uns, einen NAO etwas sagen zu lassen und zu hören, 
+was die anderen NAOs von sich geben. Die Kommunikation unterliegt 
+allerdings einigen Einschränkungen:
+
+\begin{itemize}
+\item  Eine Nachricht ist maximal 20 Zeichen lang.
+\item  Die Nachricht darf nur einen eingeschränkten (92) 
+ASCII-Zeichensatz verwenden. (zur Zeit benutzen wir 90, um den Umgang 
+mit Python zu erleichtern)
+\item  Nachrichten können 50m weit gehört werden.
+\item  Die NAOs können maximal alle 0.04s eine Nachricht hören, in 
+der Zwischenzeit (also $<$0.04s nachdem sie etwas gehört haben) sind 
+sie taub.
+\item  Sprechen zwei NAOs gleichzeitig, wird nur eine Nachricht 
+gehört. Der Sprecher hört jedoch immer seine eigene Nachricht. Die Teams
+ sprechen versetzt, können sich also nicht blockieren.
+\end{itemize}
+
+\subsection{Konzept}
+Die Nachrichten werden zurzeit nach dem folgenden Schema codiert und 
+übertragen:
+Zunächst wird eine Methode aufgerufen, welcher übergeben wird, was 
+gesagt werden soll. 
+Hierfür stehen sowohl Funktionen zur Verfügung, bei denen man über die 
+Parameter genau definiert welche Nachricht gesendet werden soll;\\
+\texttt{\%Beispielsweise sendet dieser Aufruf an NAO 5 die Nachricht, er soll zum Ball gehen\\
+sayCommandTo(1, 5)}\\
+als auch vorgefertigte Funktionen, welche die Codelesbarkeit und den Umgang mit der Kommunikation erleichtern sollen.\\
+\texttt{\%Derselbe Aufruf wie oben.\\
+sayGoToBall(5)}\\
+\texttt{\%Fügt man weitere Parameter hinzu erweitert sich die Nachricht. Wir können z.B. auch Koordinaten des Balls mitliefern.\\
+sayGoToBall(5, 8.52, -3.11)}\\
+Die aufgerufene Methode codiert die Nachricht nun derart, dass 
+sie für den Say-Effector brauchbar ist. Eine codierte Nachricht ist 
+folgendermaßen aufgebaut:\\
+$<$commandcode$><$sender$><$target$><$parameter1$>$...$<$parameterN$><$checksum$>$
+
+\begin{itemize}
+\item  commandcode - spezifiziert die Struktur und Aussage der Nachricht ("gehe zum Ball")
+\item  target - enthält den Empfänger der Nachricht("5"). 0 steht hierbei für eine Nachricht an alle
+\item  parameter1 bis N - enthalten mitgelieferte Daten wie Koordinaten oder dergleichen("8.52, -3.11")
+\item  checksum - wird aus den übrigen Bestandteilen der Nachricht gebildet und validiert die Nachricht
+\end{itemize}
+Für das Beispiel von oben würden wir folgende Codierung erhalten: \$\{\&\{\%]NCS!GI\\
+Nun wird diese codierte Nachricht über den Say-Effector an den Server geschickt.\\
+Ein NAO hat nun über die Hear-Methode die Möglichkeit, diese 
+Nachricht zu empfangen. Diese wird dann zunächst vom Translator 
+decodiert. Daraus wird nun ein HearObject erstellt, dessen Variablen mit
+ den übergebenen Parametern übereinstimmen. Dieses HearObject wird nun 
+zurückgegeben, und kann jederzeit per eval() ausgewertet werden. 
+
+\subsection{Commandcode - Tabelle}
+
+\begin{tabular}{|c|c|c|}
+\hline 
+Commandcode & Message Type & Mögliche Parameter \\ 
+\hline 
+0 & reserved, do not use & - \\ 
+\hline 
+1 & goToBall & target(0), x(0.0), y(0.0) \\ 
+\hline 
+2 & standUp & target(0)\\ 
+\hline 
+3 & iAmHere & sender, x, y \\ 
+\hline 
+4 & youAreHere & target, x, y \\ 
+\hline 
+5 & ballPosition & x, y \\ 
+\hline 
+6..89 & customMessage & - \\ 
+\hline 
+\end{tabular}\\
+In Klammern angegebene Werte sind Default-Werte, und müssen demnach nicht übergeben werden.
+Die bisherigen Commandcodes stellen lediglich Beispiele dar. Weitere Messages einzufügen stellt kein Problem dar. 
+Erwünschte Commandcodes, samt Namen und Parametern, einfach hier hinschreiben, und wir fügen sie so schnell es geht ein.
