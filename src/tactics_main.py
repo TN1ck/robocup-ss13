@@ -267,6 +267,7 @@ class TacticsMain:
       return (('run', False),('stand_up',False),('kick',False),say_tuple, ('head',True))
 
     if isinstance(hearObj, hearObject.BallPosition):
+      print 'Ball'
       b = self.world.entity_from_identifier['B']
       if b.confidence < 0.5:
         b.set_position(hearObj.hearObject.x,hearObj.hearObject.y)
@@ -278,7 +279,7 @@ class TacticsMain:
       d = self.calc_point_distance(self.my_position,Vector(hearObj.hearObject.x,hearObj.hearObject.y))
       if self.distances_ball != []: 
         stop_run_to_shoot = (self.distances_ball[0][0] == ('P_1_' + str(self.nao.player_nr)) and d < 0.8)
-      print stop_run_to_shoot
+
       
     say_tuple = self.ball_info()
     
