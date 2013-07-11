@@ -1,4 +1,5 @@
 from math import *
+import math
 
 class Movement:
     def __init__(self, world, socket, player_nr):
@@ -18,6 +19,9 @@ class Movement:
         self.shoot_angle_offset = atan2(0.05, -0.2)
         self.fresh = True
         self.reached_position = False
+        
+    def reset_pos(self):
+        self.fresh = True
 
     def get_world(self):
         return self.world
@@ -26,48 +30,22 @@ class Movement:
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
 
     def run(self, *destination):
-        #print destination[0]
-        #print destination[1]
         if self.fresh:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
-        #print self.position.x
-	#print self.position.y
-        #self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
+
         self.position = self.beampos
         self.stopped = False
         if destination: self.destination = destination
-        # Destination parameters are present in parameters
-        #if destination:
-        #    self.destination = destination
-        #if ((self.destination and
-        #    abs(self.destination[0] - self.position.x) < self.divergence) and
-        #   (abs(self.destination[1] - self.position.y) < self.divergence)):
-        #    self.stopped = True
-        #    return
 
         self.rotation = atan2(self.destination[0] - self.position.x, self.destination[1] - self.position.y)
-        #print self.rotation
-        #print degrees(self.rotation)
-        #print sin(self.rotation)
-        #print cos(self.rotation)
+
         dy = cos(self.rotation) * self.velocity
         dx = sin(self.rotation) * self.velocity
 
-        #if(abs(self.beampos.x - self.position.x) < self.divergence):
         self.beampos.x = self.beampos.x + dx
-        #else:
-        #    self.beampos.x = self.position.x + dx
-
-        #if(abs(self.beampos.y - self.position.y) < self.divergence):
         self.beampos.y = self.beampos.y + dy
-        #else:
-        #    self.beampos.y = self.position.y + dy
-
         self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",(-1 * degrees(self.rotation) ), ")")
-        #self.socket.flush()
-        #self.socket.receive()
-        #self.send("beam", self.beampos.x, self.beampos.y, (-1 * degrees(self.rotation) )+90)
 
     def turn(self, angle):
         if self.fresh:
@@ -113,13 +91,24 @@ class Movement:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
         ballposition = self.world.ball.get_position()
-        self.target = ballposition.y/10
+        #print str(ballposition)
+        self.dir_to_ball = ballposition - self.beampos
+        self.betrag = math.sqrt(self.dir_to_ball.x*self.dir_to_ball.x + self.dir_to_ball.y*self.dir_to_ball.y)
+        self.norm = self.dir_to_ball*(1/self.betrag)
+        self.dir_to_ball.x = -15
+        self.dir_to_ball.y = 0
+        self.target = self.dir_to_ball + self.norm
         self.rotation = atan2(ballposition.x-self.beampos.x, ballposition.y-self.beampos.y)
-        if(abs(self.target - self.beampos.y) > 0.1):
-            if(self.target > self.beampos.y):
+        if(abs(self.target.y - self.beampos.y) > 0.01):
+            if(self.target.y > self.beampos.y):
                self.beampos.y = self.beampos.y + 0.01
             else:
                self.beampos.y = self.beampos.y - 0.01
+        if(abs(self.target.x - self.beampos.x) > 0.01):
+            if(self.target.x > self.beampos.x):
+               self.beampos.x = self.beampos.x + 0.01
+            else:
+               self.beampos.x = self.beampos.x - 0.01
         self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",(-1 * degrees(self.rotation) ), ")")
 
     def turn_head(self, horizontal, vertical, speed):
