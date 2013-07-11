@@ -11,15 +11,10 @@ stattdessen von der Simulation zur Verfügung gestellte Beam-Befehle.
 
 \section{Aktueller Zustand}
 In der aktuellen Implementation wird der Beam-Befehl für die 
-Agentschnittstelle genutzt. Das heißt, es kann nach dem Anstoß nicht mehr genutzt werden. Außerdem steht uns die echte Position nicht zur 
+Monitorschnittstelle genutzt. Das heißt, es kann nach dem Anstoß immernoch genutzt werden. Außerdem steht uns die echte Position nicht zur 
 Verfügung, die aber gebraucht wird, um sich realitätsnah zu bewegen. Zu 
 diesem Zweck wird aktuell die Position in einer lokalen Variable 
-gespeichert, was allerdings zu Problemen während des Spielverlaufs 
-führen kann.\\
-Obwohl sich der Nao langsam zu seinem Ziel drehen sollte, bevor er
- losgeht, wurde beschlossen damit zu warten, bis die echte Position 
-verfügbar ist, da die vielen Workarounds die Funktion ohnehin schon 
-Fehleranfällig machen. 
+gespeichert.
 
 \section{Nutzung}
 run(x,y)~: Rufe diese Funktion der Movementklasse auf, um einen 
