@@ -24,6 +24,8 @@ import statistics
 import numpy
 import interpol
 from multiprocessing import Process, Manager, Value
+from math import *
+import math
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -59,6 +61,7 @@ class Agent:
         self.position = None #variable that holds the agent's own position (read from the scenegraph)
         self.used_keyframes = False
         self.ticks = 0
+        self.estimated_point = None
 
     def start(self):
             self.monitorSocket.start()
@@ -208,41 +211,45 @@ class Agent:
                                         elif item[1] != False:
                                             self.keyFrameEngine.head_move(item[1])
                     else:
-                        #if the keyframesengine was used before jo have to rest beampos
+                        '''
+                        Keepers Part:
+                        '''
                         if not self.keyFrameEngine.working:
                             #print 'keyframe is NOT working'
+                            #if the keyframesengine was used before jo have to rest beampos
+                            if self.used_keyframes:
+                                #self.movement.reset_pos()
+                                #self.movement.move_keeper()
+                                self.used_keyframes = False
+
                             if self.nao.lies_on_front():
-                                print 'standup from front'
+                                self.used_keyframes = True
                                 self.keyFrameEngine.stand_up_from_front()
 
                             elif self.nao.lies_on_back():
-                                print 'standup from back'
+                                self.used_keyframes = True
                                 self.keyFrameEngine.stand_up_from_back()
 
+                            #he didn't see the ball in the last 10 see-perceptions
                             elif self.perception.see_the_ball == False:
-                                self.used_keyframes = True
-                                self.keyFrameEngine.head_lookAround()
-                                print 'lookAround'
-
-                            elif self.used_keyframes:
-                                self.movement.reset_pos()
-                                self.used_keyframes = False
-                                print 'refresh own beampos'
+                                if self.movement.degrees < -90:
+                                    self.movement.turn_about(+2)
+                                else:
+                                    self.movement.turn_about(-2)
 
                             #If the ball is in the penalty area then walk to the ball an kick it away
-                            elif(self.world.ball.get_position().x < -13 and -2 < self.world.ball.get_position().y < 2):
-                                print 'ball in penalty-area'
-                                if self.movement.reached_position:
+                            elif(self.world.ball.get_position().x < -13 and -3 < self.world.ball.get_position().y < 3):
+                                #print 'ball in penalty-area'
+                                if not self.movement.reached_position:
+                                    self.movement.run_to_shoot_position(15,0)
+                                else:
                                     self.used_keyframes = True
                                     self.keyFrameEngine.kick_right()
                                     self.movement.reached_position = False
-                                else:
-                                    self.movement.run_to_shoot_position(15,0)
 
                             elif(self.old_ball_pos != None):
                                 self.movement.move_keeper()
-                                #Begin of calculation where the ball will stop
-                                self.estimated_point = self.world.ball.get_position()
+                                
                                 #calculate current direction and amount of the ball
                                 self.direction = self.world.ball.get_position() - self.old_ball_pos
                                 self.velocity = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
@@ -262,40 +269,32 @@ class Agent:
                                 #   - the ball will cross the goalline between the goalpoals
                                 #calculate the estimated point where the ball will stop
                                 if (self.direction.x < 0 and self.velocity > 0.05 and -1 < self.goal_intercept < 1): 
+                                    #Begin of calculation where the ball will stop
+                                    self.estimated_point = self.world.ball.get_position()
                                     # I assume that the balls velocity after 60ms will decrease with the factor 0.7
                                     # and add it n times to the estimated point until the velocity is nearly zero
-                                    while(self.velocity > 0.01):
-                                        self.velocity = self.velocity*0.7
+                                    self.direction.x = self.direction.x*10
+                                    self.direction.y = self.direction.y*10
+                                    while(self.velocity > 0.1):
+                                        self.velocity = self.velocity*0.9
                                         self.direction.x = self.direction.x*self.velocity
                                         self.direction.y = self.direction.y*self.velocity
-                                        self.estimated_point.x = self.estimated_point.x+self.estimated_point.x*self.velocity
-                                        self.estimated_point.y = self.estimated_point.y+self.estimated_point.y*self.velocity
-                                    print 'estimated point x: ' + str(self.estimated_point.x) + ', y:' + str(self.estimated_point.y) 
-                                    self.drawer.drawCircle(self.estimated_point, 0.4, 3, [255,0,51], "est_p")
+                                        self.estimated_point.x = self.estimated_point.x+self.direction.x
+                                        self.estimated_point.y = self.estimated_point.y+self.direction.y               
                                      
                                     if(self.estimated_point.x < -15):
-                                        print 'est.p.y: '+str(self.estimated_point.y)
-                                        print 'goal_intercept: '+str(self.goal_intercept)
                                         self.used_keyframes = True
-                                        if (-0.4 < self.goal_intercept < 0.4):
-                                            print "parry straight"
+                                        if (-0.6 < self.goal_intercept < 0.6):
                                             self.keyFrameEngine.parry_straight()
-                                        elif(-0.4 >= self.goal_intercept >= 1.0):
-                                            print "parry right"
+                                        elif(-0.6 >= self.goal_intercept >= 1.0):
                                             self.keyFrameEngine.parry_right()
-                                        elif(0.4 <= self.goal_intercept <= 1.0):
-                                            print "parry left"
+                                        elif(0.6 <= self.goal_intercept <= 1.0):
                                             self.keyFrameEngine.parry_left() 
-                            if len(self.world_history) > 10:
-                                self.world_history.pop()
-                                self.world_history.pop()
-                                self.world_history.pop()
-                                self.world_history.pop()
-                                self.world_history.pop()
-                                self.world_history.pop()
-                                self.old_ball_pos = self.world_history.pop().ball.get_position()
+
                             self.old_ball_pos =  self.world.ball.get_position()
-                            self.drawer.showDrawingsNamed("est_p")
+                            if self.estimated_point != None:
+                                self.drawer.drawCircle(self.estimated_point, 0.2, 3, [255,0,51], "est_p")
+                                self.drawer.showDrawingsNamed("est_p")
 
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'KickIn_'+self.us or self.gs == 'corner_kick_left' or self.gs == 'goal_kick_'+self.us or self.gs == 'free_kick_'+self.us):
                     self.ball_posx = self.world.ball.get_position().x

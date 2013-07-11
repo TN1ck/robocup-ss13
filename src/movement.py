@@ -13,13 +13,14 @@ class Movement:
         self.destination = None
         self.angular_precision = 0.1;
         self.rotation = 0
+        self.degrees = 0
         self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
         self.shoot_distance = hypot(-0.2, 0.05)
         self.shoot_angle_offset = atan2(0.05, -0.2)
         self.fresh = True
         self.reached_position = False
-        
+
     def reset_pos(self):
         self.fresh = True
 
@@ -39,19 +40,35 @@ class Movement:
         if destination: self.destination = destination
 
         self.rotation = atan2(self.destination[0] - self.position.x, self.destination[1] - self.position.y)
+        self.degrees = (-1 * degrees(self.rotation) )
 
         dy = cos(self.rotation) * self.velocity
         dx = sin(self.rotation) * self.velocity
 
         self.beampos.x = self.beampos.x + dx
         self.beampos.y = self.beampos.y + dy
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",(-1 * degrees(self.rotation) ), ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",self.degrees, ")")
 
     def turn(self, angle):
         if self.fresh:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384", angle, ")")
+
+        if angle < (-1 * degrees(self.rotation)) and abs(angle - (-1 * degrees(self.rotation))) > 1:
+            self.degrees = self.degrees - 2
+        else:
+            self.degrees = self.degrees + 2
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",self.degrees, ")")
+
+    def turn_about(self, angle):
+        if self.fresh:
+            self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
+            self.fresh = False
+        print str(self.degrees + angle)
+        self.degrees = self.degrees + angle
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",self.degrees, ")")
+
+        
         
     def run_to_shoot_position(self, *destination):
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
@@ -77,14 +94,18 @@ class Movement:
             self.beampos = self.world.get_entity_position('P_1_' + str(self.player_nr))
             self.fresh = False
         ballposition = self.world.ball.get_position()
-        #print str(ballposition)
         self.dir_to_ball = ballposition - self.beampos
         self.betrag = math.sqrt(self.dir_to_ball.x*self.dir_to_ball.x + self.dir_to_ball.y*self.dir_to_ball.y)
         self.norm = self.dir_to_ball*(1/self.betrag)
         self.dir_to_ball.x = -15
         self.dir_to_ball.y = 0
+        self.distance =  math.sqrt( (ballposition - self.dir_to_ball).x*(ballposition - self.dir_to_ball).x + 
+                                    (ballposition - self.dir_to_ball).y*(ballposition - self.dir_to_ball).y)
         self.target = self.dir_to_ball + self.norm
+        self.target.x = self.dir_to_ball.x + self.norm.x*(self.distance/15)
+        self.target.y = self.dir_to_ball.y + self.norm.y*(self.distance/15)
         self.rotation = atan2(ballposition.x-self.beampos.x, ballposition.y-self.beampos.y)
+        self.degrees = (-1 * degrees(self.rotation) )
         if(abs(self.target.y - self.beampos.y) > 0.01):
             if(self.target.y > self.beampos.y):
                self.beampos.y = self.beampos.y + 0.01

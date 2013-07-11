@@ -25,7 +25,7 @@ class Perception:
 
     def __init__(self, player_nr, our_team, drawer):
         #some variables for the keepers logic
-        self.window = 10 
+        self.window = 20 
         self.ticks = 0 
         self.seen_ball = 0  
         self.see_the_ball = False
