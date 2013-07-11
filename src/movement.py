@@ -76,7 +76,6 @@ class Movement:
         self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384", angle, ")")
         
     def run_to_shoot_position(self, *destination):
-        print "maybe"
         self.position = self.world.get_entity_position('P_1_' + str(self.player_nr))
         ballposition = self.world.ball.get_position()
         #ballposition.x = 0
@@ -87,7 +86,6 @@ class Movement:
         if (hypot(self.destx - self.position.x, self.desty - self.position.y) > self.divergence):
             b = atan2(self.desty - self.position.y, self.destx - self.position.x)
             if abs(a - b) > pi / 2:
-                  print "ball in path"
                   if a > pi:
                       if (a-b) > pi:
                           a += (3 * pi)/4
