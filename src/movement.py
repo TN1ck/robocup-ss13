@@ -79,6 +79,20 @@ class Movement:
         self.destx = ballposition.x + (cos(a + self.shoot_angle_offset) * self.shoot_distance)
         self.desty = ballposition.y + (sin(a + self.shoot_angle_offset) * self.shoot_distance)
         if (hypot(self.destx - self.position.x, self.desty - self.position.y) > self.divergence):
+            b = atan2(self.desty - self.position.y, self.destx - self.position.x)
+            if abs(a - b) > pi / 2:
+                  if a > pi:
+                      if (a-b) > pi:
+                          a += (3 * pi)/4
+                      else:
+                          a += (5 * pi)/4
+                  else:
+                      if (a-b) > pi:
+                          a += (5 * pi)/4
+                      else:
+                          a += (3 * pi)/4
+                  self.destx -= sin(a)
+                  self.desty -= cos(a)
             self.run(self.destx, self.desty)
             self.reached_position = False
         else:
