@@ -24,6 +24,8 @@ import statistics
 import numpy
 import interpol
 from multiprocessing import Process, Manager, Value
+from math import *
+import math
 
 # Hacky way to make global variables in Python
 __builtin__.our_team = "DAI-Labor"
@@ -57,6 +59,9 @@ class Agent:
         self.scene = scene.Scene()
         self.scene_updated = False #variable for handling the scenegraph
         self.position = None #variable that holds the agent's own position (read from the scenegraph)
+        self.used_keyframes = False
+        self.ticks = 0
+        self.estimated_point = None
 
     def start(self):
             self.monitorSocket.start()
@@ -73,8 +78,6 @@ class Agent:
             shared_value = Value('b', 0)
             # start second thread:
             # Process(target=receive_monitor_data, args=(shared_list, shared_value)).start()
-
-
             while True:
                 msg = self.agentSocket.receive()
                 '''
@@ -138,7 +141,7 @@ class Agent:
                 if(self.gs == 'BeforeKickOff' or self.gs == 'Goal_Left' or self.gs == 'Goal_Right'):
                     goto_startposition(self)
                     self.keyFrameEngine.stand()
-                    self.keyFrameEngine.work()
+                    #self.keyFrameEngine.work()
                 elif(self.gs == 'KickIn_'+self.them or self.gs == 'corner_kick_'+self.them.lower() or self.gs == 'goal_kick_'+self.them.lower() or self.gs =='free_kick_'+self.them.lower()):
                     self.ball_posx = self.world.ball.get_position().x
                     self.ball_posy = self.world.ball.get_position().y
@@ -186,8 +189,10 @@ class Agent:
                                     if item[0] == 'kick':
                                         if item[1] == 1:
                                             self.keyFrameEngine.kick_right()
+                                            break
                                         elif item[1] == 2:
                                             self.keyFrameEngine.kick_strong_right()
+                                            break
                                     if item[0] == 'run':
                                         if item[1] is False:
                                             self.movement.stop()
@@ -206,52 +211,97 @@ class Agent:
                                         elif item[1] != False:
                                             self.keyFrameEngine.head_move(item[1])
                     else:
-                        self.est_p = self.world.ball.get_position()
-                        if(self.old_ball_pos != None):
-                            # print (self.world.ball.get_position())
-                            self.direction = self.world.ball.get_position() - self.old_ball_pos
-                            self.betrag = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
-                            if self.direction.x != 0:
-                                self.increase = (self.direction.y / self.direction.x)
-                            else:
-                                self.increase = self.direction.y
-                            self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
-                            self.goal_intercept = (-15)*self.increase + self.y_intercept
+                        '''
+                        Keepers Part:
+                        '''
+                        if not self.keyFrameEngine.working:
+                            #print 'keyframe is NOT working'
+                            #if the keyframesengine was used before jo have to rest beampos
+                            if self.used_keyframes:
+                                #self.movement.reset_pos()
+                                #self.movement.move_keeper()
+                                self.used_keyframes = False
 
-                            if (self.betrag > 0.1 and -1 < self.goal_intercept < 1): 
-                                while(self.betrag > 0.01):
-                                    self.betrag = self.betrag*0.7
-                                    self.direction.x = self.direction.x*self.betrag
-                                    self.direction.y = self.direction.y*self.betrag
-                                    self.est_p.x = self.est_p.x+self.est_p.x*self.betrag
-                                    self.est_p.y = self.est_p.y+self.est_p.y*self.betrag
-                                #print ('#estimated point    : '+str(self.est_p))
-                                #self.drawer.drawCircle(self.est_p, 0.2, 3, [155, 155, 155], "all.keeper.est")
-                                #self.drawer.showDrawingsNamed("all.keeper")
-                                print self.goal_intercept
-                        if(self.est_p.x < -16):
-                            
-                            if (-0.3 < self.goal_intercept < 0.3):
-                                print "parry straight"
-                                self.keyFrameEngine.parry_straight()
-                            elif(-0.3 >= self.goal_intercept >= 1.0):
-                                print "parry right"
-                                self.keyFrameEngine.parry_right()
-                            elif(0.3 <= self.goal_intercept <= 1.0):
-                                print "parry left"
-                                self.keyFrameEngine.parry_left()
-                        else:
-                            if not self.keyFrameEngine.working:
-                                self.movement.move_keeper()                            
-                        self.old_ball_pos = self.world.ball.get_position()
+                            if self.nao.lies_on_front():
+                                self.used_keyframes = True
+                                self.keyFrameEngine.stand_up_from_front()
 
-                #a = raw_input('press enter:')
+                            elif self.nao.lies_on_back():
+                                self.used_keyframes = True
+                                self.keyFrameEngine.stand_up_from_back()
+
+                            #he didn't see the ball in the last 10 see-perceptions
+                            elif self.perception.see_the_ball == False:
+                                if self.movement.degrees < -90:
+                                    self.movement.turn_about(+2)
+                                else:
+                                    self.movement.turn_about(-2)
+
+                            #If the ball is in the penalty area then walk to the ball an kick it away
+                            elif(self.world.ball.get_position().x < -13 and -3 < self.world.ball.get_position().y < 3):
+                                #print 'ball in penalty-area'
+                                if not self.movement.reached_position:
+                                    self.movement.run_to_shoot_position(15,0)
+                                else:
+                                    self.used_keyframes = True
+                                    self.keyFrameEngine.kick_right()
+                                    self.movement.reached_position = False
+
+                            elif(self.old_ball_pos != None):
+                                self.movement.move_keeper()
+                                
+                                #calculate current direction and amount of the ball
+                                self.direction = self.world.ball.get_position() - self.old_ball_pos
+                                self.velocity = math.sqrt(self.direction.x*self.direction.x + self.direction.y*self.direction.y)
+
+                                #stretch the line
+                                if self.direction.x != 0:
+                                    self.increase = (self.direction.y / self.direction.x)
+                                else:
+                                    self.increase = self.direction.y
+                                self.y_intercept = self.old_ball_pos.y - self.increase*self.old_ball_pos.x
+                                #and calculate where the ball will hit the goalline
+                                self.goal_intercept = (-15)*self.increase + self.y_intercept
+
+                                #just in case that:
+                                #   - the balls direction in x is < 0
+                                #   - the ball moves fast enough
+                                #   - the ball will cross the goalline between the goalpoals
+                                #calculate the estimated point where the ball will stop
+                                if (self.direction.x < 0 and self.velocity > 0.05 and -1 < self.goal_intercept < 1): 
+                                    #Begin of calculation where the ball will stop
+                                    self.estimated_point = self.world.ball.get_position()
+                                    # I assume that the balls velocity after 60ms will decrease with the factor 0.7
+                                    # and add it n times to the estimated point until the velocity is nearly zero
+                                    self.direction.x = self.direction.x*10
+                                    self.direction.y = self.direction.y*10
+                                    while(self.velocity > 0.1):
+                                        self.velocity = self.velocity*0.9
+                                        self.direction.x = self.direction.x*self.velocity
+                                        self.direction.y = self.direction.y*self.velocity
+                                        self.estimated_point.x = self.estimated_point.x+self.direction.x
+                                        self.estimated_point.y = self.estimated_point.y+self.direction.y               
+                                     
+                                    if(self.estimated_point.x < -15):
+                                        self.used_keyframes = True
+                                        if (-0.6 < self.goal_intercept < 0.6):
+                                            self.keyFrameEngine.parry_straight()
+                                        elif(-0.6 >= self.goal_intercept >= 1.0):
+                                            self.keyFrameEngine.parry_right()
+                                        elif(0.6 <= self.goal_intercept <= 1.0):
+                                            self.keyFrameEngine.parry_left() 
+
+                            self.old_ball_pos =  self.world.ball.get_position()
+                            if self.estimated_point != None:
+                                self.drawer.drawCircle(self.estimated_point, 0.2, 3, [255,0,51], "est_p")
+                                self.drawer.showDrawingsNamed("est_p")
+
                 elif(self.gs == 'KickOff_'+self.us or self.gs == 'KickIn_'+self.us or self.gs == 'corner_kick_left' or self.gs == 'goal_kick_'+self.us or self.gs == 'free_kick_'+self.us):
                     self.ball_posx = self.world.ball.get_position().x
                     self.ball_posy = self.world.ball.get_position().y
                     self.closest_to_ball = self.tactics.get_distances_ball()
                     if len(self.closest_to_ball) > 0:
-                        if self.closest_to_ball[0][0] == 'P_1_'+str(self.nao.player_nr):
+                       if self.closest_to_ball[0][0] == 'P_1_'+str(self.nao.player_nr):
                             self.movement.run(self.ball_posx,self.ball_posy)
 
                 elif(self.gs == 'GameOver'):

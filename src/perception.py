@@ -15,6 +15,8 @@ def lower_confidence(c):
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
 
+
+
     location_diff = 0
     location_diff_counter = 0
     last_positions = collections.deque([world.Vector(0,0), world.Vector(0,0), world.Vector(0,0), world.Vector(0,0)])  # queue that will keep the last positions of the nao
@@ -22,6 +24,12 @@ class Perception:
     PERCEPTOR_HEIGHT = 0.5 + 1.0 / 30.0 # calculated w/ simspark - should be really veeeery accurate
 
     def __init__(self, player_nr, our_team, drawer):
+        #some variables for the keepers logic
+        self.window = 20 
+        self.ticks = 0 
+        self.seen_ball = 0  
+        self.see_the_ball = False
+
         self.player_nr = player_nr
         self.our_team = our_team
         self.player_id = 'P_1_' + str(player_nr)
@@ -107,16 +115,20 @@ class Perception:
                     player._position = localization_result[0]
                     player._see_vector = localization_result[1]
                     player.confidence = 1.0
-
-                # if self localization was successful, calculate positions of mobile enties:
-                self.mobile_entity_localization(mobile_entities, w)
+            '''
+                before:
+                    # if self localization was successful, calculate positions of mobile enties:
+                    self.mobile_entity_localization(mobile_entities, w)
+            '''
+            # if self localization was successful, calculate positions of mobile enties:
+            self.mobile_entity_localization(mobile_entities, w)
 
         #logging.debug('process_vision_perceptors END')
 
     def mobile_entity_localization(self, mobile_entities, w):
         """Calculates the position of the given perceived mobile entities and
         writes this info into the given world."""
-
+        self.ticks = self.ticks + 1
         # reset confidence in world model:
         for me in w.mobile_entities():
             if me.get_identifier() != self.player_id:
@@ -155,7 +167,10 @@ class Perception:
                         w.entity_from_identifier[player_key] = new_player
                     w.entity_from_identifier[player_key].set_position(pos[0], pos[1])
                     w.entity_from_identifier[player_key].confidence = 1.0
-            elif me[0] == 'B':                          # it's a ball!
+            elif me[0] == 'B': 
+                self.seen_ball = self.seen_ball + 1
+                self.see_the_ball = True
+                # it's a ball!
                 pol = self.get_pol_from_parser_entity(me)
                 vector_to_ball = self.add_pol_to_vector(player._see_vector, pol) * pol[0]
                 # NAO cam position + vector_to_ball:
@@ -164,6 +179,13 @@ class Perception:
                 w.entity_from_identifier['B'].confidence = 1.0
             else: # wtf!
                 logging.warning('found unknown entity: ' + me[0])
+
+        if(self.ticks >= self.window):
+            if self.seen_ball == 0:
+                self.see_the_ball = False
+            self.ticks = 0
+            self.seen_ball = 0
+
 
     def self_localization(self, static_entities, w):
         """Calculates the own agent's position given the perception of some static entities (static_entities)
@@ -240,6 +262,7 @@ class Perception:
             for se2 in static_entities:
                 #if se1[0] != se2[0]:
                 if not se2[0] in processed:
+                    #logging.debug(str(se2[0]) + ' isn\'t in ' + str(processed))
                     # polar coords as list:
                     pol2 = self.get_pol_from_parser_entity(se2)
                     # 2d distance:
@@ -259,6 +282,9 @@ class Perception:
                             #    logging.debug('aus der reihe tanzer')
                     else:
                         logging.debug('trigonometry not called. d_s_o1: ' + str(d_s_o1) + ' d_s_o2: ' + str(d_s_o2) + ' a1: ' + str(a1) + ' a2: ' + str(a2))
+                else:
+                    #logging.debug(str(se2[0]) + ' is in ' + str(processed))
+                    pass
 
         # calculate arithmetic mean of all positions:
         pos = None
@@ -405,7 +431,10 @@ class Perception:
 
         #print v1v2.rotate(-beta)
         position = v1 + v1v2.rotate(beta)
+
+        # debug draw "triangle":
         self.drawer.drawLine(v1, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
+        self.drawer.drawLine(v2, position, 1, [180, 170, 120], "all." + self.player_id + ".debug.ownpospart.line")
 
         # abs(a1 - a2)
         # a

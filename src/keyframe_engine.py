@@ -11,11 +11,11 @@ class Keyframe_Engine:
         self._default_time = 20.0
         self.nao = nao
         self.socket = socket
-        self.fall = False       # Variable that determines if a fall function has been called, NOT the true position
+        self.fall = False # Variable that determines if a fall function has been called, NOT the true position
         self.angle = 0.0
-        self.working = False    # For tactics, if TRUE start keep_going
+        self.working = False # For tactics, if TRUE start keep_going
         self.last = 0
-        self.last_frame = None  # Last keyframe
+        self.last_frame = None # Last keyframe
         self.head_working = False
         self.head_frame = None
         self.head_line = 0
@@ -39,23 +39,59 @@ class Keyframe_Engine:
             self.next_head_step(keyframe, name)
 
     def parry_right(self):
+        '''
+        Goalie Parry to the right
+        '''
         self.last_frame = kf.parry_right_1
         self.working = True
 
     def parry_left(self):
+        '''
+        Goalie Parry to the left
+        '''
         self.last_frame = kf.parry_left_1
         self.working = True
 
     def parry_straight(self):
+        '''
+        Straight Goalie Parry, safer version (for holding ball, not for a real NAO)
+        '''
         self.last_frame = kf.parry_straight
         self.working = True
         
     def parry_straight1(self):
+        '''
+        Straight Goalie Parry, unsafe version, only stylish-ish
+        '''
         self.last_frame = kf.parry_straight1
         self.working = True
 
-    def kick_strong(self):
-        self.last_frame = kf.kick_strong
+        # def kick(self):
+        # '''
+        # hyper-kick, very unfinished
+        # '''
+            # self.last_frame = kf.kick_bossmode
+            # self.working = True
+
+    def kick_strong_left(self):
+        '''
+        Left-Footed strong kick.
+        '''
+        self.last_frame = kf.kick_strong_l
+        self.working = True
+
+    def kick_strong_right(self):
+        '''
+        Right-Footed strong kick.
+        '''
+        self.last_frame = kf.kick_strong_r
+        self.working = True
+            
+    def kick_right(self):
+        '''
+        right-footed dribbling kick.
+        '''
+        self.last_frame = kf.kick1_r
         self.working = True
 
     def fall_on_front(self):
@@ -104,17 +140,17 @@ class Keyframe_Engine:
         self.head_frame = kf.lookAround.keyframe
         self.head_working = True
 
-    def kick1(self):
+    def kick_left(self):
         '''
         first kick-function
         the ball has to lay in front of the nao
         '''
-        self.last_frame = kf.kick1
+        self.last_frame = kf.kick1_l
         self.working = True
 
     def test_frame(self):
         '''
-        Testfunction that moves all  joints
+        Testfunction that moves all joints
         '''
         self.last_frame = kf.testframe
         self.working = True
@@ -130,9 +166,9 @@ class Keyframe_Engine:
         
     def head_down(self):
         '''
-        Function to move the head horizontal to the given angle.
+        Function to move the head vertical down.
         '''
-        self.head_frame = [[200, -40, 0]]
+        self.head_frame = [[200, -40, 0.0]]
         self.head_working = True
 
     def stop_head(self):
@@ -265,6 +301,5 @@ class Keyframe_Engine:
         Enqueue the new joint speeds
         '''
         self.socket.enqueue(" ".join(map(str, ["("] + list(params) + [")"])))
-
-
-
+        
+        
