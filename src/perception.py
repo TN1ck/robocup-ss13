@@ -10,7 +10,7 @@ import copy
 from math import log, atan2
 
 def lower_confidence(c):
-    return log(c+1)
+    return c*0.825
 
 class Perception:
     """Provides functions to process perception, calculate agent's position etc."""
