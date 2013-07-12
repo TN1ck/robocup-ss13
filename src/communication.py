@@ -4,9 +4,11 @@ import translator
 class Communication(object):
 
     e = encoder.Encoder()
-    
-    def __init__(self, socket):
+
+    #teamID (0 - 89); default: 0
+    def __init__(self, socket, teamID = 0):
         self.socket = socket
+        self.e.teamID = teamID
     
     def __del__(self):
         pass
@@ -59,6 +61,7 @@ class Communication(object):
     # <mt, 1><c, 1><fNao, 1><tNao, 1><x, 3><y, 3><csum, 3>
     def sayMessageType5(self, c, fNao=0, tNao=0, x=0.0, y=0.0):
         msg = self.e.encodeMT5(c,fNao,tNao,x,y)
+        #print("msg: " + msg)
         self.socket.enqueue("(say " + msg + ")")
    
     def sayGoToBall(self, fnao, tNao, x,y):

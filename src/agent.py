@@ -203,8 +203,8 @@ class Agent:
                                         else:
                                             self.movement.run(item[1],item[2])
                                     if item[0] == 'say':
-                                        pass#if item[1] is not False:
-                                            #self.communication.sayMessageType5(item[1],item[2], item[3],item[4],item[5])
+                                        if item[1] is not False:
+                                            self.communication.sayMessageType5(item[1],item[2], item[3],item[4],item[5])
                                     if item[0] == 'head':
                                         if item[1] is True:
                                             self.keyFrameEngine.head_lookAround()
