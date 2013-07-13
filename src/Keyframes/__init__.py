@@ -1,1 +1,1 @@
-import kick1_l, kick_strong_r, kick_strong_l, fall_back, fall_front, kick1_r, lookAround, stand_up_from_back, stand_up_from_front, stand, testframe, parry_right_1, parry_left_1, parry_straight, parry_straight1
+import kick1_l, kick_strong_r, kick_strong_l, fall_back, fall_front, kick1_r, lookAround, stand_up_from_back, stand_up_from_front, stand, step, testframe, parry_right_1, parry_left_1, parry_straight, parry_straight1
