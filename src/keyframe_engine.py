@@ -59,6 +59,10 @@ class Keyframe_Engine:
         self.last_frame = kf.parry_straight
         self.working = True
         
+    def step(self):
+        self.last_frame = kf.step
+        self.working = True
+        
     def parry_straight1(self):
         '''
         Straight Goalie Parry, unsafe version, only stylish-ish

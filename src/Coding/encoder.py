@@ -1,6 +1,7 @@
 class Encoder(object):
 
     BASE = 90
+    teamID = 0
     
     def __init__(self):
         pass
@@ -70,9 +71,14 @@ class Encoder(object):
             i_csum = (i_csum + ord(s_msg[i])*(i+1)) % (self.BASE**i_cl)
             i = i+1
 
-        d_csum = i_csum / ((10.0)**i_cl)
+        d_csum = (i_csum + self.teamID) / ((10.0)**i_cl)
 
-        return self.encodeDouble(d_csum, i_cl)
+        c_csum = self.encodeDouble(d_csum, i_cl)
+
+        if(c_csum[2] == "\\"):
+            c_csum = c_csum[0] + c_csum[1] + "B"
+
+        return c_csum
 
     # d_x := double x 
     # i_c := int c (character length)
