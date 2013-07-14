@@ -32,7 +32,7 @@ __builtin__.our_team = "DAI-Labor"
 __builtin__.our_team_number = 1
 __builtin__.number_of_players_per_team = 11
 
-
+#some change
 
 class Agent:
 
@@ -176,6 +176,7 @@ class Agent:
                     if self.player_nr > 1:
                         if not self.keyFrameEngine.working:
                             actions = self.tactics.run_tactics(self.hearObj)
+                            #print actions
                             self.hearObj = None
                             if actions != None:
                                 for item in actions:
@@ -208,8 +209,10 @@ class Agent:
                                     if item[0] == 'head':
                                         if item[1] is True:
                                             self.keyFrameEngine.head_lookAround()
+                                        elif item[1] == 'stop':
+                                            self.keyFrameEngine.head_reset()
                                         elif item[1] != False:
-                                            self.keyFrameEngine.head_move(item[1])
+                                            self.keyFrameEngine.head_down()
                     else:
                         '''
                         Keepers Part:

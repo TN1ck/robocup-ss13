@@ -1,5 +1,6 @@
 # /usr/bin/env python2.7
 # -*- coding: utf-8 -*-
+
 import world
 from world import Vector
 from random import shuffle
@@ -13,7 +14,7 @@ import hearObject
 class TacticsMain:
 
   def __init__(self, world, movement, nao):
-    self.MIN_DISTANCE = 1
+    self.MIN_DISTANCE = 3
     self.world = world
     self.mov = movement
     self.index  = -1
@@ -42,6 +43,11 @@ class TacticsMain:
     self.offence_member = False
     self.com_counter = 0
 
+    self.head_look = False
+    self.head_down = False
+    self.head_stop = True
+    self.shoot_soon = False
+
   def get_distances_ball(self):
     return self.distances_ball
 
@@ -60,9 +66,9 @@ class TacticsMain:
 
       self.calculate_goal_distances(self.my_position)
       self.distance_lines = self.calc_line_distance(self.my_position)
-      if not self.world.entity_from_identifier['B'].confidence < 0.3:
+      if True or self.shoot_soon or not self.world.entity_from_identifier['B'].confidence < 0.3:
         for i in range(len(self.player_t1_idfs)):
-          if self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.2:
+          if  self.world.entity_from_identifier[self.player_t1_idfs[i]].confidence > 0.4:
             dist =  self.calc_point_distance(self.world.get_entity_position('B'), self.world.get_entity_position(self.player_t1_idfs[i]))
             self.distances_ball.append((self.player_t1_idfs[i],dist))
         self.distances_ball = sorted(self.distances_ball, key = lambda dist : dist[1] )
@@ -78,12 +84,12 @@ class TacticsMain:
 
   def clear_distances(self):
       self.distance_goal_left = None
-      self.distance_goal_right= None
+      self.distance_goal_right = None
       self.distance_lines = {}
-      self.distance_team1= []
+      self.distance_team1 = []
       self.distance_team2 =[]
       self.distances_ball = []
-
+ 
   """ Some field object position are specified by a point. This method calcs the distance to them """
   def calc_point_distance(self,x1,x2):
      return math.sqrt(math.pow((x1.x - x2.x),2) + math.pow((x1.y - x2.y),2))
@@ -195,7 +201,7 @@ class TacticsMain:
         self.run_straight = True
         self.dest= Vector(self.my_position.x - 0.3,self.my_position.y - 0.3)
         self.ball_search_mode = 1
-        return (('run', self.my_position.x - 0.3,self.my_position.y - 0.3),('stand_up',False),('kick',False),('say',False), ('head',False))
+        return (('run', self.my_position.x - 0.3 ,self.my_position.y - 0.3),('stand_up',False),('kick',False),('say',False), ('head',False))
       if self.ball_search_mode == 1:
         if self.turn_counter == 10:
           self.turn_counter = 0
@@ -254,19 +260,25 @@ class TacticsMain:
     run_tuple = ('run', False)
     kick_tuple = ('kick', False)
     stop_run_to_shoot = False
+    head_tuple = ('head',False)
+
+
 
 
     if self.nao.lies_on_front():
-      return (('run', False),('stand_up','front'),('kick',False),say_tuple, ('head',True))
+      return (('run', False),('stand_up','front'),('kick',False),say_tuple, ('head',False))
 
     if self.nao.lies_on_back():
-      return (('run', False),('stand_up','back'),('kick',False),say_tuple, ('head',True))
+      return (('run', False),('stand_up','back'),('kick',False),say_tuple, ('head',False))
 
     self.clear_distances()
 
     self.set_own_position()
     if self.my_position == None:
-      return (('run', False),('stand_up',False),('kick',False),say_tuple, ('head',True))
+      print 'Dont know ' + str(self.world.get_entity_position('P_1_' + str(self.nao.player_nr)))+ ' ' + str(self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence)
+      head_tuple = ('head',True)
+      return (('run', False),('stand_up',False),('kick',False),say_tuple, head_tuple)
+
 
     if isinstance(hearObj, hearObject.BallPosition):
       print 'Ball'
@@ -291,7 +303,7 @@ class TacticsMain:
     if self.run_straight:
       return self.run_to_xy(say_tuple)
       
-
+    
     if self.distances_ball == []:
       return self.search_ball()
 
@@ -299,16 +311,21 @@ class TacticsMain:
     offence = self.offence_Player()
     defence = not ball and not offence
 
+
+
     if ball:
       if stop_run_to_shoot:
         run_tuple = (self.my_position.x - 0.5 , self.my_position.y - 0.5 )
       else:  
         self.offence_member = True
-        if self.distances_ball[0][1] <= 0.5:
+        if self.distances_ball[0][1] <= 0.8:
+          print self.mov.reached_position
+          self.shoot_soon = True
           say_tuple = ('say',1,self.nao.player_nr,0,self.my_position.x,self.my_position.y)
           if self.mov.reached_position :
             self.mov.reached_position = False
             kick_tuple = ('kick', 2)
+            self.shoot_soon= False
           else:
             run_tuple = ('run','shoot',15,0)
         else:
@@ -324,4 +341,4 @@ class TacticsMain:
       run_tuple = ('run',tup[0],tup[1])
     elif defence:
         self.offence_member = False
-    return (run_tuple, ('stand_up',False), kick_tuple, say_tuple, ('head',False))
+    return (run_tuple, ('stand_up',False), kick_tuple, say_tuple, head_tuple)
