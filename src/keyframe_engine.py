@@ -60,6 +60,9 @@ class Keyframe_Engine:
         self.working = True
         
     def step(self):
+        '''
+        "Realistic Walk" for a step forward...
+        '''
         self.last_frame = kf.step
         self.working = True
         
