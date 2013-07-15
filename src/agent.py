@@ -32,7 +32,7 @@ __builtin__.our_team = "DAI-Labor"
 __builtin__.our_team_number = 1
 __builtin__.number_of_players_per_team = 11
 
-
+#some change
 
 class Agent:
 
@@ -176,6 +176,7 @@ class Agent:
                     if self.player_nr > 1:
                         if not self.keyFrameEngine.working:
                             actions = self.tactics.run_tactics(self.hearObj)
+                            #print actions
                             self.hearObj = None
                             if actions != None:
                                 for item in actions:
@@ -191,7 +192,7 @@ class Agent:
                                             self.keyFrameEngine.kick_right()
                                             break
                                         elif item[1] == 2:
-                                            self.keyFrameEngine.kick_strong_right()
+                                            self.keyFrameEngine.kick_strong_right()#self.keyFrameEngine.kick_strong_right()
                                             break
                                     if item[0] == 'run':
                                         if item[1] is False:
@@ -208,8 +209,13 @@ class Agent:
                                     if item[0] == 'head':
                                         if item[1] is True:
                                             self.keyFrameEngine.head_lookAround()
+                                        elif item[1] == 'stop':
+                                            self.keyFrameEngine.stop_head()
                                         elif item[1] != False:
-                                            self.keyFrameEngine.head_move(item[1])
+                                            print 'Down'
+                                            self.keyFrameEngine.head_down()
+                                        elif item[1] =='reset':
+                                            self.keyFrameEngine.head_reset()
                     else:
                         '''
                         Keepers Part:

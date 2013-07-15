@@ -16,8 +16,8 @@ class Movement:
         self.degrees = 0
         self.position = self.world.entity_from_identifier['P_1_' + str(self.player_nr)].get_position()
         self.beampos = self.position
-        self.shoot_distance = hypot(-0.2, 0.05)
-        self.shoot_angle_offset = atan2(0.05, -0.2)
+        self.shoot_distance = hypot(-0.2, 0.06)
+        self.shoot_angle_offset = atan2(0.06, -0.2)
         self.fresh = True
         self.reached_position = False
 
@@ -58,7 +58,7 @@ class Movement:
             self.degrees = self.degrees - 2
         else:
             self.degrees = self.degrees + 2
-        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",self.degrees, ")")
+        self.send("agent (unum", self.player_nr, ") (team Left) (move", self.beampos.x, self.beampos.y, "0.384",angle, ")")
 
     def turn_about(self, angle):
         if self.fresh:
@@ -80,19 +80,19 @@ class Movement:
         self.desty = ballposition.y + (sin(a + self.shoot_angle_offset) * self.shoot_distance)
         if (hypot(self.destx - self.position.x, self.desty - self.position.y) > self.divergence):
             b = atan2(self.desty - self.position.y, self.destx - self.position.x)
-            if abs(a - b) > pi / 2:
-                  if a > pi:
-                      if (a-b) > pi:
-                          a += (3 * pi)/4
-                      else:
-                          a += (5 * pi)/4
-                  else:
-                      if (a-b) > pi:
-                          a += (5 * pi)/4
-                      else:
-                          a += (3 * pi)/4
-                  self.destx -= sin(a)
-                  self.desty -= cos(a)
+            '''if abs(a - b) > pi / 2:
+                if a > pi:
+                    if (a-b) > pi:
+                        a += (3 * pi)/4
+                    else:
+                        a += (5 * pi)/4
+                else:
+                    if (a-b) > pi:
+                        a += (5 * pi)/4
+                    else:
+                        a += (3 * pi)/4
+            self.destx -= sin(a)
+            self.desty -= cos(a)'''
             self.run(self.destx, self.desty)
             self.reached_position = False
         else:

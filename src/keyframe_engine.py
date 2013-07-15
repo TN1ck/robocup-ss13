@@ -255,7 +255,7 @@ class Keyframe_Engine:
             self.head_stop = False
             self.head_last = 2
 
-        if self.head_last == 0:
+        if self.head_last == 0 and self.head_line < len(keyframe):
             self.get_new_head_position(keyframe[self.head_line], name)
             if self.head_line >= len(keyframe):
                 self.head_line = 0
