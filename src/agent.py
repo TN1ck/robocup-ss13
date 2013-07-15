@@ -192,7 +192,7 @@ class Agent:
                                             self.keyFrameEngine.kick_right()
                                             break
                                         elif item[1] == 2:
-                                            self.keyFrameEngine.kick_strong_right()
+                                            self.keyFrameEngine.kick_strong_right()#self.keyFrameEngine.kick_strong_right()
                                             break
                                     if item[0] == 'run':
                                         if item[1] is False:
