@@ -51,6 +51,20 @@ class Keyframe_Engine:
         '''
         self.last_frame = kf.parry_left_1
         self.working = True
+        
+    def kick_in_left(self):
+        '''
+        Powerkick left
+        '''
+        self.last_frame = kf.kick_bossmode_l
+        self.working = True
+
+    def kick_in_right(self):
+        '''
+        Powerkick right
+        '''
+        self.last_frame = kf.kick_bossmode_r
+        self.working = True
 
     def parry_straight(self):
         '''
@@ -60,6 +74,9 @@ class Keyframe_Engine:
         self.working = True
         
     def step(self):
+        '''
+        "Realistic Walk" for a step forward...
+        '''
         self.last_frame = kf.step
         self.working = True
         
