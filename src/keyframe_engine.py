@@ -51,6 +51,15 @@ class Keyframe_Engine:
         '''
         self.last_frame = kf.parry_left_1
         self.working = True
+        
+    def kick_in_left(self):
+        '''
+        Powerkick left
+        '''
+        self.last_frame = kf.kick_bossmode_l
+        self.working = True
+
+
 
     def parry_straight(self):
         '''
