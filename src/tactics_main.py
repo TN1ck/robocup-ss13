@@ -47,6 +47,7 @@ class TacticsMain:
     self.head_down = False
     self.head_stop = True
     self.shoot_soon = False
+    self.count = 0
 
   def get_distances_ball(self):
     return self.distances_ball
@@ -262,8 +263,7 @@ class TacticsMain:
     stop_run_to_shoot = False
     head_tuple = ('head',False)
 
-
-
+    
 
     if self.nao.lies_on_front():
       return (('run', False),('stand_up','front'),('kick',False),say_tuple, ('head',False))
@@ -275,7 +275,9 @@ class TacticsMain:
 
     self.set_own_position()
     if self.my_position == None:
-      print 'Dont know ' + str(self.world.get_entity_position('P_1_' + str(self.nao.player_nr)))+ ' ' + str(self.world.entity_from_identifier['P_1_' + str(self.nao.player_nr)].confidence)
+      if self.head_down:
+          self.head_down = False
+          head_tuple = ('head','stop')
       head_tuple = ('head',True)
       return (('run', False),('stand_up',False),('kick',False),say_tuple, head_tuple)
 
@@ -319,19 +321,35 @@ class TacticsMain:
       else:  
         self.offence_member = True
         if self.distances_ball[0][1] <= 0.8:
-          print self.mov.reached_position
           self.shoot_soon = True
           say_tuple = ('say',1,self.nao.player_nr,0,self.my_position.x,self.my_position.y)
           if self.mov.reached_position :
-            self.mov.reached_position = False
-            kick_tuple = ('kick', 2)
-            self.shoot_soon= False
-          else:
+            if self.count == 50:
+                print 'shoot'
+                self.count = 0
+                kick_tuple = ('kick', 2)
+                self.mov.reached_position = False
+                self.shoot_soon= False
+            else:
+                print 'wait ' + str(self.count)
+                self.mov.reached_position = False
+                self.count += 1
+                if self.count > 30 and self.count < 41:
+                    self.head_tuple = ('head','reset')
+                if self.count > 40:
+                    self.head_down = True
+                    head_tuple = ('head', 'down')
+                return (('run','shoot',15,0), ('stand_up',False), kick_tuple, say_tuple, head_tuple)
+          else:        
+            head_tuple = ('head', True)
+            self.count = 0
             run_tuple = ('run','shoot',15,0)
         else:
+          self.shoot_soon = False
           tup = self.world.entity_from_identifier['B'].get_position()
           run_tuple = ('run',tup.x,tup.y)
     elif offence:
+      self.shoot_soon = False
       self.offence_member = True
       tup = self.flocking_behavior()
       if tup is False :
@@ -340,5 +358,6 @@ class TacticsMain:
         self.dest = Vector(tup[0],tup[1])
       run_tuple = ('run',tup[0],tup[1])
     elif defence:
+        self.shoot_soon = False
         self.offence_member = False
     return (run_tuple, ('stand_up',False), kick_tuple, say_tuple, head_tuple)

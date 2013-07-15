@@ -210,9 +210,12 @@ class Agent:
                                         if item[1] is True:
                                             self.keyFrameEngine.head_lookAround()
                                         elif item[1] == 'stop':
-                                            self.keyFrameEngine.head_reset()
+                                            self.keyFrameEngine.stop_head()
                                         elif item[1] != False:
+                                            print 'Down'
                                             self.keyFrameEngine.head_down()
+                                        elif item[1] =='reset':
+                                            self.keyFrameEngine.head_reset()
                     else:
                         '''
                         Keepers Part:
