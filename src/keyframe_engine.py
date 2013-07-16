@@ -13,7 +13,7 @@ class Keyframe_Engine:
         self.socket = socket
         self.fall = False # Variable that determines if a fall function has been called, NOT the true position
         self.angle = 0.0
-        self.working = False # For tactics, if TRUE start keep_going
+        self.working = False 
         self.last = 0
         self.last_frame = None # Last keyframe
         self.head_working = False
@@ -194,14 +194,14 @@ class Keyframe_Engine:
 
     def stop_head(self):
         '''
-        Stops the head movement at the actual position. Not yet finished.
+        Stops the head movement at the actual position.
         '''
         self.head_stop = True
 
 
     def head_reset(self):
         '''
-        Resets the head to 0-Position. Not yet finished.
+        Resets the head to 0-Position.
         '''
         self.head_frame = [[500, 0, 0]]
         self.head_working = True
@@ -255,7 +255,9 @@ class Keyframe_Engine:
             self.head_stop = False
             self.head_last = 2
 
-        if self.head_last == 0 and self.head_line < len(keyframe):
+        if self.head_last == 0:
+            if self.head_line >= len(keyframe):
+                self.head_line = 0
             self.get_new_head_position(keyframe[self.head_line], name)
             if self.head_line >= len(keyframe):
                 self.head_line = 0
