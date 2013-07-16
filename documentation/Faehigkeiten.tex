@@ -298,6 +298,8 @@ kick\_left() / kick\_right() & Dieser Tritt ist ein sehr kurzer, erster Versuch 
 kick\_strong\_left() / kick\_strong\_right() & Ein erster starker Tritt wird insbesondere für Torschüsse benötigt. 
 Er lässt den Nao regelmäßig umkippen, bei einem solchen Schuss lässt 
 sich damit aber arbeiten. \\ 
+\hline
+kick\_in\_left() / kick\_in\_right() & Eine starke Schussvariante, die insbesondere für Anstoß, Abstoß, Freistoß, Eckstoß und Strafstoß gedacht ist. \\ 
 \hline 
 head\_lookAround() & Wird eine vollständige Bewegung zum umschauen benötigt, so wird \textbf{head\_lookAround} verwendet. \\ 
 \hline 
@@ -310,7 +312,9 @@ head\_stop() & Stoppt die Kopfbewegung an der aktuellen Position. Aufgrund des
 Delays stoppt der Kopf allerdings einen Schritt weiter als an der im 
 aktuellen Cycle von den Sensoren angegebene Position. \\ 
 \hline 
-head\_reset() &Setzt den Kopf auf 0 Grad horizontal und vertikal zurück. \\ 
+head\_reset() & Setzt den Kopf auf 0 Grad horizontal und vertikal zurück. \\ 
+\hline 
+head\_down() & Bringt den Nao dazu, nach unten zu schauen. \\ 
 \hline 
 fall\_on\_front() & Diese Testfunktion lässt den Nao auf den Bauch fallen. \\ 
 \hline 
