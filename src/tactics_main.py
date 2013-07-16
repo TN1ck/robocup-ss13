@@ -324,7 +324,7 @@ class TacticsMain:
           self.shoot_soon = True
           say_tuple = ('say',1,self.nao.player_nr,0,self.my_position.x,self.my_position.y)
           if self.mov.reached_position :
-            if self.count == 40:
+            if self.count == 50:
                 print 'shoot'
                 self.count = 0
                 kick_tuple = ('kick', 2)
@@ -334,7 +334,7 @@ class TacticsMain:
                 print 'wait ' + str(self.count)
                 self.mov.reached_position = False
                 self.count += 1
-                if self.count > 35:
+                if self.count > 45:
                     self.head_down = True
                     head_tuple = ('head', 'down')
                 return (('run','shoot',15,0), ('stand_up',False), kick_tuple, say_tuple, head_tuple)
