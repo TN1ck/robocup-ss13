@@ -16,6 +16,11 @@
 \begin{document}
 \maketitle
 \newpage
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+\bibliographystyle{plain}
+\input{Einleitung}
 \input{Serververbindung}
 \input{Datenstrukturen}
 \input{Faehigkeiten}
@@ -24,4 +29,8 @@
 \input{Scenegraph}
 \input{Drawing}
 \input{Taktik}
+\input{Fazit}
+
+\nocite{*}
+\bibliography{literatur}
 \end{document}
