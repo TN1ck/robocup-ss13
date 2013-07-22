@@ -1,12 +1,12 @@
-\section*{Taktik}
+\section{Taktik}
 
-\subsection*{Einleitung}
+\subsection{Einleitung}
 
 Schwarmverhalten war uprspünglich das Grundkonzept der Taktikt des \textit{DAI-Labor}-Teams. Da aber die Ansichten über die Taktik in der Gruppe auseinanderstrebten, wurde im Endeffekt das Modell auf ein hybrides Modell geändert, das sowohl Schwarmverhalten als auch starre Elemente benutzt. 
 
 Es gibt einen Tormann (Spieler mit der ID 1), Verteidiger und Stürmer/Mittelfeldspieler, was bei uns keine weitere Unterscheidung hat. Es gibt 5 Verteidiger und 5 offensive Spieler, also insgesamt 11 Spieler, wie in einem normalen Fußballteam
 
-\subsection*{Genauere Erläuterung}
+\subsection{Genauere Erläuterung}
 
 Die Klasse \texttt{TacticsMain} enthält sämtliche Logik. Im Konstruktor werden nur alle Variablen initialisiert, die wir brauchen.
 
@@ -14,7 +14,7 @@ Die eigentlich entscheidende Methode ist \texttt{run\_tactics}, die extra in jed
 
 Die anderen Funktionen sind Hilfsfunktionen, die von \texttt{run\_tactics} aufgerufen werden. 
 
-\subsection*{Funktion \texttt{run\_tactics}}
+\subsection{Funktion \texttt{run\_tactics}}
 Zuerst werden die Bestandteile des \glqq Entscheidungstupels \grqq mit Default-Werten initialisiert. 
 
 Dann wird überprüft, ob der Nao am Boden liegt, wenn ja, setzt er die Rückgabetupel so, dass er sich aufrichtet.
@@ -38,7 +38,7 @@ Wir setzen nun nur \texttt{self.offence\_member = False}.
 
 Am Ende gibt \texttt{run\_tactics} dann das \glqq Entscheidungstupel \grqq zurück.
 
-\subsection*{Kurzerläuterung aller Taktik-Funktionen}
+\subsection{Kurzerläuterung aller Taktik-Funktionen}
 \textbf{\textsc{TODO: Write arguments, return values and what the specific function does.}}
 \begin{itemize}
 \item \texttt{set\_own\_position}
@@ -59,6 +59,27 @@ Am Ende gibt \texttt{run\_tactics} dann das \glqq Entscheidungstupel \grqq zurü
 \item \texttt{set\_own\_position}
 \item \texttt{run\_tactics}
 \end{itemize}
+
+\subsection{Gamestates}
+Bei entsprechender Spielsituation wechselt der Spielmodus in einen der folgenden Modi. Das regelkonforme Verhalten der Agenten ist in der \texttt{agent.py} umgesetzt. Die Spielmodi sind in \texttt{soccertypes.h} von \emph{simspark} erklärt.
+
+\begin{description}
+\item[\texttt{BeforeKickOff}]
+Vor dem Anpfiff einer Halbzeit befindet sich der Ball auf dem Spielfeldmittelpunkt und die Agenten dürfen sich nur auf ihrer eigenen Spielfeldhälfte bewegen. Die Agenten nehmen ihre Startposition ein.
+\item[\texttt{goal\_kick\_left/goal\_kick\_right}]
+Abstoß auf der linken bzw. rechten Seite. Die Agenten warten bis der Spielmodus zu \texttt{PlayOn} wechselt.
+\item[\texttt{PlayOn}]
+Das Spiel läuft, die ausführliche Taktikberechnung endscheidet das Verhalten der Agenten.
+\item[\texttt{KickIn\_Left/KickIn\_Right}]
+Einschuss für das linke bzw. rechte Team. Der nächste Agent begibt sich zum Ball um den Einschuss duchzuführen bzw. stellt sich dem einschiessenden Gegner in den Weg.
+\item[\texttt{corner\_kick\_left/corner\_kick\_right}]
+Wie \texttt{KickIn\_Left und KickIn\_Right}, nur von der Eckfahne aus.
+\item[\texttt{KickOff\_Left/KickOff\_Right}]
+Anstoß links bzw. rechts. Unsere Agenten verhalten sich wie im \texttt{PlayOn}-Modus.
+\item[\texttt{free\_kick\_l/free\_kick\_r}]
+Freistoß für das linke bzw. rechte Team. Der nächste Agent begibt sich zum Ball um den Freistoß durchzuführen bzw. stellt sich dem Schützen in den Weg.
+\item[\texttt{GameOver}] Das Spiel ist vorbei.
+\end{description}
 
 
 
